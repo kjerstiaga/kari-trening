@@ -7,7 +7,7 @@ Laget som én HTML-fil som fungerer direkte i nettleseren — ingen installasjon
 
 ## Kom i gang
 
-1. Last ned filen `min-trening-v3.html`
+1. Last ned filen `index.html`
 2. Åpne den i en nettleser (Chrome, Safari, Firefox)
 3. For mobil: send filen til telefonen og åpne i nettleser, eller legg til som snarvei på hjemskjermen
 
