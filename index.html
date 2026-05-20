@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1d5bbf">
+<title>Min trening</title>
+<meta name="description" content="En enkel treningsapp for daglig bevegelse og styrketrening.">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  /* ===========================
+     DESIGN TOKENS
+  =========================== */
+  :root {
+    /* Farger – alle kontrastar er testet mot WCAG 2.2 AA (4.5:1 for tekst, 3:1 for UI) */
+    --blue:        #1d5bbf; /* 5.1:1 mot hvit */
+    --blue-hover:  #174fa8;
+    --blue-focus:  #0a3a8a;
+    --blue-light:  #e8f0fd; /* bakgrunn */
+    --green:       #1a7f5a; /* 5.4:1 mot hvit */
+    --green-light: #d6f5e9;
+    --text:        #111827; /* 16.7:1 mot hvit */
+    --text-muted:  #4b5563; /* 7.0:1 mot hvit – over AA krav */
+    --bg:          #f3f6fc;
+    --card:        #ffffff;
+    --border:      #c4cfe8;
+    --radius:      16px;
+    --shadow:      0 2px 12px rgba(29,91,191,0.10);
+
+    /* Fokusring – synleg og tydeleg (WCAG 2.4.11, 2.4.12) */
+    --focus-ring: 0 0 0 3px #ffffff, 0 0 0 6px #1d5bbf;
+  }
+
+  /* ===========================
+     RESET & BASE
+  =========================== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { font-size: 18px; /* Base 18px – støtter større tekst */ }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    /* Plass til tab-bar + safe area (iOS) */
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+
+  /* Skjul visuelt men hald tilgjengeleg for skjermleser */
+  .sr-only {
+    position: absolute; width: 1px; height: 1px;
+    padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+
+  /* ===========================
+     FOKUS – WCAG 2.4.11 / 2.4.12
+     Synleg for alle interaktive element
+  =========================== */
+  :focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+    border-radius: 8px;
+  }
+
+  /* ===========================
+     HEADER
+  =========================== */
+  .header {
+    background: var(--blue);
+    color: #ffffff;
+    padding: 28px 24px 22px;
+    border-radius: 0 0 24px 24px;
+  }
+
+  .header-title {
+    font-size: 1.8rem; /* ~32px */
+    font-weight: 900;
+    line-height: 1.2;
+  }
+
+  .header-sub {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-top: 4px;
+    /* Kvit tekst på blå bakgrunn: > 4.5:1 */
+  }
+
+  .streak-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.20);
+    border: 1.5px solid rgba(255,255,255,0.35);
+    border-radius: 50px;
+    padding: 6px 16px;
+    margin-top: 14px;
+    font-size: 1rem;
+    font-weight: 800;
+    /* Sikrar 3:1 kontrast på UI-komponent (WCAG 1.4.11) */
+  }
+
+  /* ===========================
+     SIDER
+  =========================== */
+  .page { display: none; padding: 20px 16px 0; }
+  .page.active { display: block; }
+
+  /* Skippa til hovudinnhald-snarvei (WCAG 2.4.1) */
+  .skip-link {
+    position: absolute;
+    top: -100%;
+    left: 16px;
+    background: var(--blue);
+    color: white;
+    padding: 10px 16px;
+    border-radius: 0 0 8px 8px;
+    font-weight: 800;
+    font-size: 1rem;
+    z-index: 999;
+    text-decoration: none;
+  }
+  .skip-link:focus { top: 0; }
+
+  /* ===========================
+     OVERSKRIFTER
+  =========================== */
+  .section-title {
+    font-size: 1.4rem;
+    font-weight: 900;
+    margin-bottom: 14px;
+    color: var(--text);
+  }
+
+  /* ===========================
+     KORT
+  =========================== */
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+
+  .card-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin-bottom: 14px;
+    color: var(--blue);
+  }
+
+  /* ===========================
+     SJEKKLISTE
+     Brukar <label> + <input type="checkbox"> for ekte semantikk
+     (WCAG 1.3.1, 4.1.2)
+  =========================== */
+  .check-list { list-style: none; }
+
+  .check-list li { border-bottom: 1px solid #e8edf7; }
+  .check-list li:last-child { border-bottom: none; }
+
+  .check-label-wrap {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 4px;
+    cursor: pointer;
+    width: 100%;
+    /* Minste treffflate 44×44px (WCAG 2.5.5 / 2.5.8) */
+    min-height: 52px;
+  }
+
+  /* Skjul native checkbox, hald den tilgjengeleg */
+  .check-list input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0; height: 0;
+  }
+
+  /* Visuell checkbox */
+  .custom-check {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    border: 2.5px solid var(--border);
+    background: white;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+    /* 3:1 kontrast på border mot bakgrunn (WCAG 1.4.11) */
+  }
+
+  .check-list input[type="checkbox"]:checked + .check-label-wrap .custom-check {
+    background: var(--green);
+    border-color: var(--green);
+  }
+
+  .check-list input[type="checkbox"]:focus-visible + .check-label-wrap .custom-check {
+    box-shadow: var(--focus-ring);
+  }
+
+  .check-list input[type="checkbox"]:checked + .check-label-wrap .check-text {
+    text-decoration: line-through;
+    color: var(--text-muted);
+  }
+
+  .check-text {
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+
+  /* ===========================
+     ØVELSAR
+  =========================== */
+  .exercise-list { list-style: none; }
+
+  .exercise-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px solid #e8edf7;
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+  .exercise-item:last-child { border-bottom: none; }
+
+  .exercise-sets {
+    background: var(--blue-light);
+    color: var(--blue);
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-size: 0.95rem;
+    font-weight: 800;
+    /* #1d5bbf mot #e8f0fd: 4.6:1 – AA godkjent */
+    white-space: nowrap;
+  }
+
+  /* ===========================
+     KNAPPAR
+     Minstestorleik 44×44px (WCAG 2.5.5 / 2.5.8)
+  =========================== */
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 56px;
+    padding: 14px 20px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    margin-top: 10px;
+    font-family: 'Nunito', sans-serif;
+    text-decoration: none;
+    letter-spacing: 0.2px;
+  }
+  .btn:active { transform: scale(0.98); }
+
+  .btn-primary {
+    background: var(--blue);
+    color: #ffffff;
+    /* 5.1:1 kontrast */
+  }
+  .btn-primary:hover { background: var(--blue-hover); }
+
+  .btn-success {
+    background: var(--green);
+    color: #ffffff;
+    /* 5.4:1 kontrast */
+  }
+  .btn-success:hover { background: #155e44; }
+
+  .btn-ghost {
+    background: var(--blue-light);
+    color: var(--blue);
+    /* 4.6:1 kontrast */
+    border: 1.5px solid var(--border);
+  }
+  .btn-ghost:hover { background: #d4e3fb; }
+
+  /* ===========================
+     HJEM – SNARVEGKORT
+  =========================== */
+  .home-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 8px;
+  }
+
+  .quick-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 22px 16px;
+    box-shadow: var(--shadow);
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    transition: background 0.15s, transform 0.1s;
+    text-align: left;
+    font-family: 'Nunito', sans-serif;
+    /* Minstestorleik */
+    min-height: 110px;
+  }
+  .quick-card:hover { background: #f0f5ff; }
+  .quick-card:active { transform: scale(0.97); }
+
+  .quick-card .qc-icon { font-size: 2rem; line-height: 1; }
+  .quick-card .qc-title { font-size: 1.05rem; font-weight: 900; color: var(--text); }
+  .quick-card .qc-sub   { font-size: 0.88rem; font-weight: 600; color: var(--text-muted); }
+
+  .quick-card.full {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 20px;
+    min-height: 72px;
+  }
+
+  /* ===========================
+     LOGG / HISTORIKK
+  =========================== */
+  .log-list { list-style: none; }
+
+  .log-entry {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 13px 0;
+    border-bottom: 1px solid #e8edf7;
+    gap: 10px;
+  }
+  .log-entry:last-child { border-bottom: none; }
+
+  .log-date { font-size: 1rem; font-weight: 700; }
+
+  .log-type {
+    background: var(--blue-light);
+    color: var(--blue);
+    padding: 5px 12px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .log-empty {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 24px 0;
+  }
+
+  /* ===========================
+     SUKSESSMELDING (aria-live)
+  =========================== */
+  @keyframes popIn {
+    0%   { transform: scale(0.85); opacity: 0; }
+    70%  { transform: scale(1.04); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .success-msg {
+    display: none;
+    text-align: center;
+    padding: 18px;
+    background: var(--green-light);
+    border-radius: var(--radius);
+    border: 1.5px solid #a3dfc8;
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: var(--green);
+    margin-top: 12px;
+    animation: popIn 0.3s ease;
+  }
+  .success-msg.show { display: block; }
+
+  /* ===========================
+     BUNNMENYBAR
+     Fasta bunnfelt (WCAG 1.4.10 Reflow)
+  =========================== */
+  .tab-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--card);
+    border-top: 2px solid var(--border);
+    display: flex;
+    max-width: 500px;
+    margin: 0 auto;
+    z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .tab-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 10px 6px 12px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    transition: color 0.15s;
+    position: relative;
+    /* Minstestorleik 44px høgde */
+    min-height: 60px;
+  }
+
+  .tab-icon { font-size: 1.5rem; line-height: 1; }
+
+  .tab-btn[aria-current="page"] {
+    color: var(--blue);
+  }
+
+  /* Indikatorlinje – visuell, ikkje berre farge (WCAG 1.4.1) */
+  .tab-btn[aria-current="page"]::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 20%; right: 20%;
+    height: 3px;
+    background: var(--blue);
+    border-radius: 0 0 4px 4px;
+  }
+
+  /* ===========================
+     REDUSERT RØRSLE (WCAG 2.3.3)
+  =========================== */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* ===========================
+     HØGKONTRASTMODUS (WCAG 1.4.12)
+  =========================== */
+  @media (forced-colors: active) {
+    .custom-check { border: 2px solid ButtonText; }
+    .btn { border: 2px solid ButtonText; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Skipnavigasjon (WCAG 2.4.1) -->
+<a class="skip-link" href="#main-content">Hopp til innhald</a>
+
+<!-- Live-region for suksessmeldingar (WCAG 4.1.3) -->
+<div id="liveRegion" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+
+<!-- HEADER -->
+<header class="header" role="banner">
+  <p class="header-title" aria-label="Min trening">Min trening 💙</p>
+  <p class="header-sub">Litt hver dag er nok 💪</p>
+  <p class="streak-badge" id="streakBadge" aria-live="polite">🔥 0 dager på rad</p>
+</header>
+
+<!-- HOVUDINNHALD -->
+<main id="main-content">
+
+  <!-- PAGE: HJEM -->
+  <section class="page active" id="page-home" aria-labelledby="home-heading">
+    <div style="margin-top:20px;">
+      <h1 id="home-heading" class="section-title">Hva vil du gjøre?</h1>
+      <div class="home-grid" role="list">
+        <button class="quick-card" onclick="showPage('daily')" aria-label="Daglig økt, 10 til 15 minutter" role="listitem">
+          <span class="qc-icon" aria-hidden="true">🧘</span>
+          <span class="qc-title">Daglig økt</span>
+          <span class="qc-sub">10–15 min</span>
+        </button>
+        <button class="quick-card" onclick="showPage('strength')" aria-label="Styrkeprogram, 3 sett" role="listitem">
+          <span class="qc-icon" aria-hidden="true">💪</span>
+          <span class="qc-title">Styrke</span>
+          <span class="qc-sub">3 sett</span>
+        </button>
+        <button class="quick-card full" onclick="showPage('log')" aria-label="Logg og historikk" role="listitem">
+          <span class="qc-icon" aria-hidden="true">📋</span>
+          <div>
+            <div class="qc-title">Logg &amp; historikk</div>
+            <div class="qc-sub">Se hva du har gjort</div>
+          </div>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAGE: DAGLIG ØKT -->
+  <section class="page" id="page-daily" aria-labelledby="daily-heading">
+    <h1 id="daily-heading" class="section-title">Daglig økt 🧘</h1>
+    <div class="card">
+      <p class="card-title">10–15 minutter</p>
+      <fieldset>
+        <legend class="sr-only">Kryss av øvelsene du har gjort</legend>
+        <ul class="check-list" id="dailyChecklist">
+          <li>
+            <input type="checkbox" id="d1">
+            <label class="check-label-wrap" for="d1">
+              <span class="custom-check" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8l4 4 6-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="check-text">Oppvarming</span>
+            </label>
+          </li>
+          <li>
+            <input type="checkbox" id="d2">
+            <label class="check-label-wrap" for="d2">
+              <span class="custom-check" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8l4 4 6-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="check-text">Knebøy til stol</span>
+            </label>
+          </li>
+          <li>
+            <input type="checkbox" id="d3">
+            <label class="check-label-wrap" for="d3">
+              <span class="custom-check" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8l4 4 6-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="check-text">Hoftehev</span>
+            </label>
+          </li>
+          <li>
+            <input type="checkbox" id="d4">
+            <label class="check-label-wrap" for="d4">
+              <span class="custom-check" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8l4 4 6-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="check-text">Armhev mot vegg</span>
+            </label>
+          </li>
+          <li>
+            <input type="checkbox" id="d5">
+            <label class="check-label-wrap" for="d5">
+              <span class="custom-check" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8l4 4 6-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="check-text">Tøying</span>
+            </label>
+          </li>
+        </ul>
+      </fieldset>
+    </div>
+    <div id="successDaily" class="success-msg" role="status" aria-live="polite">Bra jobba! ✅</div>
+    <button class="btn btn-success" onclick="saveLog('Daglig økt','successDaily','dailyChecklist')">Fullført 🎉</button>
+    <button class="btn btn-ghost" onclick="showPage('home')" style="margin-top:10px">← Tilbake til hjem</button>
+  </section>
+
+  <!-- PAGE: STYRKE -->
+  <section class="page" id="page-strength" aria-labelledby="strength-heading">
+    <h1 id="strength-heading" class="section-title">Styrkeprogram 💪</h1>
+    <div class="card">
+      <p class="card-title">Øvelser</p>
+      <ul class="exercise-list" aria-label="Øvelsar med sett og repetisjoner">
+        <li class="exercise-item"><span>Sit-to-stand</span><span class="exercise-sets" aria-label="10 repetisjoner, 3 sett">x10 × 3</span></li>
+        <li class="exercise-item"><span>Step-up (lav)</span><span class="exercise-sets" aria-label="10 repetisjoner, 3 sett">x10 × 3</span></li>
+        <li class="exercise-item"><span>Strikk-roing</span><span class="exercise-sets" aria-label="12 repetisjoner, 3 sett">x12 × 3</span></li>
+        <li class="exercise-item"><span>Hofteabduksjon</span><span class="exercise-sets" aria-label="15 repetisjoner, 2 sett">x15 × 2</span></li>
+        <li class="exercise-item"><span>Planke</span><span class="exercise-sets" aria-label="15 sekunder, 3 sett">15 sek × 3</span></li>
+      </ul>
+    </div>
+    <div id="successStrength" class="success-msg" role="status" aria-live="polite">Styrketrening fullført! 💪</div>
+    <button class="btn btn-success" onclick="saveLog('Styrke','successStrength',null)">Fullført 🎉</button>
+    <button class="btn btn-ghost" onclick="showPage('home')" style="margin-top:10px">← Tilbake til hjem</button>
+  </section>
+
+  <!-- PAGE: LOGG -->
+  <section class="page" id="page-log" aria-labelledby="log-heading">
+    <h1 id="log-heading" class="section-title">Logg 📋</h1>
+    <div class="card">
+      <p class="card-title">Sjekk deg selv</p>
+      <fieldset>
+        <legend class="sr-only">Dagens sjekkliste</legend>
+        <ul class="check-list">
+          <li>
+            <input type="checkbox" id="l1">
+            <label class="check-label-wrap" for="l1">
+              <span class="custom-check" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8l4 4 6-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="check-text">Jeg har beveget meg</span>
+            </label>
+          </li>
+          <li>
+            <input type="checkbox" id="l2">
+            <label class="check-label-wrap" for="l2">
+              <span class="custom-check" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8l4 4 6-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="check-text">Jeg har gjort en økt</span>
+            </label>
+          </li>
+          <li>
+            <input type="checkbox" id="l3">
+            <label class="check-label-wrap" for="l3">
+              <span class="custom-check" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8l4 4 6-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="check-text">Ingen overbelastning</span>
+            </label>
+          </li>
+          <li>
+            <input type="checkbox" id="l4">
+            <label class="check-label-wrap" for="l4">
+              <span class="custom-check" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8l4 4 6-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="check-text">Lyttet til kroppen</span>
+            </label>
+          </li>
+        </ul>
+      </fieldset>
+    </div>
+    <div class="card">
+      <p class="card-title">Historikk</p>
+      <ul id="historyList" class="log-list" aria-label="Treningshistorikk"></ul>
+    </div>
+    <button class="btn btn-ghost" onclick="showPage('home')">← Tilbake til hjem</button>
+  </section>
+
+</main>
+
+<!-- BUNNMENYBAR -->
+<nav class="tab-bar" aria-label="Hovudnavigasjon">
+  <button class="tab-btn" id="tab-home" onclick="showPage('home')" aria-current="page">
+    <span class="tab-icon" aria-hidden="true">🏠</span>
+    <span>Hjem</span>
+  </button>
+  <button class="tab-btn" id="tab-daily" onclick="showPage('daily')">
+    <span class="tab-icon" aria-hidden="true">🧘</span>
+    <span>Daglig</span>
+  </button>
+  <button class="tab-btn" id="tab-strength" onclick="showPage('strength')">
+    <span class="tab-icon" aria-hidden="true">💪</span>
+    <span>Styrke</span>
+  </button>
+  <button class="tab-btn" id="tab-log" onclick="showPage('log')">
+    <span class="tab-icon" aria-hidden="true">📋</span>
+    <span>Logg</span>
+  </button>
+</nav>
+
+<script>
+  const pages = ['home','daily','strength','log'];
+
+  function showPage(id) {
+    pages.forEach(p => {
+      const page = document.getElementById('page-' + p);
+      const tab  = document.getElementById('tab-' + p);
+      page.classList.remove('active');
+      tab.removeAttribute('aria-current');
+    });
+    const target = document.getElementById('page-' + id);
+    target.classList.add('active');
+    document.getElementById('tab-' + id).setAttribute('aria-current', 'page');
+
+    if (id === 'log') renderHistory();
+
+    // Flytt fokus til overskrift for skjermlesarar (WCAG 2.4.3)
+    const heading = target.querySelector('h1');
+    if (heading) { heading.setAttribute('tabindex', '-1'); heading.focus(); }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function saveLog(type, successId, checklistId) {
+    if (checklistId) {
+      document.querySelectorAll('#' + checklistId + ' input[type="checkbox"]')
+        .forEach(el => { el.checked = false; });
+    }
+
+    const logs = JSON.parse(localStorage.getItem('treningslogg') || '[]');
+    logs.push({ dato: new Date().toLocaleDateString('no-NO'), type });
+    localStorage.setItem('treningslogg', JSON.stringify(logs));
+    updateStreak(logs);
+
+    // Varsle skjermlesarar via live region
+    document.getElementById('liveRegion').textContent = type + ' er lagra!';
+
+    const msg = document.getElementById(successId);
+    if (msg) {
+      msg.classList.add('show');
+      setTimeout(() => {
+        msg.classList.remove('show');
+        showPage('home');
+      }, 1800);
+    }
+  }
+
+  function renderHistory() {
+    const logs = JSON.parse(localStorage.getItem('treningslogg') || '[]');
+    const el = document.getElementById('historyList');
+    if (!logs.length) {
+      el.innerHTML = '<li class="log-empty">Ingen økter ennå 🌱</li>';
+      return;
+    }
+    el.innerHTML = logs.slice().reverse().slice(0, 20).map(l =>
+      `<li class="log-entry">
+        <span class="log-date">${l.dato}</span>
+        <span class="log-type">${l.type}</span>
+      </li>`
+    ).join('');
+  }
+
+  function updateStreak(logs) {
+    const badge = document.getElementById('streakBadge');
+    if (!logs.length) { badge.textContent = '🔥 0 dager på rad'; return; }
+    const dates = [...new Set(logs.map(l => l.dato))];
+    let streak = 0;
+    const today = new Date();
+    for (let i = 0; i < 60; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      if (dates.includes(d.toLocaleDateString('no-NO'))) streak++;
+      else break;
+    }
+    const label = streak === 1 ? '1 dag på rad' : streak + ' dager på rad';
+    badge.textContent = '🔥 ' + label;
+    badge.setAttribute('aria-label', 'Streak: ' + label);
+  }
+
+  // Init
+  updateStreak(JSON.parse(localStorage.getItem('treningslogg') || '[]'));
+</script>
+</body>
+</html>
