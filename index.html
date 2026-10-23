@@ -24,6 +24,7 @@
   --fg:#ECE8E1;--mut:#A4AEBD;--acc:#F2A93B;--on-acc:#1A1204;--focus:#8CC4FF;
   --c-glute:#F2A93B;--c-quad:#5BAEF2;--c-ham:#F0735F;--c-core:#3FCBA2;--c-plyo:#AD92F5;
   --fig:#C9D1DD;--obj:#2C3544;--wt:#8A94A6;--good:#3FCBA2;
+  --ctl:#6B7D9C; /* kant på skjemafelt, minst 3:1 mot bakgrunnene (WCAG 1.4.11) */
   --f-disp:'Playfair Display',Georgia,'Times New Roman',serif;
   --f-body:'DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
   --f-mono:'DM Mono',ui-monospace,'SF Mono',Menlo,monospace;
@@ -32,17 +33,17 @@
 @media (prefers-color-scheme:light){:root:not([data-theme="dark"]){
   --bg:#F2F4F7;--surf:#FFFFFF;--surf2:#E8ECF2;--line:#CBD3DF;
   --fg:#131923;--mut:#4B586A;--acc:#9C5500;--on-acc:#FFFFFF;--focus:#0B5CC4;
-  --c-glute:#C77800;--c-quad:#1F7CC9;--c-ham:#D2452F;--c-core:#0E9B76;--c-plyo:#7656D6;
-  --fig:#3A4658;--obj:#D3DAE5;--wt:#5E6B7E;--good:#0E7A5C;color-scheme:light}}
+  --c-glute:#975B00;--c-quad:#1B6CAE;--c-ham:#BC3D29;--c-core:#0B765A;--c-plyo:#7150D5;
+  --fig:#3A4658;--obj:#D3DAE5;--wt:#5E6B7E;--good:#0E7A5C;--ctl:#6E819F;color-scheme:light}}
 :root[data-theme="light"]{
   --bg:#F2F4F7;--surf:#FFFFFF;--surf2:#E8ECF2;--line:#CBD3DF;
   --fg:#131923;--mut:#4B586A;--acc:#9C5500;--on-acc:#FFFFFF;--focus:#0B5CC4;
-  --c-glute:#C77800;--c-quad:#1F7CC9;--c-ham:#D2452F;--c-core:#0E9B76;--c-plyo:#7656D6;
-  --fig:#3A4658;--obj:#D3DAE5;--wt:#5E6B7E;--good:#0E7A5C;color-scheme:light}
+  --c-glute:#975B00;--c-quad:#1B6CAE;--c-ham:#BC3D29;--c-core:#0B765A;--c-plyo:#7150D5;
+  --fig:#3A4658;--obj:#D3DAE5;--wt:#5E6B7E;--good:#0E7A5C;--ctl:#6E819F;color-scheme:light}
 
 *{box-sizing:border-box}
 html,body{min-height:100%}
-body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:clamp(16px,.3vw + 15px,17px);line-height:1.5;
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:clamp(16px,.3vw + 15px,17px);line-height:1.5;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
   padding-block:0 96px;min-height:100dvh;-webkit-text-size-adjust:100%}
 h1,h2,h3{font-family:var(--f-disp);margin:0;text-wrap:balance;line-height:1.15}
@@ -53,7 +54,7 @@ button,input{font:inherit;color:inherit}
 .skip{position:absolute;left:12px;top:-60px;background:var(--acc);color:var(--on-acc);padding:12px 16px;border-radius:8px;z-index:30;font-weight:700;text-decoration:none}
 .skip:focus{top:calc(env(safe-area-inset-top,0px) + 8px)}
 .wrap{max-width:1080px;margin:0 auto}
-header.top{padding-block:18px 10px;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 16px;justify-content:space-between}
+header.top{padding-block:calc(18px + env(safe-area-inset-top,0px)) 10px;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 16px;justify-content:space-between}
 header.top h1{font-size:clamp(1.7rem,5vw,2.4rem);font-weight:800}
 .meta{font-family:var(--f-mono);font-size:.82rem;color:var(--mut);letter-spacing:.04em}
 nav.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surf);border-top:1px solid var(--line);
@@ -96,7 +97,7 @@ nav.bar button[aria-current="page"]{background:var(--surf2);color:var(--fg);box-
 .inputs{display:flex;flex-wrap:wrap;gap:14px;margin:10px 0}
 .step{display:flex;align-items:center;gap:6px}
 .step label{font-family:var(--f-mono);font-size:.75rem;color:var(--mut);display:block;letter-spacing:.06em;text-transform:uppercase}
-.step input{width:84px;min-height:48px;text-align:center;font-family:var(--f-mono);font-size:1.3rem;background:var(--bg);border:1px solid var(--line);border-radius:10px}
+.step input{width:84px;min-height:48px;text-align:center;font-family:var(--f-mono);font-size:1.3rem;background:var(--bg);border:1px solid var(--ctl);border-radius:10px}
 .step .btn{padding:0;width:48px;font-size:1.4rem}
 .ctrl{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
 .ctrl .pri{flex:1 1 180px}
@@ -139,12 +140,12 @@ table.daily{min-width:0;width:100%}
 table.daily th,table.daily td{padding:6px 1px;text-align:center}
 table.daily th[scope="row"]{text-align:left;font-family:var(--f-body);font-size:.85rem;text-transform:none;letter-spacing:0;color:var(--fg);padding-right:6px;line-height:1.2}
 table.daily td.tdy,table.daily th[aria-current]{background:var(--surf2)}
-.dot{display:inline-flex;width:22px;height:22px;border-radius:50%;border:2px solid var(--line);align-items:center;justify-content:center;font-size:.8rem;font-weight:700}
+.dot{display:inline-flex;width:22px;height:22px;border-radius:50%;border:2px solid var(--ctl);align-items:center;justify-content:center;font-size:.8rem;font-weight:700}
 .dot.on{background:var(--c-core);border-color:var(--c-core);color:var(--bg)}
 .mform{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-top:12px}
 .field{display:flex;flex-direction:column;gap:4px;flex:1 1 130px;min-width:0}
 .field label{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
-.field select,.field input{min-height:48px;padding:0 12px;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:10px;font:inherit;font-size:16px;width:100%}
+.field select,.field input{min-height:48px;padding:0 12px;background:var(--bg);color:var(--fg);border:1px solid var(--ctl);border-radius:10px;font:inherit;font-size:16px;width:100%}
 .recent{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}
 .recent li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:0 12px;padding:4px 0 4px 12px;border-radius:10px;background:var(--surf2)}
 .recent .rd{font-family:var(--f-mono);font-size:.85rem;color:var(--mut);font-variant-numeric:tabular-nums}
@@ -154,6 +155,7 @@ table.daily td.tdy,table.daily th[aria-current]{background:var(--surf2)}
 .refs a,.ilink{color:var(--acc);text-underline-offset:2px}
 .ex{border-style:dashed}
 .chk{display:flex;gap:12px;align-items:flex-start;min-height:48px;padding:8px 0}
+input.sr:focus-visible+label{outline:3px solid var(--focus);outline-offset:3px}
 .chk input{width:24px;height:24px;margin-top:2px;accent-color:var(--acc)}
 .two{display:grid;gap:14px}
 /* ---- Mobil: fast handlingslinje i økt, fokus aldri skjult (WCAG 2.4.11) ---- */
@@ -869,10 +871,12 @@ function startSession(){
   S.run={steps:steps,i:0,t0:performance.now(),paused:false,pausedAt:0,begun:Date.now(),logged:[],cur:null,last:99,done:false,sess:S.sess,nk:0};
   S.confirmEnd=false;
   enter(0,true);
-  try{if(navigator.wakeLock)navigator.wakeLock.request('screen').then(function(l){wl=l;}).catch(function(){});}catch(e){}
+  keepAwake();
   clearInterval(tick);tick=setInterval(onTick,200);
   beep(880);
 }
+function keepAwake(){try{if(navigator.wakeLock)navigator.wakeLock.request('screen').then(function(l){wl=l;}).catch(function(){});}catch(e){}}
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&S.run&&!S.run.done)keepAwake();});
 function stepName(s){var ex=EX[s.ex];return ex.n;}
 function enter(i,first){
   var r=S.run;r.i=i;r.t0=performance.now();r.paused=false;r.last=99;
@@ -951,7 +955,7 @@ function doSave(){
   if(saving){pending=true;return;}
   saving=true;var okLs=lsSave();
   var p=ref?ref.get().then(function(sn){if(sn.exists&&adopt(sn.data())&&!S.run)render();return ref.set(snapshot());}):Promise.resolve();
-  p.then(function(){lsSave();setStatus(ref?'Lagret i kontoen din '+clock():(okLs?'Lagret på denne enheten '+clock():'Kan ikke lagre i denne visningen. Åpne appen på claude.ai i nettleseren.'));})
+  p.then(function(){lsSave();setStatus(ref?'Lagret i kontoen din '+clock():(okLs?'Lagret på denne enheten '+clock():'Kan ikke lagre i denne nettleseren. Sjekk at lagring av nettstedsdata er tillatt, og at du ikke er i privat modus.'));})
    .catch(function(e){setStatus('Kunne ikke lagre i kontoen'+(e&&e.code?' ('+e.code+')':'')+(okLs?'. Lagret på denne enheten, prøver igjen ved neste endring.':'.'));})
    .then(function(){saving=false;if(pending){pending=false;doSave();}});
 }
@@ -995,10 +999,10 @@ function viewOkt(){
     h+='<div class="sec"><p class="note">Oppvarmingen starter med 4 minutter puls, mot 110–130 bpm, under din aerobe terskel på 140. Deretter tre Baduanjin-øvelser som åpner hofter og bakside, bekkenbunn og et lett oppvarmingssett før de tunge settene.</p></div>';
   }
   if(S.sess==='V'){
-    h+='<div class="sec"><p class="note">Etter <a class="ilink" href="https://www.youtube.com/watch?v=cTQE_O_UdH0" target="_blank" rel="noopener">denne videoen</a>: 4-7-8-pust i foroverlent sittestilling, med summetone, svelg, tunge mot ganen og bekkenbunn. Bruk den om morgenen eller før en viktig samtale. Rolig pust med lang utpust øker pulsvariabiliteten (<a class="ilink" href="https://doi.org/10.1016/j.neubiorev.2022.104711" target="_blank" rel="noopener">Laborde mfl. 2022</a>), og summing ser ut til å virke like godt som vanlig rolig pust (<a class="ilink" href="https://doi.org/10.1016/j.physbeh.2025.114972" target="_blank" rel="noopener">Woo og Kim 2025</a>). Påstandene om manifestasjon i videoen har ingen forskningsstøtte. Blir du svimmel, kort ned holdet til 3–4 s og sett deg rolig opp.</p></div>';
+    h+='<div class="sec"><p class="note">Etter <a class="ilink" href="https://www.youtube.com/watch?v=cTQE_O_UdH0" target="_blank" rel="noopener">denne videoen<span class="sr"> (åpnes i ny fane)</span></a>: 4-7-8-pust i foroverlent sittestilling, med summetone, svelg, tunge mot ganen og bekkenbunn. Bruk den om morgenen eller før en viktig samtale. Rolig pust med lang utpust øker pulsvariabiliteten (<a class="ilink" href="https://doi.org/10.1016/j.neubiorev.2022.104711" target="_blank" rel="noopener">Laborde mfl. 2022<span class="sr"> (åpnes i ny fane)</span></a>), og summing ser ut til å virke like godt som vanlig rolig pust (<a class="ilink" href="https://doi.org/10.1016/j.physbeh.2025.114972" target="_blank" rel="noopener">Woo og Kim 2025<span class="sr"> (åpnes i ny fane)</span></a>). Påstandene om manifestasjon i videoen har ingen forskningsstøtte. Blir du svimmel, kort ned holdet til 3–4 s og sett deg rolig opp.</p></div>';
   }
   if(S.sess==='H'){
-    h+='<div class="sec"><p class="note">Samme rekkefølge som <a class="ilink" href="https://www.youtube.com/watch?v=BYxKSvc3fNs" target="_blank" rel="noopener">Autumn Qigong to Slow Down &amp; Let Go</a> med George Thompson. Teller mot nakke- og skulderminuttene. Med vond skulder: løft armene bare til hodehøyde i Skille himmel og jord og i foroverbøyen.</p></div>';
+    h+='<div class="sec"><p class="note">Samme rekkefølge som <a class="ilink" href="https://www.youtube.com/watch?v=BYxKSvc3fNs" target="_blank" rel="noopener">Autumn Qigong to Slow Down &amp; Let Go<span class="sr"> (åpnes i ny fane)</span></a> med George Thompson. Teller mot nakke- og skulderminuttene. Med vond skulder: løft armene bare til hodehøyde i Skille himmel og jord og i foroverbøyen.</p></div>';
   }
   if(S.sess==='P'){
     h+='<div class="sec"><p class="note">Gjør rutinen hver dag, gjerne på samme tid, for eksempel i sengen eller etter qi gong. Slipp helt mellom hvert knip. Gjør Knip før hoste også i hverdagen ved hoste, nys og løft. Opplever du lekkasje, tyngdefølelse eller smerte, bør du få time hos en fysioterapeut som kan bekkenbunn.</p></div>';
@@ -1066,9 +1070,9 @@ function viewRun(){
 }
 function stepper(key,label,val,step){
   var id='in-'+key;
-  return '<div class="step"><button type="button" class="btn" data-act="adj" data-k="'+key+'" data-d="-'+step+'" aria-label="Minus '+step+'">−</button>'+
+  return '<div class="step"><button type="button" class="btn" data-act="adj" data-k="'+key+'" data-d="-'+step+'" aria-label="'+label+' minus '+String(step).replace('.',',')+'">−</button>'+
    '<div><label for="'+id+'">'+label+'</label><input id="'+id+'" data-k="'+key+'" type="number" inputmode="decimal" step="'+step+'" min="0" value="'+val+'"></div>'+
-   '<button type="button" class="btn" data-act="adj" data-k="'+key+'" data-d="'+step+'" aria-label="Pluss '+step+'">+</button></div>';
+   '<button type="button" class="btn" data-act="adj" data-k="'+key+'" data-d="'+step+'" aria-label="'+label+' pluss '+String(step).replace('.',',')+'">+</button></div>';
 }
 function viewDone(){
   var r=S.run,mins=Math.max(1,Math.round(r.secs/60));
@@ -1136,12 +1140,30 @@ function recentCard(){
     return '<li><span class="rd">'+d+'</span><div><b>'+esc(SESS[s.s]?SESS[s.s].n:s.s)+'</b><div class="note">'+m+' min'+(s.manual?' · registrert':'')+(s.partial?' · avbrutt':'')+'</div></div>'+
       '<button type="button" class="btn ghost del" data-act="del" data-i="'+o.i+'" aria-label="'+(conf?'Bekreft sletting av ':'Slett ')+esc(SESS[s.s]?SESS[s.s].n:s.s)+' '+d+'">'+(conf?'Trykk igjen':'Slett')+'</button></li>';}).join('')+'</ul></div>';
 }
+/* Loggen ligger bare i nettleseren. Eksport gir en fil som kan tas vare på eller flyttes til en annen enhet; import slår sammen, overskriver ikke. */
+function backupCard(){
+  return '<div class="card sec"><h3>Sikkerhetskopi</h3><p class="note" style="margin-top:4px">Lagre loggen som en fil, eller hent inn en fil fra en annen enhet. Import slår sammen med det du har, ingenting blir overskrevet.</p>'+
+   '<div class="row" style="margin-top:12px"><button type="button" class="btn" data-act="export">Last ned logg</button>'+
+   '<input id="imp" class="sr" type="file" accept="application/json,.json"><label class="btn" for="imp" style="display:inline-flex;align-items:center">Hent inn logg</label></div></div>';
+}
+function exportLog(){
+  try{var b=new Blob([JSON.stringify(snapshot(),null,1)],{type:'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');
+    a.href=u;a.download='loft-og-lop-'+today()+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u);},1000);live('Loggen er lastet ned');}
+  catch(e){live('Kunne ikke laste ned loggen');}
+}
+function importLog(file){
+  var fr=new FileReader();
+  fr.onload=function(){try{var d=JSON.parse(fr.result);if(!d||!Array.isArray(d.sessions)||!Array.isArray(d.entries))throw 0;
+    var n=S.log.sessions.length;adopt(d);scheduleSave();render();var k=S.log.sessions.length-n;live(k?'Hentet inn '+k+(k===1?' ny økt':' nye økter'):'Ingen nye økter, alt i filen fantes fra før');}
+    catch(e){live('Filen er ikke en logg fra Løft og løp');}};
+  fr.readAsText(file);
+}
 function viewLogg(){
   var ids=['hipthrust','rdl','chairsquat','bss','stepup','slthrust'];
   var full=S.log.sessions.filter(function(s){return !s.partial;}),total=full.length,wk=0,ms=monday(today());
   full.forEach(function(s){if(s.d>=ms)wk++;});
   var h='<section aria-labelledby="h-l"><div class="sec" style="margin-top:6px"><h2 id="h-l" style="font-size:1.6rem">Logg og progresjon</h2><p class="note" style="margin-top:6px">'+total+' økter logget · '+wk+' denne uka · '+(S.store==='db'?'Lagres i kontoen din':'Lagres bare på denne enheten')+'</p><p class="note" id="savestat" role="status" aria-live="polite">'+esc(S.saved||'')+'</p></div>';
-  h+=neckCard(ms)+dailyCard(ms)+manualCard()+recentCard();
+  h+=neckCard(ms)+dailyCard(ms)+manualCard()+recentCard()+backupCard();
   var any=S.log.entries.some(function(e){return !EX[e.ex].nokg;});
   if(!any){
     h+='<div class="card ex sec" style="--m:var(--c-glute)"><div class="kick">Eksempel, ikke dine tall</div><div class="lift"><div class="top"><h3>Hip thrust</h3><span class="big-n">17,5 kg</span></div>'+spark([10,12.5,12.5,15,15,17.5],'Eksempel: hip thrust fra 10 til 17,5 kilo')+
@@ -1193,7 +1215,7 @@ function viewGrunn(){
   h+=P.map(function(p){return '<div class="card"><h3 style="font-size:1.1rem">'+p[0]+'</h3><p class="note" style="margin-top:6px;font-size:.95rem">'+p[1]+'</p></div>';}).join('');
   h+='</div><div><div class="card"><h3>Hva en trener gjør bedre</h3><ul class="clean" style="margin-top:10px"><li>Vurderer teknikk på video, særlig hip thrust, markløft og bulgarsk splittknebøy.</li><li>Justerer når noe gjør vondt eller er stivt.</li><li>Gir ansvarlighet og et menneske å rapportere til.</li><li>Ser helheten med søvn, kosthold og belastning.</li></ul></div>'+
    '<div class="card sec"><h3>Kilder</h3><ol class="refs" style="margin-top:10px">'+
-   [['Plotkin mfl. 2023, Front Physiol','10.3389/fphys.2023.1279170'],['Llanos-Lagos mfl. 2024, Sports Med (løpsøkonomi)','10.1007/s40279-023-01978-y'],['Llanos-Lagos mfl. 2024, Sports Med (prestasjon)','10.1007/s40279-024-02018-z'],['Robinson mfl. 2024, Sports Med','10.1007/s40279-024-02069-2'],['Gross mfl. 2015, Cochrane','10.1002/14651858.CD004250.pub5'],['Andersen mfl. 2014, J Occup Rehabil','10.1007/s10926-013-9441-1'],['de Zoete mfl. 2020, Br J Sports Med','10.1136/bjsports-2020-102664'],['Xie mfl. 2025, Spine J','10.1016/j.spinee.2025.07.006'],['Dumoulin mfl. 2018, Cochrane','10.1002/14651858.CD005654.pub4'],['Rodríguez-Longobardo mfl. 2023, Sports Health','10.1177/19417381231195305'],['Miller mfl. 1998, J Am Geriatr Soc','10.1111/j.1532-5415.1998.tb02721.x']].map(function(r){return '<li><a href="https://doi.org/'+r[1]+'" target="_blank" rel="noopener">'+r[0]+'</a></li>';}).join('')+'</ol></div>'+
+   [['Plotkin mfl. 2023, Front Physiol','10.3389/fphys.2023.1279170'],['Llanos-Lagos mfl. 2024, Sports Med (løpsøkonomi)','10.1007/s40279-023-01978-y'],['Llanos-Lagos mfl. 2024, Sports Med (prestasjon)','10.1007/s40279-024-02018-z'],['Robinson mfl. 2024, Sports Med','10.1007/s40279-024-02069-2'],['Gross mfl. 2015, Cochrane','10.1002/14651858.CD004250.pub5'],['Andersen mfl. 2014, J Occup Rehabil','10.1007/s10926-013-9441-1'],['de Zoete mfl. 2020, Br J Sports Med','10.1136/bjsports-2020-102664'],['Xie mfl. 2025, Spine J','10.1016/j.spinee.2025.07.006'],['Dumoulin mfl. 2018, Cochrane','10.1002/14651858.CD005654.pub4'],['Rodríguez-Longobardo mfl. 2023, Sports Health','10.1177/19417381231195305'],['Miller mfl. 1998, J Am Geriatr Soc','10.1111/j.1532-5415.1998.tb02721.x']].map(function(r){return '<li><a href="https://doi.org/'+r[1]+'" target="_blank" rel="noopener">'+r[0]+'<span class="sr"> (åpnes i ny fane)</span></a></li>';}).join('')+'</ol></div>'+
    '<div class="card sec"><h3>Spørsmål til Abel</h3><div style="margin-top:6px">'+
    ['Eksakt pris per måned, bindingstid og oppsigelse','Hva betyr personlig oppfølging: svartid, videofeedback, ukentlig justering?','Hvem bygger programmet, og hvilken erfaring har Siri med løpere og hypertrofi?','Kan programmet ta hensyn til intervall- og terskeløkter og Samsung Health-data?','Kan jeg prøve én måned før jeg binder meg?','Hva ville du endret i dette programmet?'].map(function(q,i){return '<label class="chk" for="q'+i+'"><input id="q'+i+'" type="checkbox"><span>'+q+'</span></label>';}).join('')+'</div></div></div></div></section>';
   return h;
@@ -1240,6 +1262,7 @@ document.addEventListener('click',function(ev){
   else if(a==='undo'){undo();}
   else if(a==='abort'){abort();}
   else if(a==='closeDone'){S.run=null;render();}
+  else if(a==='export'){exportLog();}
   else if(a==='manual'){
     var ty=$('#man-type').value,mn=parseFloat(String($('#man-min').value).replace(',','.')),dt=$('#man-date').value||today();
     if(!(mn>0)){live('Skriv inn antall minutter');$('#man-min').focus();return;}
@@ -1263,6 +1286,7 @@ document.addEventListener('change',function(ev){
   if(el.id==='man-type'){S.manType=el.value;S.manMin=null;var m=$('#man-min');if(m)m.value=DEFMIN[el.value];}
   else if(el.id==='man-min'){S.manMin=el.value;}
   else if(el.id==='man-date'){S.manDate=el.value;}
+  else if(el.id==='imp'&&el.files&&el.files[0]){importLog(el.files[0]);el.value='';}
 });
 document.addEventListener('input',function(ev){
   var el=ev.target;if(!el.getAttribute||!el.getAttribute('data-k')||!S.run||!S.run.cur)return;
@@ -1271,6 +1295,10 @@ document.addEventListener('input',function(ev){
 
 render();
 initStore();
+
+/* Installerbar app: service workeren gjør at appen åpner uten nett. Be også om at nettleseren ikke rydder bort loggen. */
+if('serviceWorker' in navigator&&location.protocol!=='file:'){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(function(){});}catch(e){}
 })();
 </script>
 
