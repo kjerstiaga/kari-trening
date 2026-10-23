@@ -1,730 +1,1306 @@
 <!DOCTYPE html>
-<html lang="no">
+<html lang="nb">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#1d5bbf">
-<title>Min trening</title>
-<meta name="description" content="En enkel treningsapp for daglig bevegelse og styrketrening.">
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Løft og løp</title>
+<meta name="description" content="12-ukers program for styrke, løping, qi gong og daglige rutiner, med tidtaker og logg.">
+<meta name="theme-color" content="#0F1319" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F2F4F7" media="(prefers-color-scheme: light)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Løft og løp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@600;800&display=swap">
 <style>
-  /* ===========================
-     DESIGN TOKENS
-  =========================== */
-  :root {
-    /* Farger – alle kontrastar er testet mot WCAG 2.2 AA (4.5:1 for tekst, 3:1 for UI) */
-    --blue:        #1d5bbf; /* 5.1:1 mot hvit */
-    --blue-hover:  #174fa8;
-    --blue-focus:  #0a3a8a;
-    --blue-light:  #e8f0fd; /* bakgrunn */
-    --green:       #1a7f5a; /* 5.4:1 mot hvit */
-    --green-light: #d6f5e9;
-    --text:        #111827; /* 16.7:1 mot hvit */
-    --text-muted:  #4b5563; /* 7.0:1 mot hvit – over AA krav */
-    --bg:          #f3f6fc;
-    --card:        #ffffff;
-    --border:      #c4cfe8;
-    --radius:      16px;
-    --shadow:      0 2px 12px rgba(29,91,191,0.10);
+/* Layout: smal kolonne på mobil, scene + detaljer side om side fra 900px. Mørk editorial, farge etter muskelgruppe. */
+:root{
+  --bg:#0F1319;--surf:#171D26;--surf2:#1F2733;--line:#2C3544;
+  --fg:#ECE8E1;--mut:#A4AEBD;--acc:#F2A93B;--on-acc:#1A1204;--focus:#8CC4FF;
+  --c-glute:#F2A93B;--c-quad:#5BAEF2;--c-ham:#F0735F;--c-core:#3FCBA2;--c-plyo:#AD92F5;
+  --fig:#C9D1DD;--obj:#2C3544;--wt:#8A94A6;--good:#3FCBA2;
+  --ctl:#6B7D9C; /* kant på skjemafelt, minst 3:1 mot bakgrunnene (WCAG 1.4.11) */
+  --f-disp:'Playfair Display',Georgia,'Times New Roman',serif;
+  --f-body:'DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-mono:'DM Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){
+  --bg:#F2F4F7;--surf:#FFFFFF;--surf2:#E8ECF2;--line:#CBD3DF;
+  --fg:#131923;--mut:#4B586A;--acc:#9C5500;--on-acc:#FFFFFF;--focus:#0B5CC4;
+  --c-glute:#975B00;--c-quad:#1B6CAE;--c-ham:#BC3D29;--c-core:#0B765A;--c-plyo:#7150D5;
+  --fig:#3A4658;--obj:#D3DAE5;--wt:#5E6B7E;--good:#0E7A5C;--ctl:#6E819F;color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#F2F4F7;--surf:#FFFFFF;--surf2:#E8ECF2;--line:#CBD3DF;
+  --fg:#131923;--mut:#4B586A;--acc:#9C5500;--on-acc:#FFFFFF;--focus:#0B5CC4;
+  --c-glute:#975B00;--c-quad:#1B6CAE;--c-ham:#BC3D29;--c-core:#0B765A;--c-plyo:#7150D5;
+  --fig:#3A4658;--obj:#D3DAE5;--wt:#5E6B7E;--good:#0E7A5C;--ctl:#6E819F;color-scheme:light}
 
-    /* Fokusring – synleg og tydeleg (WCAG 2.4.11, 2.4.12) */
-    --focus-ring: 0 0 0 3px #ffffff, 0 0 0 6px #1d5bbf;
-  }
-
-  /* ===========================
-     RESET & BASE
-  =========================== */
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html { font-size: 18px; /* Base 18px – støtter større tekst */ }
-
-  body {
-    font-family: 'Nunito', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    /* Plass til tab-bar + safe area (iOS) */
-    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
-    max-width: 500px;
-    margin: 0 auto;
-    line-height: 1.5;
-  }
-
-  /* Skjul visuelt men hald tilgjengeleg for skjermleser */
-  .sr-only {
-    position: absolute; width: 1px; height: 1px;
-    padding: 0; margin: -1px; overflow: hidden;
-    clip: rect(0,0,0,0); white-space: nowrap; border: 0;
-  }
-
-  /* ===========================
-     FOKUS – WCAG 2.4.11 / 2.4.12
-     Synleg for alle interaktive element
-  =========================== */
-  :focus-visible {
-    outline: none;
-    box-shadow: var(--focus-ring);
-    border-radius: 8px;
-  }
-
-  /* ===========================
-     HEADER
-  =========================== */
-  .header {
-    background: var(--blue);
-    color: #ffffff;
-    padding: 28px 24px 22px;
-    border-radius: 0 0 24px 24px;
-  }
-
-  .header-title {
-    font-size: 1.8rem; /* ~32px */
-    font-weight: 900;
-    line-height: 1.2;
-  }
-
-  .header-sub {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-top: 4px;
-    /* Kvit tekst på blå bakgrunn: > 4.5:1 */
-  }
-
-  .streak-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(255,255,255,0.20);
-    border: 1.5px solid rgba(255,255,255,0.35);
-    border-radius: 50px;
-    padding: 6px 16px;
-    margin-top: 14px;
-    font-size: 1rem;
-    font-weight: 800;
-    /* Sikrar 3:1 kontrast på UI-komponent (WCAG 1.4.11) */
-  }
-
-  /* ===========================
-     SIDER
-  =========================== */
-  .page { display: none; padding: 20px 16px 0; }
-  .page.active { display: block; }
-
-  /* Skippa til hovudinnhald-snarvei (WCAG 2.4.1) */
-  .skip-link {
-    position: absolute;
-    top: -100%;
-    left: 16px;
-    background: var(--blue);
-    color: white;
-    padding: 10px 16px;
-    border-radius: 0 0 8px 8px;
-    font-weight: 800;
-    font-size: 1rem;
-    z-index: 999;
-    text-decoration: none;
-  }
-  .skip-link:focus { top: 0; }
-
-  /* ===========================
-     OVERSKRIFTER
-  =========================== */
-  .section-title {
-    font-size: 1.4rem;
-    font-weight: 900;
-    margin-bottom: 14px;
-    color: var(--text);
-  }
-
-  /* ===========================
-     KORT
-  =========================== */
-  .card {
-    background: var(--card);
-    border-radius: var(--radius);
-    padding: 20px;
-    margin-bottom: 16px;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border);
-  }
-
-  .card-title {
-    font-size: 1.1rem;
-    font-weight: 800;
-    margin-bottom: 14px;
-    color: var(--blue);
-  }
-
-  /* ===========================
-     SJEKKLISTE
-     Brukar <label> + <input type="checkbox"> for ekte semantikk
-     (WCAG 1.3.1, 4.1.2)
-  =========================== */
-  .check-list { list-style: none; }
-
-  .check-list li { border-bottom: 1px solid #e8edf7; }
-  .check-list li:last-child { border-bottom: none; }
-
-  .check-label-wrap {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px 4px;
-    cursor: pointer;
-    width: 100%;
-    /* Minste treffflate 44×44px (WCAG 2.5.5 / 2.5.8) */
-    min-height: 52px;
-  }
-
-  /* Skjul native checkbox, hald den tilgjengeleg */
-  .check-list input[type="checkbox"] {
-    position: absolute;
-    opacity: 0;
-    width: 0; height: 0;
-  }
-
-  /* Visuell checkbox */
-  .custom-check {
-    width: 32px; height: 32px;
-    border-radius: 8px;
-    border: 2.5px solid var(--border);
-    background: white;
-    flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    transition: background 0.15s, border-color 0.15s;
-    /* 3:1 kontrast på border mot bakgrunn (WCAG 1.4.11) */
-  }
-
-  .check-list input[type="checkbox"]:checked + .check-label-wrap .custom-check {
-    background: var(--green);
-    border-color: var(--green);
-  }
-
-  .check-list input[type="checkbox"]:focus-visible + .check-label-wrap .custom-check {
-    box-shadow: var(--focus-ring);
-  }
-
-  .check-list input[type="checkbox"]:checked + .check-label-wrap .check-text {
-    text-decoration: line-through;
-    color: var(--text-muted);
-  }
-
-  .check-text {
-    font-size: 1.1rem;
-    font-weight: 700;
-    line-height: 1.4;
-  }
-
-  /* ===========================
-     ØVELSAR
-  =========================== */
-  .exercise-list { list-style: none; }
-
-  .exercise-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 0;
-    border-bottom: 1px solid #e8edf7;
-    font-size: 1.1rem;
-    font-weight: 700;
-  }
-  .exercise-item:last-child { border-bottom: none; }
-
-  .exercise-sets {
-    background: var(--blue-light);
-    color: var(--blue);
-    border-radius: 8px;
-    padding: 5px 12px;
-    font-size: 0.95rem;
-    font-weight: 800;
-    /* #1d5bbf mot #e8f0fd: 4.6:1 – AA godkjent */
-    white-space: nowrap;
-  }
-
-  /* ===========================
-     KNAPPAR
-     Minstestorleik 44×44px (WCAG 2.5.5 / 2.5.8)
-  =========================== */
-  .btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    min-height: 56px;
-    padding: 14px 20px;
-    font-size: 1.1rem;
-    font-weight: 800;
-    border: none;
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: background 0.15s, transform 0.1s;
-    margin-top: 10px;
-    font-family: 'Nunito', sans-serif;
-    text-decoration: none;
-    letter-spacing: 0.2px;
-  }
-  .btn:active { transform: scale(0.98); }
-
-  .btn-primary {
-    background: var(--blue);
-    color: #ffffff;
-    /* 5.1:1 kontrast */
-  }
-  .btn-primary:hover { background: var(--blue-hover); }
-
-  .btn-success {
-    background: var(--green);
-    color: #ffffff;
-    /* 5.4:1 kontrast */
-  }
-  .btn-success:hover { background: #155e44; }
-
-  .btn-ghost {
-    background: var(--blue-light);
-    color: var(--blue);
-    /* 4.6:1 kontrast */
-    border: 1.5px solid var(--border);
-  }
-  .btn-ghost:hover { background: #d4e3fb; }
-
-  /* ===========================
-     HJEM – SNARVEGKORT
-  =========================== */
-  .home-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    margin-bottom: 8px;
-  }
-
-  .quick-card {
-    background: var(--card);
-    border-radius: var(--radius);
-    padding: 22px 16px;
-    box-shadow: var(--shadow);
-    border: 1.5px solid var(--border);
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-    transition: background 0.15s, transform 0.1s;
-    text-align: left;
-    font-family: 'Nunito', sans-serif;
-    /* Minstestorleik */
-    min-height: 110px;
-  }
-  .quick-card:hover { background: #f0f5ff; }
-  .quick-card:active { transform: scale(0.97); }
-
-  .quick-card .qc-icon { font-size: 2rem; line-height: 1; }
-  .quick-card .qc-title { font-size: 1.05rem; font-weight: 900; color: var(--text); }
-  .quick-card .qc-sub   { font-size: 0.88rem; font-weight: 600; color: var(--text-muted); }
-
-  .quick-card.full {
-    grid-column: 1 / -1;
-    flex-direction: row;
-    align-items: center;
-    gap: 16px;
-    padding: 18px 20px;
-    min-height: 72px;
-  }
-
-  /* ===========================
-     LOGG / HISTORIKK
-  =========================== */
-  .log-list { list-style: none; }
-
-  .log-entry {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 13px 0;
-    border-bottom: 1px solid #e8edf7;
-    gap: 10px;
-  }
-  .log-entry:last-child { border-bottom: none; }
-
-  .log-date { font-size: 1rem; font-weight: 700; }
-
-  .log-type {
-    background: var(--blue-light);
-    color: var(--blue);
-    padding: 5px 12px;
-    border-radius: 50px;
-    font-size: 0.9rem;
-    font-weight: 800;
-    white-space: nowrap;
-  }
-
-  .log-empty {
-    text-align: center;
-    color: var(--text-muted);
-    font-size: 1rem;
-    font-weight: 700;
-    padding: 24px 0;
-  }
-
-  /* ===========================
-     SUKSESSMELDING (aria-live)
-  =========================== */
-  @keyframes popIn {
-    0%   { transform: scale(0.85); opacity: 0; }
-    70%  { transform: scale(1.04); }
-    100% { transform: scale(1); opacity: 1; }
-  }
-
-  .success-msg {
-    display: none;
-    text-align: center;
-    padding: 18px;
-    background: var(--green-light);
-    border-radius: var(--radius);
-    border: 1.5px solid #a3dfc8;
-    font-size: 1.2rem;
-    font-weight: 900;
-    color: var(--green);
-    margin-top: 12px;
-    animation: popIn 0.3s ease;
-  }
-  .success-msg.show { display: block; }
-
-  /* ===========================
-     BUNNMENYBAR
-     Fasta bunnfelt (WCAG 1.4.10 Reflow)
-  =========================== */
-  .tab-bar {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    background: var(--card);
-    border-top: 2px solid var(--border);
-    display: flex;
-    max-width: 500px;
-    margin: 0 auto;
-    z-index: 100;
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
-
-  .tab-btn {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    padding: 10px 6px 12px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    font-family: 'Nunito', sans-serif;
-    color: var(--text-muted);
-    font-size: 0.72rem;
-    font-weight: 800;
-    letter-spacing: 0.4px;
-    text-transform: uppercase;
-    transition: color 0.15s;
-    position: relative;
-    /* Minstestorleik 44px høgde */
-    min-height: 60px;
-  }
-
-  .tab-icon { font-size: 1.5rem; line-height: 1; }
-
-  .tab-btn[aria-current="page"] {
-    color: var(--blue);
-  }
-
-  /* Indikatorlinje – visuell, ikkje berre farge (WCAG 1.4.1) */
-  .tab-btn[aria-current="page"]::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 20%; right: 20%;
-    height: 3px;
-    background: var(--blue);
-    border-radius: 0 0 4px 4px;
-  }
-
-  /* ===========================
-     REDUSERT RØRSLE (WCAG 2.3.3)
-  =========================== */
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      animation-duration: 0.01ms !important;
-      transition-duration: 0.01ms !important;
-    }
-  }
-
-  /* ===========================
-     HØGKONTRASTMODUS (WCAG 1.4.12)
-  =========================== */
-  @media (forced-colors: active) {
-    .custom-check { border: 2px solid ButtonText; }
-    .btn { border: 2px solid ButtonText; }
-  }
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:clamp(16px,.3vw + 15px,17px);line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:0 96px;min-height:100dvh;-webkit-text-size-adjust:100%}
+h1,h2,h3{font-family:var(--f-disp);margin:0;text-wrap:balance;line-height:1.15}
+p{margin:0}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px;border-radius:6px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:12px;top:-60px;background:var(--acc);color:var(--on-acc);padding:12px 16px;border-radius:8px;z-index:30;font-weight:700;text-decoration:none}
+.skip:focus{top:calc(env(safe-area-inset-top,0px) + 8px)}
+.wrap{max-width:1080px;margin:0 auto}
+header.top{padding-block:calc(18px + env(safe-area-inset-top,0px)) 10px;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 16px;justify-content:space-between}
+header.top h1{font-size:clamp(1.7rem,5vw,2.4rem);font-weight:800}
+.meta{font-family:var(--f-mono);font-size:.82rem;color:var(--mut);letter-spacing:.04em}
+nav.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surf);border-top:1px solid var(--line);
+  display:flex;justify-content:center;padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+nav.bar .in{display:flex;gap:4px;width:100%;max-width:520px}
+nav.bar button{flex:1;min-height:48px;background:none;border:0;border-radius:10px;color:var(--mut);font-weight:500;cursor:pointer;letter-spacing:.02em}
+nav.bar button[aria-current="page"]{background:var(--surf2);color:var(--fg);box-shadow:inset 0 -3px 0 var(--acc)}
+.card{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:18px}
+.sec{margin-top:22px}
+.sec>h2{font-size:1.3rem;margin-bottom:10px}
+.kick{font-family:var(--f-mono);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
+.row{display:flex;flex-wrap:wrap;gap:10px}
+.btn{min-height:48px;min-width:48px;padding:0 18px;border-radius:12px;border:1px solid var(--line);background:var(--surf2);cursor:pointer;font-weight:500}
+.btn.pri{background:var(--acc);color:var(--on-acc);border-color:transparent;font-weight:700;font-size:1.05rem}
+.btn.big{min-height:60px;padding:0 28px}
+.btn[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:transparent}
+.btn.ghost{background:none}
+.pick{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.pick .btn{min-height:64px;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:2px;border-left:6px solid var(--m,var(--line))}
+.pick .btn small{font-family:var(--f-mono);font-size:.74rem;opacity:.85}
+.hero{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between}
+.hero h2{font-size:clamp(1.5rem,4vw,2rem)}
+.plan{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.plan li{display:grid;grid-template-columns:10px 1fr auto;gap:12px;align-items:center;padding:10px 12px;background:var(--surf2);border-radius:10px}
+.plan i{width:10px;height:36px;border-radius:5px;background:var(--m)}
+.plan b{font-weight:500}
+.plan span{font-family:var(--f-mono);font-size:.85rem;color:var(--mut);text-align:right}
+.stage{display:grid;gap:14px;background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:16px;border-top:6px solid var(--m)}
+.fig{background:var(--surf2);border-radius:12px;display:flex;justify-content:center;padding:6px}
+.fig svg{width:100%;max-width:420px;height:auto;max-height:36dvh}
+.read h2{font-size:clamp(1.5rem,5vw,2.1rem)}
+.cue{color:var(--mut);margin-top:4px}
+.timer{font-family:var(--f-mono);font-weight:500;font-size:clamp(3.2rem,15vw,6rem);line-height:1;margin:10px 0 6px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.prog{height:8px;background:var(--surf2);border-radius:99px;overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:var(--m);transition:width .25s linear}
+.dots{display:flex;gap:8px;margin:12px 0}
+.dots span{width:26px;height:26px;border-radius:50%;border:2px solid var(--m)}
+.dots span.on{background:var(--m)}
+.dots span.cur{outline:3px solid var(--fg);outline-offset:2px}
+.inputs{display:flex;flex-wrap:wrap;gap:14px;margin:10px 0}
+.step{display:flex;align-items:center;gap:6px}
+.step label{font-family:var(--f-mono);font-size:.75rem;color:var(--mut);display:block;letter-spacing:.06em;text-transform:uppercase}
+.step input{width:84px;min-height:48px;text-align:center;font-family:var(--f-mono);font-size:1.3rem;background:var(--bg);border:1px solid var(--ctl);border-radius:10px}
+.step .btn{padding:0;width:48px;font-size:1.4rem}
+.ctrl{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.ctrl .pri{flex:1 1 180px}
+details.how{margin-top:14px;background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:4px 16px}
+details.how summary{min-height:48px;display:flex;align-items:center;cursor:pointer;font-weight:700}
+details.how dl{margin:0 0 12px;display:grid;gap:10px}
+details.how dt{font-family:var(--f-mono);font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mut)}
+details.how dd{margin:2px 0 0}
+.upnext{margin:0;padding-left:0;list-style:none;display:grid;gap:6px}
+.upnext li{display:flex;gap:10px;align-items:center;padding:8px 12px;border-radius:10px;background:var(--surf);border:1px solid var(--line);font-size:.92rem}
+.upnext li i{width:8px;height:20px;border-radius:4px;background:var(--m)}
+.upnext li.now{border-color:var(--m)}
+.upnext li span{margin-left:auto;font-family:var(--f-mono);color:var(--mut);font-size:.8rem}
+.overall{display:flex;align-items:center;gap:12px;font-family:var(--f-mono);font-size:.8rem;color:var(--mut)}
+.overall .prog{flex:1}
+.grid3{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.ph{border-left:6px solid var(--line)}
+.ph.on{border-left-color:var(--acc);background:var(--surf2)}
+.ph h3{font-size:1.15rem}
+table{border-collapse:collapse;width:100%;min-width:560px}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top;font-size:.93rem}
+th{font-family:var(--f-mono);font-size:.74rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);font-weight:500}
+tr.today td{background:var(--surf2)}
+.scroll{overflow-x:auto}
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:.78rem;font-family:var(--f-mono);border:1px solid var(--m,var(--line))}
+ul.clean{margin:0;padding-left:1.1em;display:grid;gap:6px}
+.lift{display:grid;gap:8px}
+.lift .top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.lift h3{font-size:1.1rem}
+.big-n{font-family:var(--f-mono);font-size:1.5rem}
+.note{font-size:.9rem;color:var(--mut)}
+.wk{position:relative;display:flex;gap:8px;align-items:flex-end;height:130px;margin-top:16px;padding-top:6px}
+.wk>div{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;min-width:0}
+.wk i{display:block;width:100%;max-width:44px;background:var(--m);border-radius:6px 6px 0 0;min-height:2px}
+.wk em,.wk span{font-style:normal;font-family:var(--f-mono);font-size:.72rem;color:var(--mut);font-variant-numeric:tabular-nums}
+.wk em{color:var(--fg)}
+.wk .goal{position:absolute;left:0;right:0;border-top:2px dashed var(--line);height:0;font-weight:400}
+.wk .goal span{position:absolute;right:0;top:-18px;font-family:var(--f-mono);font-size:.7rem;color:var(--mut)}
+table.daily{min-width:0;width:100%}
+table.daily th,table.daily td{padding:6px 1px;text-align:center}
+table.daily th[scope="row"]{text-align:left;font-family:var(--f-body);font-size:.85rem;text-transform:none;letter-spacing:0;color:var(--fg);padding-right:6px;line-height:1.2}
+table.daily td.tdy,table.daily th[aria-current]{background:var(--surf2)}
+.dot{display:inline-flex;width:22px;height:22px;border-radius:50%;border:2px solid var(--ctl);align-items:center;justify-content:center;font-size:.8rem;font-weight:700}
+.dot.on{background:var(--c-core);border-color:var(--c-core);color:var(--bg)}
+.mform{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-top:12px}
+.field{display:flex;flex-direction:column;gap:4px;flex:1 1 130px;min-width:0}
+.field label{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.field select,.field input{min-height:48px;padding:0 12px;background:var(--bg);color:var(--fg);border:1px solid var(--ctl);border-radius:10px;font:inherit;font-size:16px;width:100%}
+.recent{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}
+.recent li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:0 12px;padding:4px 0 4px 12px;border-radius:10px;background:var(--surf2)}
+.recent .rd{font-family:var(--f-mono);font-size:.85rem;color:var(--mut);font-variant-numeric:tabular-nums}
+.recent b{font-weight:500}
+.recent .del{margin-left:auto;font-size:.9rem}
+.refs{margin:0;padding-left:1.1em;display:grid;gap:8px;font-size:.88rem}
+.refs a,.ilink{color:var(--acc);text-underline-offset:2px}
+.ex{border-style:dashed}
+.chk{display:flex;gap:12px;align-items:flex-start;min-height:48px;padding:8px 0}
+input.sr:focus-visible+label{outline:3px solid var(--focus);outline-offset:3px}
+.chk input{width:24px;height:24px;margin-top:2px;accent-color:var(--acc)}
+.two{display:grid;gap:14px}
+/* ---- Mobil: fast handlingslinje i økt, fokus aldri skjult (WCAG 2.4.11) ---- */
+html{scroll-padding-bottom:calc(120px + env(safe-area-inset-bottom,0px));scroll-padding-top:12px}
+button,a,summary,input,select,label{touch-action:manipulation}
+body.running{padding-bottom:calc(112px + env(safe-area-inset-bottom,0px))}
+body.running nav.bar{display:none}
+body.running header.top h1{font-size:1.25rem}
+.runtop{display:flex;align-items:center;gap:10px;margin-top:4px}
+.runtop .overall{flex:1;min-width:0}
+.runtop .btn{min-height:44px;padding:0 12px;font-size:.9rem}
+.runtop .btn.snd,.runtop .btn.snd[aria-pressed="true"]{background:var(--surf2);color:var(--fg);border-color:var(--line);white-space:nowrap}
+.actbar{position:fixed;left:0;right:0;bottom:0;z-index:25;background:var(--surf);border-top:1px solid var(--line);
+  padding:10px max(12px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+.actbar .in{display:flex;gap:10px;max-width:720px;margin:0 auto}
+.actbar .pri{flex:1;min-height:60px;font-size:1.1rem}
+.actbar .btn:not(.pri){min-width:84px}
+.timer.up{font-size:clamp(1.5rem,7vw,2.2rem);color:var(--mut);margin:6px 0 2px}
+.pickgrp{margin-top:14px}
+.pickgrp h3{font-family:var(--f-mono);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);font-weight:500;margin-bottom:8px}
+.hero .pri{min-width:160px}
+.today-tag{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:99px;background:var(--acc);color:var(--on-acc);font-family:var(--f-mono);font-size:.7rem;letter-spacing:.06em;vertical-align:middle}
+ol.days{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+ol.days li{display:grid;grid-template-columns:3.2em minmax(0,1fr);gap:10px;align-items:start;padding:12px;border-radius:12px;background:var(--surf);border:1px solid var(--line)}
+ol.days li[aria-current]{border-color:var(--acc);box-shadow:inset 4px 0 0 var(--acc)}
+ol.days .dn{font-family:var(--f-mono);font-weight:500;padding-top:2px}
+ol.days p{margin-top:6px}
+@media (max-width:600px){
+  .stage{padding:12px;gap:10px}
+  .fig svg{max-height:30dvh}
+  .timer{font-size:clamp(2.6rem,14vw,4.5rem)}
+  .hero{flex-direction:column;align-items:stretch}
+  .hero .pri{width:100%}
+  .pick .btn{min-height:56px;padding:8px 12px}
+  .pick .btn small{font-size:.7rem}
+}
+@media (orientation:landscape) and (max-height:520px){
+  .stage{grid-template-columns:1fr 1fr;align-items:start}
+  .fig svg{max-height:62dvh}
+  body.running header.top{display:none}
+  .timer{font-size:clamp(2rem,12vh,3.2rem);margin:4px 0}
+  .actbar{padding-top:6px;padding-bottom:calc(6px + env(safe-area-inset-bottom,0px))}
+  .actbar .pri{min-height:48px}
+  body.running{padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+}
+@media (min-width:900px){
+  .stage{grid-template-columns:1.05fr 1fr;align-items:center;padding:22px}
+  .two{grid-template-columns:1fr 1fr}
+  .split{display:grid;grid-template-columns:1.6fr 1fr;gap:18px;align-items:start}
+}
+svg .bd,svg .hot,svg .gnd,svg .band{fill:none;stroke-linecap:round;stroke-linejoin:round}
+svg .bd{stroke:var(--fig);stroke-width:5}
+svg .hot{stroke:var(--m);stroke-width:6}
+svg .band{stroke:var(--m);stroke-width:3;stroke-dasharray:5 4}
+svg .back{opacity:.55}
+svg .head{fill:none;stroke:var(--fig);stroke-width:4.5}
+svg .dot{fill:var(--m);opacity:.35}
+svg .ring{fill:none;stroke:var(--m);stroke-width:3}
+svg .fist{fill:var(--m)}
+svg .wt{fill:var(--wt)}
+svg .obj{fill:var(--obj)}
+svg .gnd{stroke:var(--line);stroke-width:2}
+svg.breath .arm{transform-box:view-box;transform-origin:100px 44px;animation:br-arm 10s ease-in-out infinite}
+svg.breath .belly{fill:var(--m);opacity:.4;transform-box:fill-box;transform-origin:left center;animation:br-belly 10s ease-in-out infinite}
+svg.breath .btrack{fill:var(--line)}
+svg.breath .bline{fill:var(--m);transform-box:fill-box;transform-origin:left center;animation:br-line 10s ease-in-out infinite}
+svg.breath .bt{font-family:var(--f-mono);font-size:13px;fill:var(--fg);text-anchor:middle}
+svg.breath .bi{animation:br-in 10s linear infinite}
+svg.breath .bu{animation:br-out 10s linear infinite}
+svg.breath .bs{display:none;font-size:11px}
+svg.breath .arm,svg.breath .belly,svg.breath .bline,svg.breath .bi,svg.breath .bu{animation-delay:var(--bd,0s)}
+.fig.paused svg *{animation-play-state:paused}
+svg.tempo .tt1{font-family:var(--f-mono);font-size:14px;font-weight:500;fill:var(--m);text-anchor:middle}
+svg.tempo .tt2{font-family:var(--f-mono);font-size:10px;fill:var(--mut);text-anchor:middle}
+svg.tempo .btrack{fill:var(--line)}
+svg.tempo .tbar{fill:var(--m)}
+svg .rib{fill:var(--m);opacity:.3}
+@keyframes br-arm{0%{transform:rotate(0)}40%{transform:rotate(-65deg)}100%{transform:rotate(0)}}
+@keyframes br-belly{0%{transform:scaleX(1)}40%{transform:scaleX(1.9)}100%{transform:scaleX(1)}}
+@keyframes br-line{0%{transform:scaleX(.02)}40%{transform:scaleX(1)}100%{transform:scaleX(.02)}}
+@keyframes br-in{0%,39%{opacity:1}41%,100%{opacity:0}}
+@keyframes br-out{0%,39%{opacity:0}41%,100%{opacity:1}}
+.pa{animation:pa 3.2s ease-in-out infinite}
+.pb{animation:pb 3.2s ease-in-out infinite}
+@keyframes pa{0%,38%{opacity:1}50%,88%{opacity:0}100%{opacity:1}}
+@keyframes pb{0%,38%{opacity:0}50%,88%{opacity:1}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){
+  .pa,.pb{animation:none}.pa{opacity:1}.pb{opacity:.3}
+  svg.breath .arm,svg.breath .belly,svg.breath .bline{animation:none}
+  svg.breath .bi,svg.breath .bu{display:none}
+  svg.breath .bs{display:inline}
+  .prog i{transition:none}
+}
+[hidden]{display:none!important}
+img{max-width:100%}
 </style>
 </head>
 <body>
 
-<!-- Skipnavigasjon (WCAG 2.4.1) -->
-<a class="skip-link" href="#main-content">Hopp til innhald</a>
+<a class="skip" href="#main">Hopp til innhold</a>
+<div id="live" class="sr" aria-live="polite" role="status"></div>
 
-<!-- Live-region for suksessmeldingar (WCAG 4.1.3) -->
-<div id="liveRegion" aria-live="polite" aria-atomic="true" class="sr-only"></div>
-
-<!-- HEADER -->
-<header class="header" role="banner">
-  <p class="header-title" aria-label="Min trening">Min trening 💙</p>
-  <p class="header-sub">Litt hver dag er nok 💪</p>
-  <p class="streak-badge" id="streakBadge" aria-live="polite">🔥 0 dager på rad</p>
+<header class="top wrap" role="banner">
+  <h1>Løft og løp</h1>
+  <div class="meta" id="meta"></div>
 </header>
 
-<!-- HOVUDINNHALD -->
-<main id="main-content">
-
-  <!-- PAGE: HJEM -->
-  <section class="page active" id="page-home" aria-labelledby="home-heading">
-    <div style="margin-top:20px;">
-      <h1 id="home-heading" class="section-title">Hva vil du gjøre?</h1>
-      <div class="home-grid" role="list">
-        <button class="quick-card" onclick="showPage('daily')" aria-label="Daglig økt, 10 til 15 minutter" role="listitem">
-          <span class="qc-icon" aria-hidden="true">🧘</span>
-          <span class="qc-title">Daglig økt</span>
-          <span class="qc-sub">10–15 min</span>
-        </button>
-        <button class="quick-card" onclick="showPage('strength')" aria-label="Styrkeprogram, 3 sett" role="listitem">
-          <span class="qc-icon" aria-hidden="true">💪</span>
-          <span class="qc-title">Styrke</span>
-          <span class="qc-sub">3 sett</span>
-        </button>
-        <button class="quick-card full" onclick="showPage('log')" aria-label="Logg og historikk" role="listitem">
-          <span class="qc-icon" aria-hidden="true">📋</span>
-          <div>
-            <div class="qc-title">Logg &amp; historikk</div>
-            <div class="qc-sub">Se hva du har gjort</div>
-          </div>
-        </button>
-      </div>
-    </div>
-  </section>
-
-  <!-- PAGE: DAGLIG ØKT -->
-  <section class="page" id="page-daily" aria-labelledby="daily-heading">
-    <h1 id="daily-heading" class="section-title">Daglig økt 🧘</h1>
-    <div class="card">
-      <p class="card-title">10–15 minutter</p>
-      <fieldset>
-        <legend class="sr-only">Kryss av øvelsene du har gjort</legend>
-        <ul class="check-list" id="dailyChecklist">
-          <li>
-            <input type="checkbox" id="d1">
-            <label class="check-label-wrap" for="d1">
-              <span class="custom-check" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8l4 4 6-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              <span class="check-text">Oppvarming</span>
-            </label>
-          </li>
-          <li>
-            <input type="checkbox" id="d2">
-            <label class="check-label-wrap" for="d2">
-              <span class="custom-check" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8l4 4 6-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              <span class="check-text">Knebøy til stol</span>
-            </label>
-          </li>
-          <li>
-            <input type="checkbox" id="d3">
-            <label class="check-label-wrap" for="d3">
-              <span class="custom-check" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8l4 4 6-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              <span class="check-text">Hoftehev</span>
-            </label>
-          </li>
-          <li>
-            <input type="checkbox" id="d4">
-            <label class="check-label-wrap" for="d4">
-              <span class="custom-check" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8l4 4 6-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              <span class="check-text">Armhev mot vegg</span>
-            </label>
-          </li>
-          <li>
-            <input type="checkbox" id="d5">
-            <label class="check-label-wrap" for="d5">
-              <span class="custom-check" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8l4 4 6-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              <span class="check-text">Tøying</span>
-            </label>
-          </li>
-        </ul>
-      </fieldset>
-    </div>
-    <div id="successDaily" class="success-msg" role="status" aria-live="polite">Bra jobba! ✅</div>
-    <button class="btn btn-success" onclick="saveLog('Daglig økt','successDaily','dailyChecklist')">Fullført 🎉</button>
-    <button class="btn btn-ghost" onclick="showPage('home')" style="margin-top:10px">← Tilbake til hjem</button>
-  </section>
-
-  <!-- PAGE: STYRKE -->
-  <section class="page" id="page-strength" aria-labelledby="strength-heading">
-    <h1 id="strength-heading" class="section-title">Styrkeprogram 💪</h1>
-    <div class="card">
-      <p class="card-title">Øvelser</p>
-      <ul class="exercise-list" aria-label="Øvelsar med sett og repetisjoner">
-        <li class="exercise-item"><span>Sit-to-stand</span><span class="exercise-sets" aria-label="10 repetisjoner, 3 sett">x10 × 3</span></li>
-        <li class="exercise-item"><span>Step-up (lav)</span><span class="exercise-sets" aria-label="10 repetisjoner, 3 sett">x10 × 3</span></li>
-        <li class="exercise-item"><span>Strikk-roing</span><span class="exercise-sets" aria-label="12 repetisjoner, 3 sett">x12 × 3</span></li>
-        <li class="exercise-item"><span>Hofteabduksjon</span><span class="exercise-sets" aria-label="15 repetisjoner, 2 sett">x15 × 2</span></li>
-        <li class="exercise-item"><span>Planke</span><span class="exercise-sets" aria-label="15 sekunder, 3 sett">15 sek × 3</span></li>
-      </ul>
-    </div>
-    <div id="successStrength" class="success-msg" role="status" aria-live="polite">Styrketrening fullført! 💪</div>
-    <button class="btn btn-success" onclick="saveLog('Styrke','successStrength',null)">Fullført 🎉</button>
-    <button class="btn btn-ghost" onclick="showPage('home')" style="margin-top:10px">← Tilbake til hjem</button>
-  </section>
-
-  <!-- PAGE: LOGG -->
-  <section class="page" id="page-log" aria-labelledby="log-heading">
-    <h1 id="log-heading" class="section-title">Logg 📋</h1>
-    <div class="card">
-      <p class="card-title">Sjekk deg selv</p>
-      <fieldset>
-        <legend class="sr-only">Dagens sjekkliste</legend>
-        <ul class="check-list">
-          <li>
-            <input type="checkbox" id="l1">
-            <label class="check-label-wrap" for="l1">
-              <span class="custom-check" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8l4 4 6-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              <span class="check-text">Jeg har beveget meg</span>
-            </label>
-          </li>
-          <li>
-            <input type="checkbox" id="l2">
-            <label class="check-label-wrap" for="l2">
-              <span class="custom-check" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8l4 4 6-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              <span class="check-text">Jeg har gjort en økt</span>
-            </label>
-          </li>
-          <li>
-            <input type="checkbox" id="l3">
-            <label class="check-label-wrap" for="l3">
-              <span class="custom-check" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8l4 4 6-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              <span class="check-text">Ingen overbelastning</span>
-            </label>
-          </li>
-          <li>
-            <input type="checkbox" id="l4">
-            <label class="check-label-wrap" for="l4">
-              <span class="custom-check" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8l4 4 6-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              <span class="check-text">Lyttet til kroppen</span>
-            </label>
-          </li>
-        </ul>
-      </fieldset>
-    </div>
-    <div class="card">
-      <p class="card-title">Historikk</p>
-      <ul id="historyList" class="log-list" aria-label="Treningshistorikk"></ul>
-    </div>
-    <button class="btn btn-ghost" onclick="showPage('home')">← Tilbake til hjem</button>
-  </section>
-
-</main>
-
-<!-- BUNNMENYBAR -->
-<nav class="tab-bar" aria-label="Hovudnavigasjon">
-  <button class="tab-btn" id="tab-home" onclick="showPage('home')" aria-current="page">
-    <span class="tab-icon" aria-hidden="true">🏠</span>
-    <span>Hjem</span>
-  </button>
-  <button class="tab-btn" id="tab-daily" onclick="showPage('daily')">
-    <span class="tab-icon" aria-hidden="true">🧘</span>
-    <span>Daglig</span>
-  </button>
-  <button class="tab-btn" id="tab-strength" onclick="showPage('strength')">
-    <span class="tab-icon" aria-hidden="true">💪</span>
-    <span>Styrke</span>
-  </button>
-  <button class="tab-btn" id="tab-log" onclick="showPage('log')">
-    <span class="tab-icon" aria-hidden="true">📋</span>
-    <span>Logg</span>
-  </button>
+<nav class="bar" role="navigation" aria-label="Hovedmeny">
+  <div class="in">
+    <button type="button" data-act="view" data-v="okt">Økt</button>
+    <button type="button" data-act="view" data-v="uke">Uke</button>
+    <button type="button" data-act="view" data-v="logg">Logg</button>
+    <button type="button" data-act="view" data-v="grunn">Grunnlag</button>
+  </div>
 </nav>
 
+<main id="main" class="wrap" tabindex="-1"></main>
+
 <script>
-  const pages = ['home','daily','strength','log'];
+(function(){
+'use strict';
+var $=function(s,r){return (r||document).querySelector(s)};
+var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+var GV={glute:'--c-glute',quad:'--c-quad',ham:'--c-ham',core:'--c-core',plyo:'--c-plyo',run:'--c-ham'};
 
-  function showPage(id) {
-    pages.forEach(p => {
-      const page = document.getElementById('page-' + p);
-      const tab  = document.getElementById('tab-' + p);
-      page.classList.remove('active');
-      tab.removeAttribute('aria-current');
+/* ---------- Figurer ---------- */
+function side(p,hot,o){
+  hot=hot||[];o=o||{};
+  var T=p.T||[p.A[0]+12,p.A[1]];
+  function ln(a,b,part){return '<line x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+'" class="'+(hot.indexOf(part)>=0?'hot':'bd')+'"/>';}
+  var s='';
+  if(o.dot)s+='<circle class="dot" cx="'+p[o.dot][0]+'" cy="'+p[o.dot][1]+'" r="'+(o.dr||9)+'"/>';
+  if(p.K2){var T2=p.T2||[p.A2[0]+12,p.A2[1]];s+='<g class="back">'+ln(p.P,p.K2,'thigh2')+ln(p.K2,p.A2,'shin2')+ln(p.A2,T2,'foot2')+'</g>';}
+  if(p.E2)s+='<g class="back">'+ln(p.S,p.E2,'arm2')+ln(p.E2,p.W2,'arm2')+'</g>';
+  s+=ln(p.S,p.P,'sp')+ln(p.P,p.K,'thigh')+ln(p.K,p.A,'shin')+ln(p.A,T,'foot');
+  if(p.E)s+=ln(p.S,p.E,'arm')+ln(p.E,p.W,'arm');
+  var dx=p.S[0]-p.P[0],dy=p.S[1]-p.P[1],d=Math.sqrt(dx*dx+dy*dy)||1;
+  var hx=p.H?p.H[0]:0,hy=p.H?p.H[1]:0;
+  s+='<circle class="head" cx="'+(p.S[0]+dx/d*13+hx).toFixed(1)+'" cy="'+(p.S[1]+dy/d*13+hy).toFixed(1)+'" r="9"/>';
+  (o.db||[]).forEach(function(w){s+='<rect class="wt" x="'+(w[0]-6)+'" y="'+(w[1]-3)+'" width="12" height="7" rx="2"/>';});
+  if(o.rect)s+=o.rect;
+  return s;
+}
+function front(p,hot,o){
+  o=o||{};
+  function l(a,b,c){return '<line x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+'" class="'+c+'"/>';}
+  var Pc=[(p.P1[0]+p.P2[0])/2,(p.P1[1]+p.P2[1])/2],Sc=[(p.S1[0]+p.S2[0])/2,(p.S1[1]+p.S2[1])/2];
+  var h=hot?'hot':'bd',s='';
+  s+=l(p.S1,p.S2,'bd')+l(Sc,Pc,'bd')+l(p.P1,p.P2,'bd');
+  s+=l(p.P1,p.K1,h)+l(p.K1,p.A1,h)+l(p.P2,p.K2,h)+l(p.K2,p.A2,h);
+  if(p.W1)s+=l(p.S1,p.W1,o.arms?'hot':'bd');
+  if(p.W2)s+=l(p.S2,p.W2,o.arms?'hot':'bd');
+  var dx=Sc[0]-Pc[0],dy=Sc[1]-Pc[1],d=Math.sqrt(dx*dx+dy*dy)||1;
+  var fhx=p.H?p.H[0]:0,fhy=p.H?p.H[1]:0;
+  s+='<circle class="head" cx="'+(Sc[0]+dx/d*14+fhx).toFixed(1)+'" cy="'+(Sc[1]+dy/d*14+fhy).toFixed(1)+'" r="9"/>';
+  if(p.band)s+=l(p.band[0],p.band[1],'band');
+  (p.fists||[]).forEach(function(f){s+='<circle class="fist" cx="'+f[0]+'" cy="'+f[1]+'" r="'+f[2]+'"/>';});
+  return s;
+}
+function mir(p){
+  var q={};
+  for(var k in p){var v=p[k];
+    if(k==='fists'){q[k]=v.map(function(f){return [200-f[0],f[1],f[2]]});continue;}
+    if(k==='band'){q[k]=[[200-v[1][0],v[1][1]],[200-v[0][0],v[0][1]]];continue;}
+    if(k==='H'){q[k]=[-v[0],v[1]];continue;}
+    if(k==='R'){q[k]=v;continue;}
+    q[k]=[200-v[0],v[1]];}
+  var sw=function(a,b){var t=q[a];q[a]=q[b];q[b]=t;};
+  ['S1','S2'].length&&(sw('S1','S2'),sw('P1','P2'),sw('K1','K2'),sw('A1','A2'));
+  if(q.W1||q.W2)sw('W1','W2');
+  return q;
+}
+function svg(a,b,back,label){
+  return '<svg viewBox="0 0 200 140" role="img" aria-label="'+esc(label)+'"><line class="gnd" x1="6" y1="122" x2="194" y2="122"/>'+(back||'')+
+   '<g class="pa">'+a+'</g><g class="pb">'+b+'</g></svg>';
+}
+var BENCH='<rect class="obj" x="22" y="98" width="38" height="24" rx="3"/>';
+var CHAIR='<rect class="obj" x="48" y="94" width="38" height="5" rx="2"/><rect class="obj" x="48" y="64" width="5" height="34" rx="2"/><rect class="obj" x="52" y="99" width="4" height="23"/><rect class="obj" x="78" y="99" width="4" height="23"/>';
+var BOX='<rect class="obj" x="118" y="98" width="44" height="24" rx="3"/>';
+var BENCH2='<rect class="obj" x="60" y="100" width="38" height="22" rx="3"/>';
+function wtP(x,y){return '<rect class="wt" x="'+(x-10)+'" y="'+(y-8)+'" width="20" height="9" rx="3"/>';}
+
+var F={};
+F.hipthrust=svg(
+ side({S:[46,94],P:[88,114],K:[122,86],A:[132,120],E:[66,106],W:[84,110]},['thigh','shin'],{dot:'P',dr:10,rect:wtP(88,108)}),
+ side({S:[46,94],P:[88,88],K:[122,88],A:[132,120],E:[66,92],W:[84,86]},['thigh','shin'],{dot:'P',dr:12,rect:wtP(88,80)}),
+ BENCH,'Hip thrust: hoftene nede og oppe');
+F.rdl=svg(
+ side({S:[88,44],P:[88,80],K:[90,101],A:[90,120],E:[88,62],W:[88,82]},['thigh'],{db:[[88,84]]}),
+ side({S:[112,57],P:[84,80],K:[96,101],A:[90,120],E:[114,76],W:[113,96]},['thigh'],{db:[[113,100]],dot:'P'}),
+ '','Rumensk markløft: stående og framoverbøyd');
+F.chairsquat=svg(
+ side({S:[104,44],P:[100,80],K:[104,102],A:[104,120],E:[104,64],W:[104,84]},['thigh','shin'],{db:[[104,88]]}),
+ side({S:[96,56],P:[80,90],K:[112,90],A:[108,120],E:[98,74],W:[100,92]},['thigh','shin'],{db:[[100,96]]}),
+ CHAIR,'Knebøy mot stol: stående og sittende');
+F.bss=svg(
+ side({S:[110,40],P:[110,76],K:[124,98],A:[122,120],E:[110,58],W:[110,78],K2:[104,100],A2:[84,98]},['thigh','shin'],{db:[[110,82]]}),
+ side({S:[108,62],P:[110,98],K:[136,98],A:[132,120],E:[108,80],W:[108,100],K2:[98,116],A2:[84,100]},['thigh','shin'],{db:[[108,104]],dot:'P'}),
+ BENCH2,'Bulgarsk splittknebøy: oppe og nede');
+F.stepup=svg(
+ side({S:[100,40],P:[102,76],K:[122,80],A:[128,98],T:[140,98],E:[100,58],W:[100,78],K2:[102,98],A2:[102,120]},['thigh','shin']),
+ side({S:[134,24],P:[132,60],K:[136,80],A:[134,98],E:[134,42],W:[134,62],K2:[148,70],A2:[142,86]},['thigh','shin']),
+ BOX,'Step-up: foten på kassen og stående på kassen');
+F.slthrust=svg(
+ side({S:[46,94],P:[88,114],K:[122,88],A:[132,120],K2:[120,96],A2:[152,76]},['thigh','shin'],{dot:'P',dr:10}),
+ side({S:[46,94],P:[88,90],K:[122,90],A:[132,120],K2:[122,78],A2:[154,60]},['thigh','shin'],{dot:'P',dr:12}),
+ BENCH,'Ett-bens hip thrust: nede og oppe');
+F.sidelying=svg(
+ side({S:[52,112],P:[108,112],K:[134,114],A:[152,116],E:[62,100],W:[80,104],K2:[136,106],A2:[164,106]},['thigh2','shin2'],{dot:'P'}),
+ side({S:[52,112],P:[108,112],K:[134,114],A:[152,116],E:[62,100],W:[80,104],K2:[134,82],A2:[158,62]},['thigh2','shin2'],{dot:'P'}),
+ '','Sideliggende hoftehev: beinet nede og oppe');
+var LWA={S1:[86,42],S2:[114,42],P1:[92,80],P2:[108,80],K1:[88,100],K2:[112,100],A1:[90,120],A2:[110,120],W1:[88,66],W2:[112,66],band:[[88,100],[112,100]]};
+var LWB={S1:[86,42],S2:[114,42],P1:[92,80],P2:[108,80],K1:[80,100],K2:[108,100],A1:[72,120],A2:[110,120],W1:[88,66],W2:[112,66],band:[[80,100],[108,100]]};
+F.latwalk=svg(front(LWA,true),front(LWB,true),'','Sidesteg med strikk: smal og bred stilling');
+F.pogo=svg(
+ side({S:[100,44],P:[100,80],K:[101,101],A:[100,120],E:[110,62],W:[118,54]},['thigh','shin']),
+ side({S:[100,28],P:[100,64],K:[101,85],A:[100,102],T:[110,110],E:[110,46],W:[118,38]},['thigh','shin'],{rect:'<ellipse class="obj" cx="100" cy="121" rx="22" ry="3"/>'}),
+ '','Hopp: på bakken og i lufta');
+F.run=svg(
+ side({S:[100,44],P:[98,80],K:[120,78],A:[116,100],T:[128,102],E:[112,62],W:[122,52],K2:[88,100],A2:[68,108],E2:[88,62],W2:[80,74]},['thigh','shin']),
+ side({S:[100,44],P:[98,80],K:[88,100],A:[68,108],T:[60,104],E:[88,62],W:[80,74],K2:[120,78],A2:[116,100],E2:[112,62],W2:[122,52]},['thigh','shin']),
+ '','Løping: skrittet bytter side');
+F.breath='<svg class="breath" viewBox="0 0 200 140" role="img" aria-label="Pust: 4 sekunder inn mens magen fylles og armene stiger, 6 sekunder ut mens armene synker"><line class="gnd" x1="6" y1="122" x2="194" y2="122"/>'+
+ '<ellipse class="belly" cx="104" cy="70" rx="5" ry="9"/>'+
+ side({S:[100,44],P:[100,80],K:[101,101],A:[100,120]},[],{})+
+ '<g class="arm"><line x1="100" y1="44" x2="92" y2="62" class="bd"/><line x1="92" y1="62" x2="104" y2="74" class="bd"/></g>'+
+ '<text class="bt bi" x="158" y="38">Inn · 4 s</text><text class="bt bu" x="158" y="38">Ut · 6 s</text><text class="bt bs" x="156" y="38">4 s inn · 6 s ut</text>'+
+ '<rect class="btrack" x="132" y="48" width="52" height="4" rx="2"/><rect class="bline" x="132" y="48" width="52" height="4" rx="2"/></svg>';
+var SWA={S1:[60,54],S2:[84,50],P1:[88,84],P2:[112,84],K1:[72,102],K2:[128,102],A1:[68,120],A2:[132,120],W1:[70,98],W2:[100,90]};
+F.sway=svg(front(SWA,true),front(mir(SWA),true),'','Vugg: overkroppen mot venstre og høyre');
+F.fold=svg(
+ side({S:[88,44],P:[88,80],K:[90,101],A:[90,120],E:[78,60],W:[84,76]},['thigh']),
+ side({S:[120,72],P:[84,80],K:[96,101],A:[90,120],E:[124,90],W:[106,114]},['thigh'],{dot:'P'}),
+ '','Hendene mot føttene: oppreist og framoverbøyd');
+var HRA={S1:[84,44],S2:[116,44],P1:[88,86],P2:[112,86],K1:[70,102],K2:[130,102],A1:[72,120],A2:[128,120],W1:[82,72],W2:[104,60],fists:[[82,74,6],[105,59,6]]};
+F.horse=svg(front(HRA,true),front(mir(HRA),true),'','Sterk stilling: slag med høyre og venstre');
+F.pelvic=svg(
+ side({S:[46,116],P:[88,116],K:[120,94],A:[130,120],E:[64,116],W:[82,116]},[],{rect:'<circle class="ring" cx="88" cy="110" r="7"/>'}),
+ side({S:[46,116],P:[88,113],K:[120,92],A:[130,120],E:[64,116],W:[82,116]},[],{rect:'<circle class="ring" cx="88" cy="106" r="15"/>'}),
+ '','Bekkenbunn: slipp og spenn');
+
+/* ---------- Tempo og pust for Styrke A og qi gong ---------- */
+var QC={S1:[86,50],S2:[114,50],P1:[88,84],P2:[112,84],K1:[72,102],K2:[128,102],A1:[68,120],A2:[132,120],W1:[80,92],W2:[120,92]};
+var QL={S1:[72,52],S2:[100,50],P1:[76,84],P2:[100,84],K1:[64,102],K2:[124,100],A1:[68,120],A2:[132,120],W1:[68,92],W2:[106,92]};
+var HC={S1:[84,44],S2:[116,44],P1:[88,86],P2:[112,86],K1:[70,102],K2:[130,102],A1:[72,120],A2:[128,120],W1:[86,80],W2:[114,80],fists:[[86,82,6],[114,82,6]]};
+var HRB=mir(HRA);HRB.fists=HRB.fists.slice().reverse();
+var RB0={S1:[86,44],S2:[114,44],P1:[92,82],P2:[108,82],K1:[91,102],K2:[109,102],A1:[90,120],A2:[110,120],W1:[86,64],W2:[114,64],R:[9,0]};
+var RB1={S1:[85,42],S2:[115,42],P1:[92,82],P2:[108,82],K1:[91,102],K2:[109,102],A1:[90,120],A2:[110,120],W1:[81,64],W2:[119,64],R:[17,0]};
+var SB0={S1:[86,44],S2:[114,44],P1:[92,80],P2:[108,80],K1:[91,101],K2:[109,101],A1:[90,120],A2:[110,120],W1:[84,80],W2:[116,80]};
+var SB1={S1:[78,50],S2:[104,40],P1:[92,80],P2:[108,80],K1:[91,101],K2:[109,101],A1:[90,120],A2:[110,120],W1:[78,88],W2:[106,74]};
+var LY0={S:[46,116],P:[88,116],K:[120,94],A:[130,120],E:[64,116],W:[82,116],R:[7,-6]};
+var LY1={S:[46,116],P:[88,113],K:[120,92],A:[130,120],E:[64,116],W:[82,116],R:[15,-8]};
+var ST0={S:[100,44],P:[100,80],K:[101,101],A:[100,120],E:[92,62],W:[104,74],H:[0,0],R:[7,6]};
+var ST1={S:[100,44],P:[100,80],K:[101,101],A:[100,120],E:[92,62],W:[104,74],H:[0,0],R:[15,6]};
+var ST2={S:[100,44],P:[100,80],K:[101,101],A:[100,120],E:[92,62],W:[104,74],H:[4,3],R:[16,6]};
+var SIT={S:[96,56],P:[80,90],K:[112,90],A:[108,120],E:[98,74],W:[100,92],R:[7,8]};
+var STC={S:[104,44],P:[100,80],K:[104,102],A:[104,120],E:[104,64],W:[104,84],R:[15,6]};
+var FLICK=[];for(var fi=0;fi<6;fi++){FLICK.push([0,1,.5,'ut','Knip']);FLICK.push([1,0,.5,'inn','Slipp']);}
+/* Høst-qi gong (etter George Thompson) */
+function fp(o){var b={S1:[86,44],S2:[114,44],P1:[92,80],P2:[108,80],K1:[91,101],K2:[109,101],A1:[90,120],A2:[110,120],W1:[84,82],W2:[116,82],H:[0,0]};for(var k in o)b[k]=o[k];return b;}
+var HLEG={S1:[84,46],S2:[116,46],P1:[88,86],P2:[112,86],K1:[70,102],K2:[130,102],A1:[72,120],A2:[128,120]};
+function hp(o){var b=fp(HLEG);for(var k in o)b[k]=o[k];return b;}
+function arc(p,dy){return '<path class="hot" d="M'+p.W1[0].toFixed(1)+' '+p.W1[1].toFixed(1)+' Q100 '+(p.W1[1]+dy).toFixed(1)+' '+p.W2[0].toFixed(1)+' '+p.W2[1].toFixed(1)+'"/>';}
+var HQ={
+ h1:[fp({W1:[86,84],W2:[114,84],R:[8,0]}),fp({W1:[86,84],W2:[114,84],R:[15,0]})],
+ h2:[fp({}),fp({S1:[86,38],S2:[114,38],W1:[84,76],W2:[116,76]}),fp({S1:[89,42],S2:[111,42],W1:[86,80],W2:[114,80]})],
+ h3:[fp({W1:[78,74],W2:[122,74]}),fp({W1:[83,79],W2:[117,79]}),fp({W1:[78,84],W2:[122,84]}),fp({W1:[73,79],W2:[127,79]})],
+ h4:[{S:[96,44],P:[100,80],K:[101,101],A:[100,120],E:[88,62],W:[80,76],H:[-2,-3]},{S:[106,48],P:[100,80],K:[101,101],A:[100,120],E:[114,62],W:[120,72],H:[4,5]}],
+ h5:[fp({}),fp({H:[0,5]}),fp({H:[0,-4]}),fp({H:[-6,0]}),fp({H:[6,0]})],
+ h6:[hp({W1:[96,52],W2:[104,52]}),hp({W1:[50,46],W2:[108,50]})],
+ h7:[fp({W1:[95,74],W2:[105,74]}),fp({W1:[84,12],W2:[124,96],H:[-1,-2]})],
+ h8:[fp({K1:[88,101],K2:[112,101],W1:[80,60],W2:[120,60]}),fp({K1:[88,101],K2:[112,101],W1:[78,59],W2:[122,59]})],
+ h9:[hp({S1:[86,60],S2:[114,60],P1:[90,84],P2:[110,84],W1:[90,100],W2:[110,100]}),hp({S1:[72,62],S2:[100,58],P1:[84,84],P2:[104,84],W1:[76,100],W2:[94,100]})],
+ h10:[{S:[90,44],P:[90,80],K:[94,101],A:[92,120],E:[80,62],W:[76,80]},{S:[124,78],P:[88,80],K:[104,100],A:[92,120],E:[106,64],W:[92,52]}],
+ h11:[fp({}),fp({S1:[86,48],S2:[114,48],P1:[92,84],P2:[108,84],K1:[89,103],K2:[111,103],W1:[82,88],W2:[118,88]})],
+ h13:[fp({W1:[80,92],W2:[120,92]}),fp({W1:[64,34],W2:[136,34]}),fp({W1:[96,80],W2:[104,80]})]
+};
+HQ.h6.push(mir(HQ.h6[1]));HQ.h7.push(mir(HQ.h7[1]));HQ.h9.push(mir(HQ.h9[1]));
+/* Vagus-pust: sittende foroverlent */
+var VG0={S:[112,64],P:[84,90],K:[116,90],A:[116,120],E:[114,88],W:[118,104],H:[3,27],R:[6,0],Q:[0,0]};
+var VG1={S:[113,62],P:[84,90],K:[116,90],A:[116,120],E:[114,88],W:[118,104],H:[3,26],R:[12,0],Q:[0,0]};
+var VG2={S:[113,62],P:[84,90],K:[116,90],A:[116,120],E:[114,88],W:[118,104],H:[3,26],R:[12,0],Q:[10,0]};
+function vgDraw(p){return '<ellipse class="rib" cx="99" cy="80" rx="'+p.R[0].toFixed(1)+'" ry="7" transform="rotate(-40 99 80)"/>'+
+  (p.Q[0]>1?'<circle class="ring" cx="84" cy="94" r="'+p.Q[0].toFixed(1)+'"/>':'')+side(p,['sp'],{});}
+/* Baduanjin (åtte brokader) og pulsoppvarming */
+var ARM0={W1:[84,82],W2:[116,82]};
+var BQ={
+ b0:[fp({A1:[96,120],A2:[104,120],K1:[95,101],K2:[105,101],P1:[94,80],P2:[106,80]}),fp({W1:[68,68],W2:[132,68]}),fp({K1:[89,102],K2:[111,102],W1:[94,80],W2:[106,80]})],
+ b1:[fp({W1:[95,80],W2:[105,80]}),fp({W1:[96,58],W2:[104,58]}),fp({W1:[95,10],W2:[105,10],H:[0,-3]}),fp({W1:[64,60],W2:[136,60]})],
+ b2:[hp({W1:[96,52],W2:[104,52]}),hp({W1:[108,54],W2:[92,54]}),hp({W1:[50,46],W2:[108,50]})],
+ b4:[fp(ARM0),fp({W1:[76,94],W2:[124,94],H:[-8,0]})],
+ b6:[{S:[88,44],P:[88,80],K:[88,101],A:[88,120],E:[98,30],W:[104,16]},{S:[88,44],P:[88,80],K:[88,101],A:[88,120],E:[78,60],W:[80,72]},{S:[120,78],P:[86,80],K:[90,101],A:[88,120],E:[116,98],W:[98,116]},{S:[120,78],P:[86,80],K:[90,101],A:[88,120],E:[136,80],W:[152,82]}],
+ b8:[{S:[100,44],P:[100,80],K:[101,101],A:[100,120],T:[112,120],E:[100,62],W:[101,80]},{S:[100,37],P:[100,73],K:[101,94],A:[100,112],T:[112,120],E:[100,55],W:[101,73]},{S:[100,41],P:[100,77],K:[101,98],A:[100,117],T:[112,120],E:[100,59],W:[101,77]}],
+ p1:[fp(ARM0),fp({K1:[86,88],A1:[92,104],W1:[94,68],W2:[118,86]})],
+ p2:[fp(ARM0),fp({K1:[74,101],A1:[64,120],W1:[60,48],W2:[140,48]})],
+ p3:[fp(ARM0),fp({S1:[86,62],S2:[114,62],P1:[90,94],P2:[110,94],K1:[78,100],K2:[122,100],W1:[90,62],W2:[110,62]})],
+ p4:[fp({K1:[78,101],K2:[122,101],A1:[70,120],A2:[130,120]}),fp({S1:[72,58],S2:[100,56],P1:[80,92],P2:[100,92],K1:[70,104],A1:[66,120],K2:[118,104],A2:[134,120],W1:[82,82],W2:[98,82]})]
+};
+BQ.b2.push(mir(BQ.b2[1]),mir(BQ.b2[2]));BQ.b4.push(mir(BQ.b4[1]));['p1','p2','p4'].forEach(function(k){BQ[k].push(mir(BQ[k][1]));});
+function pfDraw(p){return side(p,[],{rect:'<circle class="ring" cx="'+p.P[0]+'" cy="'+(p.P[1]+p.R[1])+'" r="'+p.R[0].toFixed(1)+'"/>'});}
+/* seq: [fra, til, sekunder, pust, fase] — 0 = startstilling, 1 = sluttstilling */
+var TEMPO={
+ hipthrust:{A:{S:[46,94],P:[88,114],K:[122,86],A:[132,120],E:[66,106],W:[84,110]},B:{S:[46,94],P:[88,88],K:[122,88],A:[132,120],E:[66,92],W:[84,86]},back:BENCH,
+  draw:function(p){return side(p,['thigh','shin'],{dot:'P',dr:11,rect:wtP(p.P[0],p.P[1]-6)});},
+  seq:[[0,1,1,'ut','Opp'],[1,1,1,'hold','Klem'],[1,0,2.5,'inn','Ned'],[0,0,.5,'inn','Bunn']],
+  txt:'opp på 1 sekund med utpust, klem 1 sekund, ned på 2 til 3 sekunder med innpust'},
+ rdl:{A:{S:[88,44],P:[88,80],K:[90,101],A:[90,120],E:[88,62],W:[88,82]},B:{S:[112,57],P:[84,80],K:[96,101],A:[90,120],E:[114,76],W:[113,96]},back:'',
+  draw:function(p){return side(p,['thigh'],{db:[[p.W[0],p.W[1]+3]],dot:'P'});},
+  seq:[[0,1,3,'inn','Ned'],[1,1,.4,'inn','Bunn'],[1,0,1,'ut','Opp'],[0,0,.8,'klar','Topp']],
+  txt:'ned på 3 sekunder med innpust, opp på 1 sekund med utpust'},
+ chairsquat:{A:{S:[104,44],P:[100,80],K:[104,102],A:[104,120],E:[104,64],W:[104,84]},B:{S:[96,56],P:[80,90],K:[112,90],A:[108,120],E:[98,74],W:[100,92]},back:CHAIR,
+  draw:function(p){return side(p,['thigh','shin'],{db:[[p.W[0],p.W[1]+4]]});},
+  seq:[[0,1,2.5,'inn','Ned'],[1,1,.3,'inn','Bunn'],[1,0,1,'ut','Opp'],[0,0,.7,'klar','Topp']],
+  txt:'ned på 2 til 3 sekunder med innpust, opp på 1 sekund med utpust'},
+ latwalk:{A:LWA,B:LWB,back:'',
+  draw:function(p){return front(p,true);},
+  seq:[[0,1,.9,'jevn','Steg ut'],[1,0,.9,'jevn','Samle']],
+  txt:'små kontrollerte steg, pust jevnt hele tiden'},
+ qi2:{poses:[QC,SWA,mir(SWA)],back:'',
+  draw:function(p){return front(p,true);},
+  seq:[[0,1,3,'ut','Vugg'],[1,0,3,'inn','Midten'],[0,2,3,'ut','Vugg'],[2,0,3,'inn','Midten']],
+  txt:'pust ut mens du vugger til siden, pust inn tilbake til midten'},
+ qi3:{poses:[{S:[88,44],P:[88,80],K:[90,101],A:[90,120],E:[78,60],W:[84,76]},{S:[120,72],P:[84,80],K:[96,101],A:[90,120],E:[124,90],W:[106,114]}],back:'',
+  draw:function(p){return side(p,['thigh'],{dot:'P'});},
+  seq:[[0,1,4,'ut','Ned'],[1,1,1,'rolig','Heng'],[1,0,4,'inn','Opp'],[0,0,1,'klar','Stå høy']],
+  txt:'pust ut og gli hendene ned langs beina på 4 sekunder, pust inn og rull opp på 4 sekunder'},
+ qi4:{poses:[HC,HRA,HRB],back:'',
+  draw:function(p){return front(p,true);},
+  seq:[[0,1,1.5,'ut','Slå'],[1,0,2,'inn','Tilbake'],[0,2,1.5,'ut','Slå'],[2,0,2,'inn','Tilbake']],
+  txt:'pust ut når du slår, pust inn når hånden trekkes tilbake'},
+ qi5:{poses:[QC,QL,mir(QL)],back:'',
+  draw:function(p){return front(p,true);},
+  seq:[[0,1,3,'ut','Flytt'],[1,0,3,'inn','Midten'],[0,2,3,'ut','Flytt'],[2,0,3,'inn','Midten']],
+  txt:'pust ut mens vekten flyttes over på én fot, pust inn tilbake til midten'},
+ sk1:{poses:[RB0,RB1],back:'',
+  draw:function(p){return '<ellipse class="rib" cx="100" cy="62" rx="'+p.R[0].toFixed(1)+'" ry="10"/>'+front(p,false);},
+  seq:[[0,1,4,'inn','Utvid'],[1,0,6,'ut','Slipp']],
+  txt:'pust inn i 4 sekunder så ribbeina utvider seg, pust ut i 6 sekunder'},
+ sk2:{poses:[{S:[100,46],P:[100,82],K:[101,102],A:[100,120],E:[101,64],W:[102,82],H:[7,3]},{S:[100,46],P:[100,82],K:[101,102],A:[100,120],E:[101,64],W:[102,82],H:[-3,0]}],back:'',
+  draw:function(p){return side(p,['sp'],{});},
+  seq:[[0,1,1.5,'ut','Inn'],[1,1,3,'hold','Hold'],[1,0,2,'inn','Slipp']],
+  txt:'pust ut og trekk haken bakover, hold 3 sekunder, pust inn og slipp'},
+ sk3:{poses:[{S:[68,54],P:[68,90],K:[100,90],A:[104,120],E:[80,66],W:[72,62]},{S:[55,58],P:[68,90],K:[100,90],A:[104,120],E:[65,70],W:[59,64]}],back:CHAIR,
+  draw:function(p){return side(p,['sp'],{});},
+  seq:[[0,1,3,'inn','Bakover'],[1,1,1,'hold','Hold'],[1,0,3,'ut','Tilbake']],
+  txt:'pust inn og len deg bakover over stolryggen på 3 sekunder, pust ut og kom tilbake'},
+ sk4:{poses:[{S:[100,44],P:[100,80],K:[101,101],A:[100,120],E:[110,64],W:[126,62]},{S:[98,45],P:[100,80],K:[101,101],A:[100,120],E:[86,64],W:[102,62]}],back:'',
+  draw:function(p){return side(p,['arm'],{});},
+  seq:[[0,1,1.5,'ut','Trekk'],[1,1,2,'hold','Hold'],[1,0,2.5,'inn','Slipp']],
+  txt:'pust ut og trekk albuene bakover, hold 2 sekunder, pust inn og slipp'},
+ sk5:{poses:[SB0,SB1,mir(SB1)],back:'',
+  draw:function(p){return front(p,false);},
+  seq:[[0,1,4,'inn','Til siden'],[1,0,3,'ut','Midten'],[0,2,4,'inn','Til siden'],[2,0,3,'ut','Midten']],
+  txt:'pust inn i siden som strekkes på 4 sekunder, pust ut tilbake til midten'},
+ pb1:{poses:[LY0,LY1],back:'',draw:pfDraw,
+  seq:[[0,1,1.5,'ut','Knip og løft'],[1,1,6,'rolig','Hold 6 s'],[1,0,1.5,'inn','Slipp helt'],[0,0,4,'rolig','Hvil']],
+  txt:'knip og løft innover i 1,5 sekunder med utpust, hold 5 sekunder, slipp helt og hvil'},
+ pb2:{poses:[ST0,ST1],back:'',draw:pfDraw,
+  seq:[[0,1,1.5,'ut','Knip og løft'],[1,1,6,'rolig','Hold 6 s'],[1,0,1.5,'inn','Slipp helt'],[0,0,4,'rolig','Hvil']],
+  txt:'knip og løft innover i 1,5 sekunder med utpust, hold 5 sekunder, slipp helt og hvil'},
+ pb3:{poses:[ST0,ST1],back:'',draw:pfDraw,seq:FLICK,
+  txt:'knip raskt og slipp raskt, omtrent ett knip i sekundet'},
+ pb4:{poses:[SIT,STC],back:CHAIR,draw:pfDraw,
+  seq:[[0,1,2,'ut','Knip og reis'],[1,1,2,'rolig','Hold'],[1,0,2.5,'inn','Slipp og sett'],[0,0,1.5,'rolig','Hvil']],
+  txt:'pust ut, knip og reis deg, slipp og sett deg rolig ned'},
+ pb5:{poses:[ST0,ST1,ST2],back:'',draw:pfDraw,
+  seq:[[0,1,1,'ut','Knip'],[1,2,.6,'ut','Host'],[2,0,1.4,'inn','Slipp helt'],[0,0,3,'rolig','Hvil']],
+  txt:'knip først, host lett med knipet, slipp helt og hvil'},
+ row:{poses:[{S:[100,44],P:[100,80],K:[101,101],A:[100,120],E:[112,62],W:[128,60]},{S:[99,45],P:[100,80],K:[101,101],A:[100,120],E:[86,64],W:[104,60]}],back:'',
+  draw:function(p){return '<line class="band" x1="'+p.W[0].toFixed(1)+'" y1="'+p.W[1].toFixed(1)+'" x2="190" y2="72"/>'+side(p,['arm'],{});},
+  seq:[[0,1,1,'ut','Trekk'],[1,1,1,'hold','Hold'],[1,0,2,'inn','Slipp']],
+  txt:'pust ut og trekk albuene bak på 1 sekund, hold 1 sekund, pust inn og slipp på 2 sekunder'},
+ extrot:{poses:[{S1:[86,44],S2:[114,44],P1:[92,80],P2:[108,80],K1:[91,101],K2:[109,101],A1:[90,120],A2:[110,120],E1:[85,66],E2:[115,66],H1:[96,66],H2:[104,66]},{S1:[86,44],S2:[114,44],P1:[92,80],P2:[108,80],K1:[91,101],K2:[109,101],A1:[90,120],A2:[110,120],E1:[85,66],E2:[115,66],H1:[64,62],H2:[136,62]}],back:'',
+  draw:function(p){var L=function(a,b,c){return '<line x1="'+a[0].toFixed(1)+'" y1="'+a[1].toFixed(1)+'" x2="'+b[0].toFixed(1)+'" y2="'+b[1].toFixed(1)+'" class="'+c+'"/>';};
+   return front(p,false)+L(p.S1,p.E1,'bd')+L(p.S2,p.E2,'bd')+L(p.E1,p.H1,'hot')+L(p.E2,p.H2,'hot')+L(p.H1,p.H2,'band');},
+  seq:[[0,1,1.5,'ut','Roter ut'],[1,1,1,'hold','Hold'],[1,0,2,'inn','Slipp']],
+  txt:'pust ut og roter underarmene ut på 1,5 sekunder, hold, pust inn og slipp på 2 sekunder'},
+ pullapart:{poses:[{S1:[86,44],S2:[114,44],P1:[92,80],P2:[108,80],K1:[91,101],K2:[109,101],A1:[90,120],A2:[110,120],W1:[95,50],W2:[105,50],band:[[95,50],[105,50]]},{S1:[86,44],S2:[114,44],P1:[92,80],P2:[108,80],K1:[91,101],K2:[109,101],A1:[90,120],A2:[110,120],W1:[58,47],W2:[142,47],band:[[58,47],[142,47]]}],back:'',
+  draw:function(p){return front(p,false,{arms:1});},
+  seq:[[0,1,1.5,'ut','Dra ut'],[1,1,1,'hold','Klem'],[1,0,2,'inn','Slipp']],
+  txt:'pust ut og dra strikken fra hverandre i skulderhøyde, klem skulderbladene, pust inn og slipp'},
+ spunch:{poses:[{S:[100,44],P:[100,80],K:[101,101],A:[100,120],E:[116,46],W:[132,46]},{S:[106,45],P:[100,80],K:[101,101],A:[100,120],E:[122,46],W:[139,46]}],back:'',
+  draw:function(p){return '<line class="band" x1="'+p.W[0].toFixed(1)+'" y1="'+p.W[1].toFixed(1)+'" x2="20" y2="50"/>'+side(p,['arm'],{});},
+  seq:[[0,1,1,'ut','Skyv'],[1,1,1,'hold','Hold'],[1,0,2,'inn','Slipp']],
+  txt:'pust ut og skyv skulderbladet fram, hold, pust inn og slipp'},
+ h1:{poses:HQ.h1,back:'',draw:function(p){return '<ellipse class="rib" cx="100" cy="72" rx="'+p.R[0].toFixed(1)+'" ry="8"/>'+front(p,false);},
+  seq:[[0,1,4,'inn','Magen ut'],[1,0,6,'ut','Slipp']],txt:'dyp pust ned i magen, 4 sekunder inn og 6 sekunder ut'},
+ h2:{poses:HQ.h2,back:'',draw:function(p){return front(p,false,{arms:1});},
+  seq:[[0,1,1.2,'inn','Opp'],[1,2,1.2,'inn','Bak'],[2,0,1.6,'ut','Ned']],txt:'store, myke sirkler med skuldrene, opp, bak og ned'},
+ h3:{poses:HQ.h3,back:'',draw:function(p){return front(p,false,{arms:1});},
+  seq:[[0,1,.6,'jevn','Sirkle'],[1,2,.6,'jevn','Sirkle'],[2,3,.6,'jevn','Sirkle'],[3,0,.6,'jevn','Sirkle']],txt:'rolige sirkler med håndledd og ankler'},
+ h4:{poses:HQ.h4,back:'',draw:function(p){return side(p,['sp'],{});},
+  seq:[[0,0,.5,'inn','Åpne'],[0,1,3.5,'ut','Krum'],[1,0,4,'inn','Åpne']],txt:'pust inn og åpne brystet med armene bak, pust ut og krum ryggen'},
+ h5:{poses:HQ.h5,back:'',draw:function(p){return front(p,false);},
+  seq:[[0,1,2,'ut','Ja, ned'],[1,2,3,'inn','Ja, opp'],[2,0,1.5,'klar','Midten'],[0,3,2,'ut','Nei'],[3,0,2,'inn','Midten'],[0,4,2,'ut','Nei'],[4,0,2,'inn','Midten']],txt:'nikk rolig ja, deretter snu hodet rolig nei fra side til side'},
+ h6:{poses:HQ.h6,back:'',draw:function(p){return front(p,true,{arms:1});},
+  seq:[[0,1,3,'ut','Spenn buen'],[1,1,6,'rolig','Hold'],[1,0,3,'inn','Slipp'],[0,2,3,'ut','Spenn buen'],[2,2,6,'rolig','Hold'],[2,0,3,'inn','Slipp']],txt:'bred stilling, spenn buen til siden, hold med dyp pust, slipp og bytt side'},
+ h7:{poses:HQ.h7,back:'',draw:function(p){return front(p,false,{arms:1});},
+  seq:[[0,1,3,'inn','Skill'],[1,0,3,'ut','Samle'],[0,2,3,'inn','Skill'],[2,0,3,'ut','Samle']],txt:'én hånd presser opp og én ned på innpust, samle foran magen på utpust, bytt side'},
+ h8:{poses:HQ.h8,back:'',draw:function(p){return front(p,false,{arms:1})+arc(p,16);},
+  seq:[[0,1,4,'inn','Favne'],[1,0,7,'ut','Lang utpust']],txt:'favne en trestamme, tre lange utpust'},
+ h9:{poses:HQ.h9,back:'',draw:function(p){return front(p,true,{arms:1});},
+  seq:[[0,1,3,'ut','Til siden'],[1,0,3,'inn','Midten'],[0,2,3,'ut','Til siden'],[2,0,3,'inn','Midten']],txt:'len deg fram med rett rygg, før overkroppen over ett ben på utpust, tilbake og over det andre'},
+ h10:{poses:HQ.h10,back:'',draw:function(p){return side(p,['sp','arm'],{});},
+  seq:[[0,1,4,'ut','Fold ned'],[1,1,25,'rolig','Fem pust'],[1,0,4,'inn','Rull opp'],[0,0,2,'klar','Stå']],txt:'fold fram med bøyde knær, armene løftes bak ryggen, fem rolige pust, rull opp'},
+ h11:{poses:HQ.h11,back:'',draw:function(p){return front(p,true,{arms:1});},
+  seq:[[0,1,.3,'jevn','Sprett'],[1,0,.3,'jevn','Sprett']],txt:'rist og sprett mykt, sukk høyt ut'},
+ h12:{poses:HQ.h8,back:'',draw:function(p){return front(p,false,{arms:1})+arc(p,16);},
+  seq:[[0,1,5,'inn','Stå stille'],[1,0,5,'ut','Stå stille']],txt:'stå helt stille og pust rolig'},
+ h13:{poses:HQ.h13,back:'',draw:function(p){return front(p,false,{arms:1});},
+  seq:[[0,1,4,'inn','Himmel'],[1,2,5,'ut','Jord'],[2,0,1,'klar','Hvil']],txt:'løft hendene med håndflatene opp på innpust, senk dem foran kroppen på utpust'},
+ b0:{poses:BQ.b0,back:'',draw:function(p){return front(p,false,{arms:1});},
+  seq:[[0,1,3,'inn','Armene ut'],[1,2,3,'ut','Samle'],[2,2,4,'rolig','Stå'],[2,0,2,'klar','Slipp']],txt:'venstre fot ut, armene svinger ut og samles foran nedre del av magen'},
+ b1:{poses:BQ.b1,back:'',draw:function(p){return front(p,false,{arms:1});},
+  seq:[[0,1,2,'inn','Løft'],[1,2,2.5,'inn','Press opp'],[2,2,2,'hold','Strekk'],[2,3,3,'ut','Ut til siden'],[3,0,3,'ut','Ned']],txt:'flett fingrene, press håndflatene opp over hodet på innpust, senk armene ut til siden på utpust'},
+ b2:{poses:BQ.b2,back:'',draw:function(p){return front(p,true,{arms:1});},
+  seq:[[0,1,2,'inn','Kryss'],[1,2,3,'ut','Spenn buen'],[2,2,3,'rolig','Hold'],[2,0,3,'inn','Samle'],[0,3,2,'inn','Kryss'],[3,4,3,'ut','Spenn buen'],[4,4,3,'rolig','Hold'],[4,0,3,'inn','Samle']],txt:'hestestilling, kryss armene, spenn buen til siden, hold, samle og bytt side'},
+ b3:{poses:HQ.h7,back:'',draw:function(p){return front(p,false,{arms:1});},
+  seq:[[0,1,3,'inn','Opp og ned'],[1,1,1,'hold','Hold'],[1,0,3,'ut','Senk'],[0,2,3,'inn','Opp og ned'],[2,2,1,'hold','Hold'],[2,0,3,'ut','Senk']],txt:'én håndflate presser opp over hodet og den andre ned ved hoften, bytt side'},
+ b4:{poses:BQ.b4,back:'',draw:function(p){return front(p,false,{arms:1});},
+  seq:[[0,1,3,'inn','Se bakover'],[1,1,2,'hold','Hold'],[1,0,3,'ut','Tilbake'],[0,2,3,'inn','Se bakover'],[2,2,2,'hold','Hold'],[2,0,3,'ut','Tilbake']],txt:'roter armene bakover og drei hodet for å se bak over skulderen, bytt side'},
+ b5:{poses:[QC,SWA,mir(SWA)],back:'',draw:function(p){return front(p,true);},
+  seq:[[0,1,3,'ut','Sving'],[1,0,3,'inn','Midten'],[0,2,3,'ut','Sving'],[2,0,3,'inn','Midten']],txt:'dyp hestestilling, len og sving overkropp og bekken i en bue, bytt side'},
+ b6:{poses:BQ.b6,back:'',draw:function(p){return side(p,['sp','arm'],{});},
+  seq:[[0,1,2,'ut','Bak på ryggen'],[1,2,4,'ut','Stryk ned'],[2,3,2,'inn','Armene fram'],[3,0,4,'inn','Reis deg']],txt:'hendene bak på ryggen, stryk ned langs ryggen og beina, strekk armene fram og reis deg'},
+ b7:{poses:[HC,HRA,HRB],back:'',draw:function(p){return front(p,true);},
+  seq:[[0,1,1.5,'ut','Støt'],[1,1,1.5,'hold','Åpne og knyt'],[1,0,2,'inn','Tilbake'],[0,2,1.5,'ut','Støt'],[2,2,1.5,'hold','Åpne og knyt'],[2,0,2,'inn','Tilbake']],txt:'hestestilling, støt knyttneven fram med fokusert blikk, åpne, knyt og trekk tilbake'},
+ b8:{poses:BQ.b8,back:'',draw:function(p){return side(p,[],{});},
+  seq:[[0,1,2,'inn','Opp på tærne'],[1,2,1,'ut','Halvveis'],[2,2,1,'hold','Hold'],[2,0,.4,'ut','Slipp ned'],[0,0,1.6,'rolig','Stå']],txt:'opp på tærne, halvveis ned og hold, slipp hælene ned'},
+ b9:{poses:HQ.h13,back:'',draw:function(p){return front(p,false,{arms:1});},
+  seq:[[0,1,4,'inn','Armene ut'],[1,2,4,'ut','Samle'],[2,2,4,'rolig','Hvil']],txt:'armene ut til siden og samle hendene over nedre del av magen'},
+ p1:{poses:BQ.p1,back:'',draw:function(p){return front(p,true,{arms:1});},
+  seq:[[0,1,.4,'jevn','Kne opp'],[1,0,.4,'jevn','Ned'],[0,2,.4,'jevn','Kne opp'],[2,0,.4,'jevn','Ned']],txt:'marsj på stedet med høye kne og armsving'},
+ p2:{poses:BQ.p2,back:'',draw:function(p){return front(p,true,{arms:1});},
+  seq:[[0,1,.6,'jevn','Ut'],[1,0,.6,'jevn','Inn'],[0,2,.6,'jevn','Ut'],[2,0,.6,'jevn','Inn']],txt:'steg ut til siden med armene til skulderhøyde, uten hopp'},
+ p3:{poses:BQ.p3,back:'',draw:function(p){return front(p,true,{arms:1});},
+  seq:[[0,1,1,'inn','Ned'],[1,0,1,'ut','Opp']],txt:'knebøy i jevnt tempo med armsving fram'},
+ p4:{poses:BQ.p4,back:'',draw:function(p){return front(p,true,{arms:1});},
+  seq:[[0,1,1.2,'jevn','Til siden'],[1,0,1,'jevn','Midten'],[0,2,1.2,'jevn','Til siden'],[2,0,1,'jevn','Midten']],txt:'sideutfall fra side til side'},
+ v1:{poses:[VG0,VG1],back:CHAIR,draw:vgDraw,
+  seq:[[0,0,2,'ut','Tøm lungene'],[0,1,4,'inn','Magen ut'],[1,1,7,'hold','Svelg én gang'],[1,0,8,'hum','Hmmm']],txt:'4 sekunder inn, hold 7 og svelg, 8 sekunder ut med summetone'},
+ v2:{poses:[VG0,VG1,VG2],back:CHAIR,draw:vgDraw,
+  seq:[[0,0,2,'ut','Tøm lungene'],[0,1,4,'inn','Tunge opp'],[1,2,7,'hold','Tunge + knip'],[2,0,8,'hum','Slipp alt']],txt:'4 sekunder inn med tungen mot ganen, hold 7 med bekkenbunnen strammet, 8 ut med summetone og slipp alt'},
+ v3:{poses:[VG0,VG1],back:CHAIR,draw:vgDraw,
+  seq:[[0,0,2,'ut','Tøm lungene'],[0,1,4,'inn','Se målet'],[1,1,7,'hold','Kjenn det'],[1,0,8,'hum','La det stråle']],txt:'4 sekunder inn og se for deg målet, hold 7 og kjenn det, 8 ut med summetone'},
+ v4:{poses:[VG0,VG1,VG2],back:CHAIR,draw:vgDraw,
+  seq:[[0,0,2,'ut','Tøm lungene'],[0,1,4,'inn','Bare magen'],[1,2,7,'hold','Alt + svelg'],[2,0,8,'hum','Slipp alt']],txt:'4 sekunder inn, hold 7 med tunge, bekkenbunn og svelg, 8 ut med summetone'}
+};
+var BW={ut:'Pust ut',inn:'Pust inn',hold:'Hold',klar:'Klar',jevn:'Pust jevnt',rolig:'Pust rolig',hum:'Ut og summ'};
+function lerpPose(A,B,t){var o={};for(var k in A){var a=A[k],b=B[k]||a;
+  if(Array.isArray(a[0]))o[k]=a.map(function(pt,i){var q=[pt[0]+(b[i][0]-pt[0])*t,pt[1]+(b[i][1]-pt[1])*t];if(pt.length>2)q.push(pt[2]);return q;});
+  else o[k]=[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];}return o;}
+function tempoSvg(id){var T=TEMPO[id],s=T.seq[0];
+  return '<svg class="tempo" data-tempo="'+id+'" viewBox="0 0 250 140" role="img" aria-label="'+esc(EX[id].n+': '+T.txt)+'"><line class="gnd" x1="6" y1="122" x2="244" y2="122"/>'+T.back+
+   '<g class="tf">'+T.draw((T.poses||[T.A])[0])+'</g><text class="tt1" x="202" y="30">'+BW[s[3]]+'</text><text class="tt2" x="202" y="45">'+s[4]+'</text>'+
+   '<rect class="btrack" x="176" y="53" width="52" height="4" rx="2"/><rect class="tbar" x="176" y="53" width="52" height="4" rx="2"/></svg>';}
+var raf=0;
+function animTempo(){
+  cancelAnimationFrame(raf);
+  var el=document.querySelector('svg.tempo');if(!el)return;
+  var T=TEMPO[el.getAttribute('data-tempo')],reduce=false;
+  try{reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
+  var g=el.querySelector('.tf'),t1=el.querySelector('.tt1'),t2=el.querySelector('.tt2'),bar=el.querySelector('.tbar');
+  if(reduce){bar.style.display='none';el.querySelector('.btrack').style.display='none';t1.textContent='';t2.textContent='';return;}
+  var total=0;T.seq.forEach(function(s){total+=s[2];});
+  var start=performance.now(),lastPh=-1;
+  function frame(now){
+    if(!el.isConnected)return;
+    var tt=(S.run&&!S.run.done)?elapsed():(now-start)/1000;
+    tt=((tt%total)+total)%total;var i=0;
+    while(i<T.seq.length-1&&tt>T.seq[i][2]){tt-=T.seq[i][2];i++;}
+    var s=T.seq[i],f=Math.min(1,tt/s[2]),e=f<.5?2*f*f:1-Math.pow(-2*f+2,2)/2;
+    var PS=T.poses||[T.A,T.B];
+    g.innerHTML=T.draw(lerpPose(PS[s[0]],PS[s[1]],e));
+    if(i!==lastPh){var lbl=s[4]+' · '+String(s[2]).replace('.',',')+' s';if(lbl.length>14)lbl=s[4];
+      t1.textContent=BW[s[3]];t2.textContent=lbl;lastPh=i;}
+    bar.setAttribute('transform','translate(176 0) scale('+Math.max(.02,f)+' 1) translate(-176 0)');
+    raf=requestAnimationFrame(frame);
+  }
+  raf=requestAnimationFrame(frame);
+}
+
+/* ---------- Øvelser ---------- */
+var EX={
+ hipthrust:{n:'Hip thrust',g:'glute',fig:F.hipthrust,main:1,rest:90,rx:[[3,8,10],[4,5,6],[4,8,12]],cue:'Pust ut og løft på 1 s. Klem rumpa 1 s. Pust inn og senk på 2–3 s.',
+  how:{s:'Øvre rygg mot en stabil benk eller sofa, føttene hoftebredde, knærne ca. 90° i toppen. Håndvekt eller sekk ligger på hoften, så skuldrene ikke belastes.',d:'Press gjennom hælene til kroppen er rett fra skulder til kne. Klem rumpa 1 s øverst og senk kontrollert.',m:'Svai i korsryggen, føttene for langt fram, hoftene som faller ned uten kontroll.'}},
+ rdl:{n:'Rumensk markløft',g:'ham',fig:F.rdl,main:1,rest:90,rx:[[3,8,10],[4,5,6],[4,8,12]],cue:'Pust inn og senk på 3 s med rett rygg. Pust ut og driv hoftene fram.',
+  how:{s:'Vekter ved sidene, lett bøy i knærne, bryst opp, blikket litt fram.',d:'Skyv rumpa bakover og la vektene gli langs lårene. Gå ned i 3 s til du kjenner strekk bak i lårene. Reis deg ved å drive hoftene fram.',m:'Rund rygg, knebøy i stedet for hofteløft, vekter langt foran kroppen. Hold håndleddene rette, og hold løst med ei hånd rundt vekten, ikke krampaktig.'}},
+ chairsquat:{n:'Knebøy mot stol',g:'quad',fig:F.chairsquat,rest:75,rx:[[3,8,10],[3,6,8],[3,8,12]],cue:'Pust inn og sett deg rolig ned på 2–3 s. Pust ut når du reiser deg.',
+  how:{s:'Stol bak deg, føttene hoftebredde, vekter ved sidene.',d:'Sett deg ned kontrollert til rumpa nesten berører stolen. Reis deg uten å dytte med hendene.',m:'Knærne faller innover, hælene løfter seg, du setter deg tungt.'}},
+ latwalk:{n:'Sidesteg med strikk',g:'glute',fig:F.latwalk,acc:1,nokg:1,unit:'steg',rest:40,rx:[[3,12,15],[3,12,15],[3,12,15]],cue:'Pust jevnt, ikke hold pusten. Hold spenning i strikken hele veien.',
+  how:{s:'Strikk rett over knærne, lett knebøy, tærne pekende fram.',d:'Små steg sidelengs. Strikken skal aldri slakne. Gjør like mange steg hver vei.',m:'Overkroppen lener, knærne faller inn, for brede steg.'}},
+ bss:{n:'Bulgarsk splittknebøy',g:'quad',fig:F.bss,main:1,uni:1,rest:90,rx:[[3,8,10],[4,5,6],[4,8,12]],cue:'Rett ned, trykk gjennom fremre hæl. Begge ben.',
+  how:{s:'Bakre fot på en benk eller sofa, fremre fot et stort steg fram, vekter ved sidene.',d:'Senk rett ned til låret er omtrent parallelt med gulvet. Trykk opp gjennom fremre hæl. Ett sett = begge ben.',m:'For nær benken, knærne faller inn, for mye vekt på bakre ben. Kjenner du prikking i hånden av å holde vektene, bruk lettere vekter eller gjør øvelsen uten.'}},
+ stepup:{n:'Step-ups',g:'quad',fig:F.stepup,uni:1,rest:75,rx:[[3,8,10],[3,6,8],[3,8,12]],cue:'Dytt fra fremre ben. 3 s ned. Begge ben.',
+  how:{s:'Solid kasse eller trapp i kneløft, hele foten oppe.',d:'Reis deg uten å dytte fra gulvet, senk 3 s. Ett sett = begge ben.',m:'Du dytter fra bakre fot, hoften faller til siden.'}},
+ slthrust:{n:'Ett-bens hip thrust',g:'glute',fig:F.slthrust,uni:1,rest:75,rx:[[3,8,10],[3,8,10],[3,10,12]],cue:'Hoftene vannrette, 1 s pause i toppen. Begge ben.',
+  how:{s:'Som hip thrust, men ett ben strukket i luften.',d:'Løft hoftene på ett ben, hold dem vannrette og ta 1 s pause øverst. Ett sett = begge ben.',m:'Hoften roterer, korsryggen svaier.'}},
+ sidelying:{n:'Sideliggende hoftehev',g:'glute',fig:F.sidelying,acc:1,nokg:1,uni:1,unit:'reps',rest:40,rx:[[3,12,15],[3,12,15],[3,12,15]],cue:'Tå fram, rolig og kontrollert. Begge sider.',
+  how:{s:'Ligg på siden med hoftene over hverandre.',d:'Løft øvre ben rett opp og litt bakover, tå pekende fram. Senk i 2 s. Ett sett = begge sider.',m:'Beinet svinger med fart, bekkenet ruller bakover.'}},
+ /* tidsstyrte */
+ pf:{n:'Bekkenbunn',g:'core',fig:F.pelvic,time:1,cue:'Spenn rolig, slipp helt, pust jevnt.',
+  how:{s:'Sett 1 liggende, sett 2 stående, sett 3 i bevegelse.',d:'Spenn som om du stopper urinstrålen, hold 3–5 s, slipp helt like lenge. Gjenta rolig i hele settet.',m:'Holder pusten, spenner rumpe og lår i stedet.'}},
+ jump:{n:'Hoppstige',g:'plyo',fig:F.pogo,time:1,cue:'Lette landinger, myke knær.',
+  how:{s:'Velg nivået ditt i innstillingene under. Nivå 1 er hostetesten: hoste hardt og kjenn at bekkenbunnen holder.',d:'Nivå 2 små pogo-hopp, 3 hoppetau, 4 lange sprang (bounds), 5 strides, 6 intervaller. Nivå 5–6 gjør du i løpeøkta.',m:'Hard landing på hælene, for mange hopp når beina er slitne.'}},
+ qi1:{n:'Grunnpust',g:'core',fig:F.breath,time:1,cue:'Pust inn gjennom nesen i 4 s, magen fylles og armene stiger. Pust ut i 6 s, armene synker.',
+  how:{s:'Stå hoftebredde, knærne bløte, hendene foran magen.',d:'Fire sekunder inn, seks ut. La armene følge pusten.',m:'Løfter skuldrene.'}},
+ qi2:{n:'Ba Duan Jin 5: vugg',g:'core',fig:F.sway,time:1,cue:'Pust ut mens du vugger til siden, pust inn tilbake til midten.',
+  how:{s:'Stå vidt, knærne bøyd, hendene på lårene.',d:'La overkroppen og hoftene vugge rolig i en stor bue. Det primer hoftene før hip thrust og markløft.',m:'Presser knærne innover.'}},
+ qi3:{n:'Ba Duan Jin 6: hendene mot føttene',g:'ham',fig:F.fold,time:1,cue:'Pust ut og gli hendene ned langs beina. Pust inn og rull rolig opp.',
+  how:{s:'Stå hoftebredde, hendene på korsryggen.',d:'Gli hendene ned langs baksiden av beina og bøy fram fra hoftene. Rett deg opp sakte. Primer hamstrings.',m:'Bøyer fra ryggen i stedet for hoftene.'}},
+ qi4:{n:'Ba Duan Jin 7: sterk stilling',g:'quad',fig:F.horse,time:1,cue:'Pust ut når du slår, pust inn når hånden trekkes tilbake.',
+  how:{s:'Stå vidt med bøyde knær, nevene ved hoftene.',d:'Slå sakte fram med én neve, trekk tilbake, bytt. Holder aktivering i lår og rumpe.',m:'Knærne faller innover, stiller seg for høyt.'}},
+ qi5:{n:'Vekt fra fot til fot',g:'glute',fig:F.sway,time:1,cue:'Pust ut mens vekten flyttes over, pust inn tilbake til midten.',
+  how:{s:'Vid stilling, lett knebøy.',d:'Flytt vekten helt over på én fot, så den andre. Kjenn rumpa jobbe på støttebenet.',m:'Hoppende bevegelse.'}},
+ qi6:{n:'Avsluttende pust',g:'core',fig:F.breath,time:1,cue:'Rolig pust. Kjenn at du er klar.',
+  how:{s:'Stå rolig.',d:'Tre rolige pust med armene som i grunnpusten.',m:'—'}},
+ runw:{n:'Oppvarming',g:'run',fig:F.run,time:1,cue:'Rolig inn i det. Under 130 bpm.',how:{s:'Rolig gange eller jogg, eller lett tråkk.',d:'Hold pulsen lav og la kroppen komme i gang.',m:'Starter for hardt.'}},
+ runz:{n:'Rolig sone 1–2',g:'run',fig:F.run,time:1,cue:'Under 140 bpm. Du skal kunne snakke.',how:{s:'Løping, tredemølle, innendørs sykkel eller rask gange.',d:'Hold pulsen under 140 bpm (aerob terskel).',m:'Pulsen glir over 140 de første minuttene.'}},
+ runt:{n:'Terskelintervall',g:'run',fig:F.run,time:1,cue:'148–154 bpm. Jevnt, ikke spurt.',how:{s:'Etter oppvarming.',d:'Hold pulsen mellom 148 og 154 bpm de siste to minuttene av hver drag. Start rolig og avslutt sterkest.',m:'Går for hardt ut første minutt.'}},
+ runr:{n:'Rolig mellom dragene',g:'run',fig:F.run,time:1,cue:'Ned mot 130 bpm.',how:{s:'Rolig jogg eller gange.',d:'La pulsen falle før neste drag.',m:'Står helt stille.'}},
+ runc:{n:'Nedkjøling',g:'run',fig:F.run,time:1,cue:'Pulsen ned. Pust rolig.',how:{s:'Rolig gange.',d:'Pust jevnt og la pulsen falle.',m:'Stopper brått.'}},
+ sk1:{n:'Ribbepust',g:'plyo',fig:'',time:1,cue:'Hendene på sidene av ribbeina. Pust inn i 4 s og kjenn ribbeina presse ut mot hendene. Pust ut i 6 s.',
+  how:{s:'Stå eller sitt høyt, hendene på sidene av ribbeina.',d:'Pust inn gjennom nesen så ribbeina utvider seg til sidene og bakover. Pust langsomt ut og la skuldrene synke.',m:'Løfter skuldrene opp mot ørene.'}},
+ sk2:{n:'Nakke-innadtrekk',g:'plyo',fig:'',time:1,cue:'Pust ut og skyv haken rett bakover. Hold 3 s. Pust inn og slipp.',
+  how:{s:'Stå eller sitt høyt med blikket rett fram.',d:'Skyv haken rett bakover, som en liten dobbelthake. Kjenn strekk bak i nakken. Hold 3 s og slipp rolig.',m:'Bøyer hodet ned i stedet for bakover, spenner kjeven.'}},
+ sk3:{n:'Brystrygg over stolrygg',g:'plyo',fig:'',time:1,cue:'Pust inn og len deg bakover over stolryggen i 3 s. Pust ut og kom tilbake.',
+  how:{s:'Sitt langt bak på en stol med rygg, armene i kryss over brystet.',d:'Len deg bakover så stolryggen treffer midt på ryggen. Bøy i brystryggen, ikke i korsryggen. Kom rolig tilbake.',m:'Kaster hodet bakover, svaier i korsryggen.'}},
+ sk4:{n:'Skulderblad bak og ned',g:'plyo',fig:'',time:1,cue:'Pust ut og trekk albuene bakover, skulderbladene ned. Hold 2 s. Pust inn og slipp.',
+  how:{s:'Stå med albuene bøyd 90° inntil kroppen. En lett strikk rundt hendene er valgfritt.',d:'Trekk albuene bakover og skulderbladene bak og ned mot baklommene. Hold 2 s og slipp rolig.',m:'Trekker skuldrene opp, svaier i ryggen.'}},
+ sk5:{n:'Sidebøy',g:'plyo',fig:'',time:1,cue:'Pust inn i siden som strekkes i 4 s. Pust ut og kom tilbake. Bytt side.',
+  how:{s:'Stå hoftebredde, armene ned langs siden.',d:'La én hånd gli ned langs låret mens du bøyer deg rett til siden. Pust inn i siden som strekkes. Kom tilbake og bytt side.',m:'Vrir eller bøyer fram, løfter armen over hodet.'}},
+ pb1:{n:'Knip liggende',g:'core',fig:'',time:1,cue:'Knip så hardt du kan og løft innover, som å stoppe urinstrålen. Hold 6 s, slipp helt og hvil.',
+  how:{s:'Ligg på ryggen med knærne bøyd og føttene i gulvet. Slipp magen og rumpa.',d:'Pust ut og knip nær maks rundt urinrør, skjede og endetarm, som å løfte innover og oppover. Hold 6 s mens du puster rolig. Slipp helt og hvil før neste. 8–12 knip per sett.',m:'Holder pusten, spenner rumpe, lår eller mage i stedet, slipper ikke helt mellom hver.'}},
+ pb2:{n:'Knip stående',g:'core',fig:'',time:1,cue:'Samme knip nær maks, nå stående. Hold 6 s, slipp helt og hvil.',
+  how:{s:'Stå med føttene hoftebredde og bløte knær.',d:'Knip og løft innover som liggende, hold 5 s og slipp helt. Kjenn at du fortsatt puster fritt.',m:'Skyver magen ut, trekker inn rumpa, holder pusten.'}},
+ pb3:{n:'Raske knip',g:'core',fig:'',time:1,cue:'Knip raskt og slipp raskt, ca. ett knip i sekundet. Slipp helt hver gang.',
+  how:{s:'Stå eller sitt, rolig pust.',d:'Knip og slipp raskt og tydelig, omtrent ett knip i sekundet, uten å holde igjen. Dette trener raske reaksjoner, for eksempel ved hoste og hopp.',m:'Slipper ikke helt, bruker lår og rumpe.'}},
+ pb4:{n:'Knip og reis deg',g:'core',fig:'',time:1,cue:'Pust ut og knip før du reiser deg. Hold stilt, slipp og sett deg ned.',
+  how:{s:'Sitt på en stol med føttene i gulvet.',d:'Pust ut, knip og reis deg opp mens du holder knipet. Slipp når du står. Sett deg rolig ned og slipp helt. Øvelsen trener bekkenbunnen i vanlige hverdagsbevegelser.',m:'Holder pusten, slipper knipet midt i reisningen.'}},
+ pb5:{n:'Knip før hoste',g:'core',fig:'',time:1,cue:'Knip først, så host eller nys med knipet. Slipp helt etterpå.',
+  how:{s:'Stå med bløte knær.',d:'Knip før du hoster lett, og hold knipet gjennom hosten. Slipp helt etterpå. Teknikken heter «the knack» og brukes i hverdagen før hoste, nys, løft og hopp.',m:'Hoster før du har knepet, holder pusten, sparker ut magen.'}},
+ row:{n:'Roing med strikk',g:'plyo',fig:'',nokg:1,unit:'reps',rest:45,rx:[[2,12,15],[3,10,12],[3,12,15]],cue:'Pust ut og trekk albuene bak, skulderbladene bak og ned. Hold 1 s. Pust inn og slipp på 2 s.',
+  how:{s:'Strikken festet i brysthøyde foran deg, f.eks. i et dørhåndtak. Stå med lett bøyde knær. Ha strikken rundt hånden, så du slipper å klemme hardt.',d:'Trekk albuene bakover langs kroppen til hendene er ved ribbeina. Klem skulderbladene bak og ned. Slipp rolig tilbake.',m:'Trekker skuldrene opp mot ørene, bøyer håndleddene, svaier i korsryggen.'}},
+ extrot:{n:'Utadrotasjon med strikk',g:'plyo',fig:'',nokg:1,unit:'reps',rest:45,rx:[[2,12,15],[3,10,12],[3,12,15]],cue:'Albuene inntil siden. Pust ut og roter underarmene ut. Hold 1 s. Pust inn og slipp.',
+  how:{s:'Albuene bøyd 90° og inntil kroppen, en lett strikk mellom hendene. Gjerne et sammenrullet håndkle mellom albue og kropp.',d:'Roter underarmene utover mens albuene blir liggende inntil siden. Hold 1 s og slipp rolig. Styrker rotatormansjetten bak i skulderen.',m:'Albuene glipper ut fra kroppen, bøyer håndleddene, for stram strikk.'}},
+ pullapart:{n:'Strikk fra hverandre',g:'plyo',fig:'',nokg:1,unit:'reps',rest:45,rx:[[2,12,15],[3,10,12],[3,12,15]],cue:'Armene rett fram i skulderhøyde. Pust ut og dra strikken ut til siden. Pust inn og slipp.',
+  how:{s:'Hold en lett strikk med armene rett fram i skulderhøyde, ikke høyere. Håndleddene rette.',d:'Dra strikken fra hverandre til hendene er ut til siden, og klem skulderbladene sammen. Slipp rolig tilbake. Trener bakre skulder og midtre del av trapezius.',m:'Løfter armene over skulderhøyde, trekker skuldrene opp, bøyer albuene mye.'}},
+ spunch:{n:'Serratus-skyv med strikk',g:'plyo',fig:'',nokg:1,unit:'reps',rest:45,rx:[[2,12,15],[3,10,12],[3,12,15]],cue:'Armen rett fram. Pust ut og skyv skulderbladet fram, som å strekke deg litt lenger. Pust inn og slipp. Begge armer.',
+  how:{s:'Strikken festet bak deg i brysthøyde, armen rett fram i skulderhøyde. Ha strikken rundt hånden, ikke i et hardt grep.',d:'Skyv hånden noen centimeter lenger fram ved å la skulderbladet gli fram rundt brystkassen, uten å bøye albuen. Slipp rolig. Trener serratus anterior. Ett sett = begge armer.',m:'Bøyer albuen, vrir overkroppen, trekker skulderen opp.'}},
+ b0:{n:'Startposisjon',g:'core',fig:'',time:1,cue:'Sett venstre fot ut i skulderbredde, bøy lett i knærne. Armene svinger ut og samles foran nedre del av magen.',
+  how:{s:'Stå samlet og slapp av i hele kroppen.',d:'Venstre fot ut til skulderbredde. Bløte knær. La armene sveve ut til sidene og samle håndflatene foran dantian, et par fingre under navlen.',m:'Låste knær, løftede skuldre.'}},
+ b1:{n:'1. Løfte hendene mot himmelen',g:'core',fig:'',time:1,cue:'Flett fingrene foran brystet. Press håndflatene opp over hodet, blikket følger. Senk haken, strekk. Armene ned ut til siden.',
+  how:{s:'Fingrene flettet foran magen, håndflatene opp.',d:'Løft hendene til brystet, vend håndflatene og press dem opp over hodet mens blikket følger. Senk haken lett og strekk hele kroppen. Før armene ut til sidene og ned. 6 ganger.',m:'Svaier i korsryggen. Med vond skulder: press bare så høyt det er behagelig.'}},
+ b2:{n:'2. Bueskytteren',g:'core',fig:'',time:1,cue:'Bred hestestilling. Kryss armene foran brystet. Én hånd sikter ut, den andre trekker buestrengen. Bytt side.',
+  how:{s:'Steg ut i hestestilling, armene krysset foran brystet.',d:'Den fremre hånden sikter ut til siden med pekefinger opp og tommel ut. Den andre trekker buestrengen bakover i skulderhøyde. Hold, samle hendene og bytt side. 3 ganger hver vei.',m:'Knærne faller inn, armene over skulderhøyde, skuldrene trekkes opp.'}},
+ b3:{n:'3. Én arm opp',g:'core',fig:'',time:1,cue:'Én håndflate presses opp over hodet, den andre ned ved hoften. Senk mykt og bytt side.',
+  how:{s:'Stå med bløte knær, hendene foran magen.',d:'Press venstre håndflate rett opp over hodet og høyre ned ved hoften samtidig. Senk mykt og bytt. 6 ganger.',m:'Låser albuene helt. Med vond skulder: løft til hodehøyde.'}},
+ b4:{n:'4. Se bakover',g:'core',fig:'',time:1,cue:'Strekk beina, håndflatene ned. Roter armene bakover og drei hodet rolig for å se bak over skulderen. Bytt side.',
+  how:{s:'Stå rett med armene langs siden, håndflatene ned.',d:'Roter armene utover og bakover mens du drar hodet rolig rundt og ser bak over skulderen. Hold litt, kom tilbake og bytt side. 3 ganger hver vei.',m:'Vrir hele overkroppen, presser nakken langt.'}},
+ b5:{n:'5. Svinge hode og hale',g:'core',fig:'',time:1,cue:'Dyp hestestilling, hendene på lårene. Len deg mot én side, tegn en bue fram og sving hode og bekken mot den andre. Bytt retning.',
+  how:{s:'Bred hestestilling, hendene på lårene.',d:'Len overkroppen til siden og tegn en bue fram og over mens bekkenet svinger motsatt vei. Bytt retning. 3 ganger hver vei.',m:'Knærne faller inn, for dyp stilling som gjør vondt.'}},
+ b6:{n:'6. Hendene ned langs rygg og bein',g:'core',fig:'',time:1,cue:'Armene fram og opp. Hendene under armhulene og bak på ryggen. Stryk ned bak på beina til føttene. Strekk armene fram og reis deg.',
+  how:{s:'Stå med strake bein, armene fram og opp.',d:'Før hendene ned foran brystet, under armhulene og bak på ryggen. Stryk ned langs korsryggen og baksiden av beina mens du bøyer deg fram. Strekk armene fram og reis deg rolig. 6 ganger.',m:'Låser knærne hardt. Bøy litt i knærne hvis baksiden av lårene er stram.'}},
+ b7:{n:'7. Støt med knyttneven',g:'core',fig:'',time:1,cue:'Hestestilling, nevene ved midjen. Støt én neve bestemt fram med fokusert blikk. Åpne, vri, knyt og trekk tilbake. Bytt side.',
+  how:{s:'Hestestilling, nevene ved midjen med håndflatene opp.',d:'Støt neven fram med et intenst blikk. Åpne hånden, vri håndflaten, knyt neven igjen og trekk den tilbake til midjen. Bytt side. 3 ganger hver vei.',m:'Bøyer håndleddet. Hold det rett, særlig med carpal tunnel.'}},
+ b8:{n:'8. Hæler opp og ned',g:'core',fig:'',time:1,cue:'Opp på tærne. Senk halvveis, bit tennene lett sammen og hold. Slipp hælene ned for en lett vibrasjon.',
+  how:{s:'Stå samlet med armene langs siden.',d:'Løft deg opp på tærne, senk deg halvveis og hold et øyeblikk. Slipp hælene ned mot gulvet så det går en lett vibrasjon gjennom kroppen. 7 ganger.',m:'For hard landing. Med stram legg: små hævinger.'}},
+ b9:{n:'Avslutning',g:'core',fig:'',time:1,cue:'Løft armene ut til siden og samle hendene over nedre del av magen, venstre hånd over høyre. Pust rolig.',
+  how:{s:'Stå samlet.',d:'Armene sveiper ut til sidene og samles over dantian. Kvinner legger venstre hånd over høyre. Stå noen rolige pust.',m:'Avslutter brått.'}},
+ p1:{n:'Marsj med høye kne',g:'quad',fig:'',time:1,cue:'Løft knærne og sving armene. Øk tempoet gradvis, pulsen mot 110–130.',
+  how:{s:'Stå med føttene hoftebredde.',d:'Marsj på stedet med høye kne og aktiv armsving. Rolig start, så litt raskere.',m:'Lener bakover, tramper hardt.'}},
+ p2:{n:'Sidesteg med armer',g:'quad',fig:'',time:1,cue:'Steg ut til siden og løft armene til skulderhøyde. Ingen hopp.',
+  how:{s:'Stå samlet.',d:'Ta et steg ut til siden mens armene løftes ut til skulderhøyde, og samle igjen. Bytt side i jevnt tempo.',m:'Armene over hodet, hopper.'}},
+ p3:{n:'Knebøy med armsving',g:'quad',fig:'',time:1,cue:'Knebøy i jevnt tempo. Armene svinger fram når du går ned.',
+  how:{s:'Føttene i skulderbredde.',d:'Gå ned i knebøy mens armene svinger fram, reis deg mens de svinger tilbake. Jevnt, lett tempo.',m:'Knærne faller inn, hælene løftes.'}},
+ p4:{n:'Sideutfall',g:'quad',fig:'',time:1,cue:'Bred stilling. Flytt vekten ned mot ett kne, så det andre. Varmer opp innside lår og sete.',
+  how:{s:'Stå bredt med tærne litt ut.',d:'Bøy ett kne og skyv hoften bakover mot den siden, mens det andre beinet er strakt. Tilbake til midten og bytt.',m:'Kneet faller inn, rund rygg.'}},
+ wA:{n:'Oppvarmingssett hip thrust',g:'glute',fig:F.hipthrust,time:1,cue:'8 rolige reps med omtrent halv arbeidsvekt. Kjenn rumpa jobbe.',
+  how:{s:'Som hip thrust.',d:'Et lett sett før arbeidssettene gjør at første tunge sett blir tryggere og sterkere.',m:'Går for tungt allerede her.'}},
+ wB:{n:'Oppvarmingssett splittknebøy',g:'quad',fig:F.bss,time:1,cue:'6 rolige reps per ben uten vekt eller med lette manualer.',
+  how:{s:'Som bulgarsk splittknebøy.',d:'Et lett sett før arbeidssettene gjør at første tunge sett blir tryggere og sterkere.',m:'Går for tungt allerede her.'}},
+ v1:{n:'Syklus 1: Rolig start',g:'core',fig:'',time:1,cue:'Tøm lungene. Pust inn i magen i 4 s. Hold 7 s og svelg én gang. Pust ut i 8 s med en lav summetone, hmmm.',
+  how:{s:'Sitt fremst på en stol, føttene bredere enn skuldrene. Len deg fram med albuene på knærne og la hodet henge tungt.',d:'Pust inn gjennom nesen så magen presses mot lårene. Hold pusten og svelg én gang. Pust ut gjennom munnen med en lav, jevn summetone.',m:'Presser pusten inn med skuldrene, holder så lenge at du blir svimmel.'}},
+ v2:{n:'Syklus 2: Tunge og bekkenbunn',g:'core',fig:'',time:1,cue:'Pust inn i 4 s med tungen presset mot ganen. Hold 7 s og stram bekkenbunnen. Pust ut i 8 s med summetone og slipp alt.',
+  how:{s:'Samme sittende stilling, hodet hengende.',d:'Press tungen mot ganen på innpusten. I holdet strammer du bekkenbunnen som når du knipper. På utpusten slipper du både tunge og bekkenbunn helt.',m:'Spenner rumpe og mage i stedet for bekkenbunnen, slipper ikke helt.'}},
+ v3:{n:'Syklus 3: Se målet',g:'core',fig:'',time:1,cue:'Pust inn i 4 s og se for deg et mål du har nådd. Hold 7 s, kjenn følelsen og svelg. Pust ut i 8 s med summetone.',
+  how:{s:'Samme sittende stilling.',d:'Se for deg øyeblikket der målet er nådd, med detaljer. Kjenn hvordan det føles i brystet og magen mens du holder. La følelsen spre seg på utpusten.',m:'Prøver for hardt. Det holder med et enkelt bilde.'}},
+ v4:{n:'Syklus 4: Alt sammen',g:'core',fig:'',time:1,cue:'Pust inn i magen i 4 s. Hold 7 s med tungen mot ganen, bekkenbunnen strammet og ett svelg. Pust ut i 8 s med summetone og slipp alt.',
+  how:{s:'Samme sittende stilling. Sett deg rolig opp til slutt og åpne øynene.',d:'Kombiner tunge, bekkenbunn og svelg i holdet. Slipp alt på den summende utpusten.',m:'Reiser deg brått etterpå. Bli sittende noen sekunder.'}},
+ h1:{n:'Sentrerende pust og hilsen',g:'core',fig:'',time:1,cue:'Føttene samlet, armene langs siden. Pust dypt ned i magen. Avslutt med hilsen: høyre knyttneve mot venstre håndflate og et lett bukk.',
+  how:{s:'Stå med føttene samlet og hendene langs siden.',d:'Pust inn gjennom nesen ned i magen i 4 s, pust ut i 6 s. Gjør hilsenen til slutt.',m:'Løfter skuldrene når du puster inn.'}},
+ h2:{n:'Skulder- og kroppsrulling',g:'core',fig:'',time:1,cue:'Store, myke sirkler med skuldrene og overkroppen. Snu retning halvveis.',
+  how:{s:'Stå hoftebredde med armene hengende løst.',d:'Rull skuldrene opp, bakover og ned, og la overkroppen følge med. Bytt retning etter halve tiden.',m:'Rykkete bevegelser, holder pusten.'}},
+ h3:{n:'Håndledd og ankler',g:'core',fig:'',time:1,cue:'Rolige sirkler med håndleddene, og med én ankel om gangen. Bytt side halvveis.',
+  how:{s:'Stå stødig, gjerne med en hånd mot vegg når du sirkler ankelen.',d:'Sirkle håndleddene mykt begge veier. Løft én fot og sirkle ankelen, bytt fot halvveis.',m:'For store eller raske sirkler. Hold det rolig hvis håndleddet prikker.'}},
+ h4:{n:'Ryggradspust',g:'core',fig:'',time:1,cue:'Pust inn og åpne brystet, armene strekkes bakover, smil. Pust ut og krum ryggen lett.',
+  how:{s:'Stå med bløte knær.',d:'Innpust: løft brystet og før armene bakover. Utpust: krum ryggen, la armene komme fram og haken synke. Bevegelsen går gjennom hele ryggen.',m:'Svaier i korsryggen i stedet for å åpne brystet, kaster hodet bakover.'}},
+ h5:{n:'Nakke: ja og nei',g:'core',fig:'',time:1,cue:'Nikk rolig ja, opp og ned. Snu så hodet rolig nei fra side til side.',
+  how:{s:'Stå eller sitt høyt, skuldrene avslappet.',d:'Nikk sakte ned og opp et par ganger. Snu deretter hodet rolig til hver side, bare så langt det er behagelig.',m:'Raske bevegelser, presser ut i ytterstilling.'}},
+ h6:{n:'Skyt ørnen med buen',g:'core',fig:'',time:1,cue:'Bred hestestilling. Én hånd sikter ut til siden, den andre trekker buestrengen. Hold med dyp pust, slipp og bytt side.',
+  how:{s:'Stå bredt med bøyde knær, håndleddene samlet foran brystet.',d:'Den ene hånden sikter ut til siden med pekefinger og tommel som en L. Den andre trekker buestrengen bakover ved brystet. Hold med myk styrke og dype pust i magen. Slipp buen og bytt side.',m:'Knærne faller innover, armen løftes over skulderhøyde, skuldrene trekkes opp.'}},
+ h7:{n:'Skille himmel og jord',g:'core',fig:'',time:1,cue:'Øs foran magen. Én håndflate presser opp, den andre ned. Bytt side i takt med pusten.',
+  how:{s:'Stå hoftebredde, hendene samlet foran magen.',d:'På innpust presser én håndflate opp og den andre ned, blikket følger den øverste hånden. På utpust samles hendene foran magen. Bytt side.',m:'Strekker albuen helt. Med vond skulder: løft bare til hodehøyde.'}},
+ h8:{n:'Favne treet, tre pust',g:'core',fig:'',time:1,cue:'Armene krummet foran brystet som rundt en trestamme. Tre lange, bevisste utpust.',
+  how:{s:'Bløte knær, armene i en rund ring foran brystet.',d:'Pust inn rolig, og la utpusten bli lang og tømmende. Kjenn at skuldrene synker.',m:'Løfter skuldrene, spenner armene.'}},
+ h9:{n:'Tigeren',g:'core',fig:'',time:1,cue:'Len deg fram med rett rygg og strake armer. På utpust føres overkroppen over det ene benet, tilbake, så over det andre.',
+  how:{s:'Føttene bredt, knærne lett bøyd, overkroppen fram med rett rygg og armene i forlengelsen.',d:'Før overkroppen mykt ut over ett ben på utpust, tilbake til midten på innpust, og over det andre benet.',m:'Runder ryggen, låser knærne.'}},
+ h10:{n:'Foroverbøy med bryståpner',g:'core',fig:'',time:1,cue:'Fold fram med god bøy i knærne. Flett hendene bak ryggen og løft mot taket. Fem rolige pust, rull opp. To ganger.',
+  how:{s:'Stå hoftebredde, hendene flettet bak ryggen.',d:'Bøy i knærne og fold overkroppen fram. Løft de flettede hendene bort fra ryggen. Hold fem rolige pust og rull rolig opp.',m:'Strake knær som belaster korsryggen. Med vond skulder eller prikking i hånden: løft bare litt, eller la hendene hvile på korsryggen.'}},
+ h11:{n:'Risting og sprett',g:'core',fig:'',time:1,cue:'Rist og sprett mykt på føttene. Sukk høyt ut.',
+  how:{s:'Stå løst med bløte knær.',d:'Sprett lett i knærne og la armene og skuldrene riste løst. Sukk hørbart på utpust.',m:'Hopper for hardt. Kjenner du bekkenbunnen, hold sprettene små.'}},
+ h12:{n:'Stående meditasjon',g:'core',fig:'',time:1,cue:'Stå helt stille med armene i ring. Pusten roer seg, oppmerksomheten synker ned i magen.',
+  how:{s:'Bløte knær, armene i en rund ring foran brystet.',d:'Stå stille omtrent ett minutt. Kjenn føttene mot gulvet og pusten i magen.',m:'Låser knærne, holder pusten.'}},
+ h13:{n:'Samle himmel og jord',g:'core',fig:'',time:1,cue:'Løft hendene ut til siden med håndflatene opp. Senk dem foran kroppen med håndflatene ned. Avslutt med hilsen.',
+  how:{s:'Stå med føttene samlet.',d:'Innpust: hendene løftes ut til siden med håndflatene opp. Utpust: de senkes foran kroppen med håndflatene ned. Avslutt med hilsen og et lett bukk.',m:'Løfter skuldrene med armene.'}}
+};
+var QI=[['qi1',75],['qi2',90],['qi3',90],['qi4',90],['qi5',75],['qi6',60]];
+var NK={b0:1,b1:1,b2:1,b3:1,b4:1,b5:1,b6:1,b7:1,b8:1,b9:1,h1:1,h2:1,h3:1,h4:1,h5:1,h6:1,h7:1,h8:1,h9:1,h10:1,h11:1,h12:1,h13:1,qi1:1,qi2:1,qi3:1,qi4:1,qi5:1,qi6:1,sk1:1,sk2:1,sk3:1,sk4:1,sk5:1,row:1,extrot:1,pullapart:1,spunch:1};
+var PH=[{n:'Grunnlag',w:'Uke 1–4',rir:'RIR 2–3'},{n:'Tung',w:'Uke 5–8',rir:'RIR 2'},{n:'Hypertrofi',w:'Uke 9–12',rir:'RIR 0–1'}];
+var SESS={A:{n:'Styrke A',sub:'Mandag · glute',g:'glute'},B:{n:'Styrke B',sub:'Fredag · ett-bens',g:'quad'},K:{n:'Kondisjon',sub:'Rolig eller terskel',g:'run'},Q:{n:'Qi gong',sub:'Baduanjin · 12 min',g:'core'},H:{n:'Høst-qi gong',sub:'Rolig flyt · 11 min',g:'core'},V:{n:'Vagus-pust',sub:'Sittende · 4 min',g:'core'},W:{n:'Skulder og nakke',sub:'Daglig · 5 min',g:'plyo'},P:{n:'Bekkenbunn',sub:'Daglig · 7 min',g:'core'}};
+
+/* ---------- Tilstand ---------- */
+var S={view:'okt',sess:['A','K','K','Q','B','K','P'][(new Date().getDay()+6)%7],wkOv:0,kv:'easy',mins:30,run:null,
+  log:{entries:[],sessions:[],settings:{jump:1,sound:true}},store:'',saved:'',confirmEnd:false};
+function today(){try{return new Date().toLocaleDateString('sv-SE');}catch(e){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);}}
+function curWeek(){if(S.wkOv)return S.wkOv;var st=new Date(2026,9,19),n=new Date(),t=new Date(n.getFullYear(),n.getMonth(),n.getDate());var d=Math.floor((t-st)/864e5);return Math.max(1,Math.min(12,Math.floor(d/7)+1));}
+function phaseIdx(w){return w<=4?0:(w<=8?1:2);}
+function rxFor(id){var r=EX[id].rx[phaseIdx(curWeek())];return {sets:r[0],lo:r[1],hi:r[2]};}
+function fmt(sec){sec=Math.max(0,Math.ceil(sec));var m=Math.floor(sec/60),s=sec%60;return ('0'+m).slice(-2)+':'+('0'+s).slice(-2);}
+function live(t){$('#live').textContent='';setTimeout(function(){$('#live').textContent=t;},30);}
+
+/* ---------- Historikk og forslag ---------- */
+function hist(id){var m={};S.log.entries.forEach(function(e){if(e.ex===id){(m[e.d]=m[e.d]||[]).push(e);}});return Object.keys(m).sort().map(function(d){return {d:d,es:m[d]};});}
+function suggest(id){
+  var h=hist(id);if(!h.length)return null;
+  var last=h[h.length-1].es,kg=Math.max.apply(null,last.map(function(e){return e.kg||0;}));
+  var r=rxFor(id),hit=last.length>=r.sets&&last.every(function(e){return e.r>=r.hi;});
+  return {kg:hit?kg+2.5:kg,up:hit,last:last};
+}
+
+/* ---------- Bygg økt ---------- */
+function strengthSteps(ids){
+  var out=[];
+  ids.forEach(function(id,xi){
+    var r=rxFor(id),ex=EX[id];
+    for(var s=1;s<=r.sets;s++){
+      out.push({k:'reps',ex:id,set:s,of:r.sets,lo:r.lo,hi:r.hi});
+      var lastOfAll=(xi===ids.length-1&&s===r.sets);
+      if(!lastOfAll){
+        var nextId=(s<r.sets)?id:ids[xi+1],nextSet=(s<r.sets)?s+1:1;
+        out.push({k:'rest',ex:nextId,dur:(s<r.sets?ex.rest:60),nextSet:nextSet,label:s<r.sets?'Neste sett':'Neste øvelse'});
+      }
+    }
+  });
+  return out;
+}
+function tm(id,dur,extra){var o={k:'time',ex:id,dur:dur};if(extra)for(var k in extra)o[k]=extra[k];return o;}
+function qiSteps(scale){return QI.map(function(q){return tm(q[0],Math.round(q[1]*scale));});}
+function pfSteps(){var o=[];for(var i=1;i<=3;i++){o.push(tm('pf',45,{set:i,of:3,sub:['Liggende','Stående','I bevegelse'][i-1]}));if(i<3)o.push({k:'rest',ex:'pf',dur:15,nextSet:i+1,label:'Neste sett',timeNext:true});}return o;}
+/* Oppvarming: 4 min puls (mot 110–130 bpm), 3 Baduanjin-øvelser som åpner hofter og bakside, bekkenbunn, så et lett spesifikt sett. */
+function warmSteps(){return [tm('p1',60),tm('p2',60),tm('p3',60),tm('p4',60),tm('b2',60),tm('b5',60),tm('b6',60)];}
+function baduanjin(){return [tm('b0',40),tm('b1',90),tm('b2',100),tm('b3',80),tm('b4',70),tm('b5',90),tm('b6',80),tm('b7',90),tm('b8',50),tm('b9',40)];}
+function buildSteps(sess){
+  var w=curWeek(),ph=phaseIdx(w),st=[];
+  if(sess==='A'){
+    st=st.concat(warmSteps(),pfSteps(),[tm('wA',45)],strengthSteps(['hipthrust','rdl','chairsquat','latwalk','row','extrot']));
+  }else if(sess==='B'){
+    var jl=Math.min(S.log.settings.jump||1,4);
+    st=st.concat(warmSteps(),pfSteps());
+    if(ph===0)st.push(tm('jump',60,{sub:'Nivåsjekk · nivå '+Math.min(S.log.settings.jump||1,4)}));
+    else for(var j=1;j<=3;j++){st.push(tm('jump',30,{set:j,of:3,sub:'Nivå '+jl}));st.push({k:'rest',ex:'jump',dur:45,nextSet:j+1,label:j<3?'Neste sett':'Neste øvelse',timeNext:true});}
+    st=st.concat([tm('wB',45)],strengthSteps(['bss','stepup','slthrust','sidelying','pullapart','spunch']));
+  }else if(sess==='K'){
+    st.push(tm('runw',S.kv==='easy'?300:600));
+    if(S.kv==='easy')st.push(tm('runz',S.mins*60));
+    else for(var i=1;i<=4;i++){st.push(tm('runt',240,{set:i,of:4}));if(i<4)st.push(tm('runr',180));}
+    st.push(tm('runc',300));
+  }else if(sess==='V'){
+    st=[tm('v1',63),tm('v2',63),tm('v3',63),tm('v4',63)];
+  }else if(sess==='H'){
+    st=[tm('h1',40),tm('h2',40),tm('h3',40),tm('h4',45),tm('h5',40),tm('h6',90),tm('h7',60),tm('h8',45),tm('h9',60),tm('h10',70),tm('h11',30),tm('h12',60),tm('h13',40)];
+  }else if(sess==='P'){
+    st=[tm('pb1',130),tm('pb2',130),tm('pb3',45),tm('pb4',90),tm('pb5',45)];
+  }else if(sess==='W'){
+    st=[tm('sk1',60),tm('sk2',60),tm('sk3',60),tm('sk4',60),tm('sk5',70)];
+  }else{
+    st=baduanjin();
+  }
+  return st;
+}
+function planOf(steps){
+  var out=[],prev=null;
+  steps.forEach(function(s){
+    if(s.k==='rest')return;
+    if(prev&&prev.ex===s.ex){prev.n++;prev.dur+=s.dur||0;return;}
+    prev={ex:s.ex,n:1,dur:s.dur||0,k:s.k,lo:s.lo,hi:s.hi};out.push(prev);
+  });
+  return out;
+}
+function planDetail(p){
+  var ex=EX[p.ex];
+  if(p.k==='reps'){var u=ex.unit==='steg'?' steg':'';return p.n+' × '+p.lo+(p.hi!==p.lo?'–'+p.hi:'')+u;}
+  var m=Math.round(p.dur/60*10)/10;return (m<1?p.dur+' s':String(m).replace('.',',')+' min')+(p.n>1&&p.k==='time'?'':'');
+}
+function estMin(steps){var t=0;steps.forEach(function(s){t+=(s.k==='reps')?45:s.dur;});return Math.round(t/60);}
+
+/* ---------- Motor ---------- */
+var tick=null,ac=null,wl=null,saveT=null,saving=false,pending=false,ref=null;
+function beep(f,d){if(!S.log.settings.sound)return;try{if(navigator.vibrate)navigator.vibrate(Math.round((d||.12)*1000));}catch(e){}try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.value=.08;o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+(d||.12));}catch(e){}}
+function startSession(){
+  var steps=buildSteps(S.sess);
+  S.run={steps:steps,i:0,t0:performance.now(),paused:false,pausedAt:0,begun:Date.now(),logged:[],cur:null,last:99,done:false,sess:S.sess,nk:0};
+  S.confirmEnd=false;
+  enter(0,true);
+  keepAwake();
+  clearInterval(tick);tick=setInterval(onTick,200);
+  beep(880);
+}
+function keepAwake(){try{if(navigator.wakeLock)navigator.wakeLock.request('screen').then(function(l){wl=l;}).catch(function(){});}catch(e){}}
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&S.run&&!S.run.done)keepAwake();});
+function stepName(s){var ex=EX[s.ex];return ex.n;}
+function enter(i,first){
+  var r=S.run;r.i=i;r.t0=performance.now();r.paused=false;r.last=99;
+  var s=r.steps[i];
+  if(s.k==='reps'){
+    var prev=null;r.logged.forEach(function(l){if(l.e.ex===s.ex)prev=l.e;});
+    var sg=suggest(s.ex);
+    r.cur={kg:prev?prev.kg:(sg?sg.kg:0),r:s.hi};
+  }
+  var t=(s.k==='rest')?'Hvile. '+s.label+': '+EX[s.ex].n:EX[s.ex].n+(s.set?', sett '+s.set+' av '+s.of:'');
+  live(t);render();
+  if(!first){try{window.scrollTo(0,0);}catch(e){}}
+  var p=$('#primary');if(p&&!first)p.focus({preventScroll:true});
+}
+function accrue(){var r=S.run;if(!r||r.done)return;var s=r.steps[r.i];if(s&&s.k!=='rest'&&NK[s.ex])r.nk+=Math.min(elapsed(),s.k==='time'?s.dur:300);}
+function advance(){var r=S.run;accrue();if(r.i+1>=r.steps.length){finish(true);return;}beep(880);enter(r.i+1);}
+function elapsed(){var r=S.run;return ((r.paused?r.pausedAt:performance.now())-r.t0)/1000;}
+function onTick(){
+  var r=S.run;if(!r||r.done||r.paused)return;
+  var s=r.steps[r.i],e=elapsed(),tmEl=$('#tm'),bar=$('#bar');
+  if(s.k==='reps'){if(tmEl)tmEl.textContent=fmt(Math.floor(e));return;}
+  var rem=s.dur-e;
+  if(rem<=0){advance();return;}
+  if(tmEl)tmEl.textContent=fmt(rem);
+  if(bar)bar.style.width=Math.min(100,e/s.dur*100)+'%';
+  var w=Math.ceil(rem);if(w<=3&&w!==r.last){beep(660,.08);}r.last=w;
+}
+function togglePause(){var r=S.run;if(r.paused){r.t0+=performance.now()-r.pausedAt;r.paused=false;}else{r.paused=true;r.pausedAt=performance.now();}render();live(r.paused?'Pause':'Fortsetter');}
+function doneSet(){
+  var r=S.run,s=r.steps[r.i];
+  var e={id:newId(),d:today(),s:r.sess,ex:s.ex,n:s.set,kg:EX[s.ex].nokg?0:(r.cur.kg||0),r:r.cur.r||0};
+  S.log.entries.push(e);r.logged.push({i:r.i,e:e});scheduleSave();advance();
+}
+function undo(){
+  var r=S.run,l=r.logged.pop();if(!l)return;
+  var ix=S.log.entries.lastIndexOf(l.e);if(ix>=0)S.log.entries.splice(ix,1);
+  (S.log.del=S.log.del||[]).push(eKey(l.e));
+  scheduleSave();enter(l.i);
+}
+function skip(){advance();}
+function addTime(){var r=S.run;r.steps[r.i].dur+=15;render();}
+function finish(accrued){
+  var r=S.run;if(!accrued)accrue();r.done=true;clearInterval(tick);try{if(wl)wl.release();}catch(e){}
+  r.secs=Math.round((Date.now()-r.begun)/1000);
+  S.log.sessions.push({id:newId(),d:today(),s:r.sess,secs:r.secs,sets:r.logged.length,nk:Math.round(r.nk)});
+  scheduleSave();beep(988,.25);live('Økten er ferdig');render();
+}
+function abort(){
+  if(!S.confirmEnd){S.confirmEnd=true;render();live('Trykk Avslutt en gang til for å avslutte');return;}
+  accrue();var r=S.run;
+  if(r&&r.nk>=60){S.log.sessions.push({id:newId(),d:today(),s:r.sess,secs:Math.round((Date.now()-r.begun)/1000),sets:r.logged.length,nk:Math.round(r.nk),partial:true});scheduleSave();}
+  clearInterval(tick);try{if(wl)wl.release();}catch(e){}
+  S.run=null;S.confirmEnd=false;render();
+}
+
+/* ---------- Lagring ---------- */
+/* Flere faner og enheter kan skrive samme logg. Hver lagring leser først det som ligger lagret,
+   slår sammen (union) og skriver så tilbake, så ingen visning overskriver en annen. Slettinger huskes i del. */
+function newId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+function eKey(e){return e.id||[e.d,e.s,e.ex,e.n,e.kg,e.r].join('|');}
+function sKey(s){return s.id||[s.d,s.s,s.secs,s.sets,s.manual?'m':'',s.partial?'p':''].join('|');}
+function mergeLog(a,b){
+  a=a||{};b=b||{};var del={};(a.del||[]).concat(b.del||[]).forEach(function(k){del[k]=1;});
+  function u(xa,xb,f){var seen={},out=[];(xa||[]).concat(xb||[]).forEach(function(x){var k=f(x);if(!seen[k]&&!del[k]){seen[k]=1;out.push(x);}});return out;}
+  var st={};var bs=b.settings||{},as=a.settings||{};for(var k in bs)st[k]=bs[k];for(var k2 in as)st[k2]=as[k2];
+  return {entries:u(a.entries,b.entries,eKey),sessions:u(a.sessions,b.sessions,sKey).sort(function(x,y){return x.d<y.d?-1:(x.d>y.d?1:0);}),settings:st,del:Object.keys(del)};
+}
+function sizeOf(l){return (l.entries||[]).length+'/'+(l.sessions||[]).length+'/'+(l.del||[]).length;}
+function snapshot(){return {v:2,entries:S.log.entries,sessions:S.log.sessions,settings:S.log.settings,del:S.log.del||[]};}
+function clock(){var d=new Date();return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);}
+function setStatus(t){S.saved=t;var a=$('#saved');if(a)a.textContent=t;var b=$('#savestat');if(b)b.textContent=t;}
+function scheduleSave(){setStatus('Lagrer …');clearTimeout(saveT);saveT=setTimeout(doSave,600);}
+function lsSave(){try{localStorage.setItem('loft-og-lop',JSON.stringify(snapshot()));return true;}catch(e){return false;}}
+function adopt(remote){var before=sizeOf(S.log),m=mergeLog(S.log,remote);S.log.entries=m.entries;S.log.sessions=m.sessions;S.log.settings=m.settings;S.log.del=m.del;return sizeOf(S.log)!==before;}
+function doSave(){
+  if(saving){pending=true;return;}
+  saving=true;var okLs=lsSave();
+  var p=ref?ref.get().then(function(sn){if(sn.exists&&adopt(sn.data())&&!S.run)render();return ref.set(snapshot());}):Promise.resolve();
+  p.then(function(){lsSave();setStatus(ref?'Lagret i kontoen din '+clock():(okLs?'Lagret på denne enheten '+clock():'Kan ikke lagre i denne nettleseren. Sjekk at lagring av nettstedsdata er tillatt, og at du ikke er i privat modus.'));})
+   .catch(function(e){setStatus('Kunne ikke lagre i kontoen'+(e&&e.code?' ('+e.code+')':'')+(okLs?'. Lagret på denne enheten, prøver igjen ved neste endring.':'.'));})
+   .then(function(){saving=false;if(pending){pending=false;doSave();}});
+}
+function initStore(){
+  var use=(window.claude&&window.claude.use)?window.claude.use.bind(window.claude):null;
+  try{var t=localStorage.getItem('loft-og-lop');if(t)adopt(JSON.parse(t));}catch(e){}
+  function local(){S.store='ls';render();}
+  if(!use){local();return;}
+  Promise.all([use('db'),use('user')]).then(function(r){
+    var db=r[0],user=r[1];
+    if(!db||!user){local();return;}
+    return user.id().then(function(id){
+      if(!id){local();return;}
+      ref=db.doc('data/users/'+id+'/logg');
+      return ref.get().then(function(sn){
+        var before=sizeOf(S.log);if(sn.exists)adopt(sn.data());S.store='db';
+        var remoteSize=sn.exists?sizeOf(mergeLog(sn.data(),{})):'';
+        if(!sn.exists||sizeOf(S.log)!==remoteSize)scheduleSave();
+        if(!S.run)render();
+        ref.onSnapshot(function(s2){if(s2.exists&&!s2.metadata.hasPendingWrites&&adopt(s2.data())&&!S.run)render();},function(){});
+      });
     });
-    const target = document.getElementById('page-' + id);
-    target.classList.add('active');
-    document.getElementById('tab-' + id).setAttribute('aria-current', 'page');
+  }).catch(function(){ref=null;local();});
+}
 
-    if (id === 'log') renderHistory();
-
-    // Flytt fokus til overskrift for skjermlesarar (WCAG 2.4.3)
-    const heading = target.querySelector('h1');
-    if (heading) { heading.setAttribute('tabindex', '-1'); heading.focus(); }
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+/* ---------- Visning ---------- */
+function mcol(g){return 'style="--m:var('+GV[g]+')"';}
+function metaLine(){var w=curWeek(),p=PH[phaseIdx(w)];return 'Uke '+w+' av 12 · '+p.n+' · '+p.rir;}
+function viewOkt(){
+  var r=S.run;
+  if(r&&r.done)return viewDone();
+  if(r)return viewRun();
+  var steps=buildSteps(S.sess),plan=planOf(steps),se=SESS[S.sess],isToday=S.sess===planToday();
+  var h='<section aria-labelledby="h-okt">';
+  h+='<div class="card sec" style="margin-top:6px"><div class="hero"><div><div class="kick">'+metaLine()+'</div><h2 id="h-okt" tabindex="-1">'+se.n+(isToday?'<span class="today-tag">I dag</span>':'')+'</h2><p class="note">ca. '+estMin(steps)+' min</p></div>'+
+   '<button type="button" class="btn pri big" data-act="start">Start økt</button></div>';
+  if(S.sess==='Q'){
+    h+='<div class="sec"><p class="note">Baduanjin, de åtte brokadene, i klassisk rekkefølge med startposisjon og avslutning. Bevegelsene er rolige og følger pusten. Med vond skulder: løft armene bare så høyt det er behagelig i øvelse 1 og 3. Med stram legg: små hævinger i øvelse 8.</p></div>';
   }
-
-  function saveLog(type, successId, checklistId) {
-    if (checklistId) {
-      document.querySelectorAll('#' + checklistId + ' input[type="checkbox"]')
-        .forEach(el => { el.checked = false; });
-    }
-
-    const logs = JSON.parse(localStorage.getItem('treningslogg') || '[]');
-    logs.push({ dato: new Date().toLocaleDateString('no-NO'), type });
-    localStorage.setItem('treningslogg', JSON.stringify(logs));
-    updateStreak(logs);
-
-    // Varsle skjermlesarar via live region
-    document.getElementById('liveRegion').textContent = type + ' er lagra!';
-
-    const msg = document.getElementById(successId);
-    if (msg) {
-      msg.classList.add('show');
-      setTimeout(() => {
-        msg.classList.remove('show');
-        showPage('home');
-      }, 1800);
-    }
+  if(S.sess==='A'||S.sess==='B'){
+    h+='<div class="sec"><p class="note">Oppvarmingen starter med 4 minutter puls, mot 110–130 bpm, under din aerobe terskel på 140. Deretter tre Baduanjin-øvelser som åpner hofter og bakside, bekkenbunn og et lett oppvarmingssett før de tunge settene.</p></div>';
   }
-
-  function renderHistory() {
-    const logs = JSON.parse(localStorage.getItem('treningslogg') || '[]');
-    const el = document.getElementById('historyList');
-    if (!logs.length) {
-      el.innerHTML = '<li class="log-empty">Ingen økter ennå 🌱</li>';
-      return;
-    }
-    el.innerHTML = logs.slice().reverse().slice(0, 20).map(l =>
-      `<li class="log-entry">
-        <span class="log-date">${l.dato}</span>
-        <span class="log-type">${l.type}</span>
-      </li>`
-    ).join('');
+  if(S.sess==='V'){
+    h+='<div class="sec"><p class="note">Etter <a class="ilink" href="https://www.youtube.com/watch?v=cTQE_O_UdH0" target="_blank" rel="noopener">denne videoen<span class="sr"> (åpnes i ny fane)</span></a>: 4-7-8-pust i foroverlent sittestilling, med summetone, svelg, tunge mot ganen og bekkenbunn. Bruk den om morgenen eller før en viktig samtale. Rolig pust med lang utpust øker pulsvariabiliteten (<a class="ilink" href="https://doi.org/10.1016/j.neubiorev.2022.104711" target="_blank" rel="noopener">Laborde mfl. 2022<span class="sr"> (åpnes i ny fane)</span></a>), og summing ser ut til å virke like godt som vanlig rolig pust (<a class="ilink" href="https://doi.org/10.1016/j.physbeh.2025.114972" target="_blank" rel="noopener">Woo og Kim 2025<span class="sr"> (åpnes i ny fane)</span></a>). Påstandene om manifestasjon i videoen har ingen forskningsstøtte. Blir du svimmel, kort ned holdet til 3–4 s og sett deg rolig opp.</p></div>';
   }
-
-  function updateStreak(logs) {
-    const badge = document.getElementById('streakBadge');
-    if (!logs.length) { badge.textContent = '🔥 0 dager på rad'; return; }
-    const dates = [...new Set(logs.map(l => l.dato))];
-    let streak = 0;
-    const today = new Date();
-    for (let i = 0; i < 60; i++) {
-      const d = new Date(today);
-      d.setDate(today.getDate() - i);
-      if (dates.includes(d.toLocaleDateString('no-NO'))) streak++;
-      else break;
-    }
-    const label = streak === 1 ? '1 dag på rad' : streak + ' dager på rad';
-    badge.textContent = '🔥 ' + label;
-    badge.setAttribute('aria-label', 'Streak: ' + label);
+  if(S.sess==='H'){
+    h+='<div class="sec"><p class="note">Samme rekkefølge som <a class="ilink" href="https://www.youtube.com/watch?v=BYxKSvc3fNs" target="_blank" rel="noopener">Autumn Qigong to Slow Down &amp; Let Go<span class="sr"> (åpnes i ny fane)</span></a> med George Thompson. Teller mot nakke- og skulderminuttene. Med vond skulder: løft armene bare til hodehøyde i Skille himmel og jord og i foroverbøyen.</p></div>';
   }
+  if(S.sess==='P'){
+    h+='<div class="sec"><p class="note">Gjør rutinen hver dag, gjerne på samme tid, for eksempel i sengen eller etter qi gong. Slipp helt mellom hvert knip. Gjør Knip før hoste også i hverdagen ved hoste, nys og løft. Opplever du lekkasje, tyngdefølelse eller smerte, bør du få time hos en fysioterapeut som kan bekkenbunn.</p></div>';
+  }
+  if(S.sess==='W'){
+    h+='<div class="sec"><p class="note">Gjør rutinen rolig, gjerne hver dag. Stopp hvis prikking eller nummenhet i armen eller hånden øker under eller etter. Vis gjerne rutinen til fysioterapeuten din.</p></div>';
+  }
+  if(S.sess==='K'){
+    h+='<div class="sec"><div class="row" role="group" aria-label="Type kondisjon"><button type="button" class="btn" data-act="kv" data-v="easy" aria-pressed="'+(S.kv==='easy')+'">Rolig, under 140 bpm</button><button type="button" class="btn" data-act="kv" data-v="thr" aria-pressed="'+(S.kv==='thr')+'">Terskel 4 × 4 min</button></div>';
+    if(S.kv==='easy')h+='<div class="row" style="margin-top:10px" role="group" aria-label="Varighet">'+[20,30,40,50].map(function(m){return '<button type="button" class="btn" data-act="min" data-v="'+m+'" aria-pressed="'+(S.mins===m)+'">'+m+' min</button>';}).join('')+'</div>';
+    h+='<p class="note" style="margin-top:10px">Glatt ute? Ta tredemølle eller innendørs sykkel, eller gå ute med brodder. Terskel legges minst 48 timer etter Styrke A.</p></div>';
+  }
+  if(S.sess==='B'){
+    h+='<div class="sec"><div class="kick">Hoppstige-nivå</div><div class="row" style="margin-top:6px" role="group" aria-label="Hoppstige-nivå">'+[1,2,3,4,5,6].map(function(n){return '<button type="button" class="btn" data-act="jump" data-v="'+n+'" aria-pressed="'+(S.log.settings.jump===n)+'" aria-label="Nivå '+n+'">'+n+'</button>';}).join('')+'</div>'+
+     '<p class="note" style="margin-top:8px">'+(phaseIdx(curWeek())===0?'Hopp kommer inn som 3 × 30 s fra uke 5. Nå er det en nivåsjekk på 1 minutt.':'Nivå 5–6 gjør du i løpeøkta. I dag bruker appen maks nivå 4.')+'</p></div>';
+  }
+  h+='<details class="how"><summary>Innhold i økta ('+plan.length+' deler)</summary><ul class="plan" style="margin:4px 0 14px" aria-label="Øktens innhold">'+plan.map(function(p){return '<li '+mcol(EX[p.ex].g)+'><i></i><b>'+esc(EX[p.ex].n)+'</b><span>'+esc(planDetail(p))+'</span></li>';}).join('')+'</ul></details></div>';
+  var GR=[['Trening',['A','B','K']],['Daglig, ro og pust',['Q','H','W','P','V']]];
+  h+='<div class="sec"><h2 style="font-size:1.2rem">Velg en annen økt</h2>'+GR.map(function(g){return '<div class="pickgrp"><h3>'+g[0]+'</h3><div class="pick" role="group" aria-label="'+g[0]+'">'+g[1].map(function(k){var x=SESS[k];
+    return '<button type="button" class="btn" '+mcol(x.g)+' data-act="sess" data-s="'+k+'" aria-pressed="'+(S.sess===k)+'"><span>'+x.n+'</span><small>'+x.sub+'</small></button>';}).join('')+'</div></div>';}).join('')+'</div></section>';
+  return h;
+}
+function figFor(id){return EX[id].fig;}
+function viewRun(){
+  var r=S.run,s=r.steps[r.i],ex=EX[s.ex],isRest=s.k==='rest',nextEx=isRest?EX[s.ex]:ex;
+  var g=ex.g,ptot=r.steps.length;
+  var h='<section aria-label="Pågående økt">';
+  h+='<div class="runtop"><button type="button" class="btn ghost" data-act="abort">'+(S.confirmEnd?'Trykk igjen':'Avslutt')+'</button>'+
+   '<div class="overall"><span>'+(r.i+1)+'/'+ptot+'</span><div class="prog" role="progressbar" aria-label="Fremdrift i økten, steg '+(r.i+1)+' av '+ptot+'" aria-valuemin="0" aria-valuemax="'+ptot+'" aria-valuenow="'+(r.i+1)+'" '+mcol(g)+'><i style="width:'+((r.i+1)/ptot*100)+'%"></i></div></div>'+
+   '<button type="button" class="btn snd" data-act="sound" aria-pressed="'+(!!S.log.settings.sound)+'" aria-label="Lyd og vibrasjon">'+(S.log.settings.sound?'Lyd på':'Lyd av')+'</button></div>';
+  h+='<div class="stage sec" '+mcol(g)+'><div class="fig'+(r.paused?' paused':'')+'" style="--bd:-'+(elapsed()%10).toFixed(2)+'s">'+(TEMPO[s.ex]?tempoSvg(s.ex):nextEx.fig)+'</div><div class="read">';
+  var kick=isRest?('Hvile · '+s.label):(s.k==='time'?(SESS[r.sess].n+(s.set?' · sett '+s.set+' av '+s.of:'')):('Sett '+s.set+' av '+s.of+' · mål '+s.lo+(s.hi!==s.lo?'–'+s.hi:'')+(ex.unit==='steg'?' steg':' reps')+' · '+PH[phaseIdx(curWeek())].rir));
+  h+='<div class="kick">'+esc(kick)+'</div>';
+  h+='<h2>'+(isRest?'Neste: '+esc(nextEx.n)+(s.nextSet&&EX[s.ex].rx?', sett '+s.nextSet:''):esc(ex.n))+'</h2>';
+  h+='<p class="cue">'+esc(isRest?(ex.cue):(s.sub?s.sub+'. ':'')+ex.cue)+'</p>';
+  var e=elapsed();
+  var show=(s.k==='reps')?fmt(Math.floor(e)):fmt(s.dur-e);
+  h+='<div class="timer'+(s.k==='reps'?' up':'')+'" id="tm" role="timer" aria-label="'+(s.k==='reps'?'Tid i settet':'Tid igjen')+'">'+show+'</div>';
+  if(s.k!=='reps')h+='<div class="prog" aria-hidden="true"><i id="bar" style="width:'+Math.min(100,e/s.dur*100)+'%"></i></div>';
+  if(s.k==='reps'){
+    h+='<div class="dots" aria-hidden="true">';for(var i=1;i<=s.of;i++){h+='<span class="'+(i<s.set?'on':'')+(i===s.set?' cur':'')+'"></span>';}h+='</div>';
+    var sg=suggest(s.ex);
+    var tip='';
+    if(!ex.nokg){
+      if(sg){
+        var lastKg=Math.max.apply(null,sg.last.map(function(x){return x.kg;}));
+        tip='Sist: '+sg.last.map(function(x){return x.r;}).join(', ')+' reps på '+lastKg+' kg. '+(sg.up?'Alle sett traff toppen, prøv '+sg.kg+' kg i dag.':'Hold vekten til alle sett treffer '+s.hi+' reps.');
+      }else tip='Første gang: velg vekt der siste reps kjennes som RIR 3. Er det lett, øk i neste sett.';
+    }
+    h+='<p class="note">'+esc(tip)+'</p>';
+    h+='<div class="inputs">';
+    if(!ex.nokg)h+=stepper('kg','Vekt (kg)',r.cur.kg,2.5);
+    h+=stepper('r',ex.unit==='steg'?'Steg':'Reps',r.cur.r,1)+'</div>';
+  }
+  h+='</div></div>';
+  h+='<div class="actbar" role="group" aria-label="Styr økta"><div class="in">';
+  if(s.k==='reps'){if(r.logged.length)h+='<button type="button" class="btn" data-act="undo" aria-label="Angre siste sett">Angre</button>';h+='<button type="button" class="btn pri" id="primary" data-act="done">Ferdig sett</button>';}
+  else if(isRest)h+='<button type="button" class="btn" data-act="plus" aria-label="Legg til 15 sekunder hvile">+15 s</button><button type="button" class="btn pri" id="primary" data-act="skip">Hopp over hvile</button>';
+  else h+='<button type="button" class="btn" data-act="pause">'+(r.paused?'Fortsett':'Pause')+'</button><button type="button" class="btn pri" id="primary" data-act="skip">Neste</button>';
+  h+='</div></div>';
+  h+='<details class="how"><summary>Slik gjør du det: '+esc(nextEx.n)+'</summary><dl><div><dt>Start</dt><dd>'+esc(nextEx.how.s)+'</dd></div><div><dt>Utførelse</dt><dd>'+esc(nextEx.how.d)+'</dd></div><div><dt>Vanlige feil</dt><dd>'+esc(nextEx.how.m)+'</dd></div></dl></details>';
+  var up=planOf(r.steps.slice(r.i+1));
+  if(up.length){h+='<div class="sec"><div class="kick">Videre</div><ol class="upnext" style="margin-top:8px">'+up.slice(0,4).map(function(p){return '<li '+mcol(EX[p.ex].g)+'><i></i>'+esc(EX[p.ex].n)+'<span>'+esc(planDetail(p))+'</span></li>';}).join('')+'</ol></div>';}
+  return h+'</section>';
+}
+function stepper(key,label,val,step){
+  var id='in-'+key;
+  return '<div class="step"><button type="button" class="btn" data-act="adj" data-k="'+key+'" data-d="-'+step+'" aria-label="'+label+' minus '+String(step).replace('.',',')+'">−</button>'+
+   '<div><label for="'+id+'">'+label+'</label><input id="'+id+'" data-k="'+key+'" type="number" inputmode="decimal" step="'+step+'" min="0" value="'+val+'"></div>'+
+   '<button type="button" class="btn" data-act="adj" data-k="'+key+'" data-d="'+step+'" aria-label="'+label+' pluss '+String(step).replace('.',',')+'">+</button></div>';
+}
+function viewDone(){
+  var r=S.run,mins=Math.max(1,Math.round(r.secs/60));
+  var by={};r.logged.forEach(function(l){(by[l.e.ex]=by[l.e.ex]||[]).push(l.e);});
+  var h='<section class="card sec" aria-labelledby="h-d"><div class="kick">Økt ferdig</div><h2 id="h-d">'+SESS[r.sess].n+' · '+mins+' min</h2><p class="note" id="saved">'+esc(S.saved||'')+'</p>';
+  var keys=Object.keys(by);
+  if(keys.length)h+='<ul class="plan sec">'+keys.map(function(k){var es=by[k];return '<li '+mcol(EX[k].g)+'><i></i><b>'+esc(EX[k].n)+'</b><span>'+es.map(function(e){return (EX[k].nokg?'':e.kg+'×')+e.r;}).join(' · ')+'</span></li>';}).join('')+'</ul>';
+  h+='<div class="row sec"><button type="button" class="btn pri" id="primary" data-act="closeDone">Til oversikten</button></div></section>';
+  return h;
+}
+function spark(vals,label){
+  if(vals.length<2)return '<svg width="140" height="40" viewBox="0 0 140 40" role="img" aria-label="'+esc(label)+'"><line x1="4" y1="20" x2="136" y2="20" stroke="var(--line)" stroke-width="2" stroke-dasharray="3 4"/>'+(vals.length?'<circle cx="70" cy="20" r="4" fill="var(--m)"/>':'')+'</svg>';
+  var mn=Math.min.apply(null,vals),mx=Math.max.apply(null,vals),sp=(mx-mn)||1;
+  var pts=vals.map(function(v,i){return [6+i*(128/(vals.length-1)),34-(v-mn)/sp*28];});
+  return '<svg width="140" height="40" viewBox="0 0 140 40" role="img" aria-label="'+esc(label)+'"><polyline fill="none" stroke="var(--m)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" points="'+pts.map(function(p){return p[0].toFixed(1)+','+p[1].toFixed(1);}).join(' ')+'"/>'+
+   pts.map(function(p,i){return '<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="'+(i===pts.length-1?4.5:2.5)+'" fill="var(--m)"/>';}).join('')+'</svg>';
+}
+function monday(ds){var p=String(ds).split('-'),d=new Date(+p[0],+p[1]-1,+p[2]);d.setDate(d.getDate()-((d.getDay()+6)%7));
+  return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);}
+function addDays(ds,n){var p=ds.split('-'),d=new Date(+p[0],+p[1]-1,+p[2]+n);return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);}
+var NK_GOAL=120;
+function neckCard(ms){
+  var weeks={};
+  S.log.sessions.forEach(function(s){if(!s.nk)return;var k=monday(s.d),w=weeks[k]=weeks[k]||{Q:0,W:0,AB:0};
+    var c=(s.s==='Q'||s.s==='H')?'Q':(s.s==='W'?'W':((s.s==='A'||s.s==='B')?'AB':null));if(c)w[c]+=s.nk;});
+  var cur=weeks[ms]||{Q:0,W:0,AB:0},min=function(x){return Math.round(x/60);};
+  var tot=min(cur.Q+cur.W+cur.AB),pct=Math.min(100,tot/NK_GOAL*100);
+  var h='<div class="card sec" style="--m:var(--c-plyo)"><div class="kick">Nakke og skulder denne uka</div>'+
+   '<div class="top" style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:4px"><h3 style="font-size:1.25rem">'+tot+' av '+NK_GOAL+' min</h3><span class="note">'+(tot>=NK_GOAL?'Ukemålet er nådd':(NK_GOAL-tot)+' min igjen')+'</span></div>'+
+   '<div class="prog" style="margin-top:10px;height:12px" role="progressbar" aria-label="Minutter nakke og skulder denne uka" aria-valuemin="0" aria-valuemax="'+NK_GOAL+'" aria-valuenow="'+tot+'"><i style="width:'+pct+'%"></i></div>'+
+   '<div class="row" style="margin-top:10px;gap:6px"><span class="tag" style="--m:var(--c-core)">Qi gong '+min(cur.Q)+' min</span><span class="tag">Skulder og nakke '+min(cur.W)+' min</span><span class="tag" style="--m:var(--c-glute)">I Styrke A og B '+min(cur.AB)+' min</span></div>';
+  var keys=[];for(var i=5;i>=0;i--)keys.push(addDays(ms,-7*i));
+  var vals=keys.map(function(k){var w=weeks[k];return w?min(w.Q+w.W+w.AB):0;}),mx=Math.max(NK_GOAL,Math.max.apply(null,vals));
+  h+='<div class="wk" role="img" aria-label="Minutter per uke de siste seks ukene: '+keys.map(function(k,i){return 'uke fra '+k.slice(8)+'.'+k.slice(5,7)+' '+vals[i]+' min';}).join(', ')+'">'+
+    '<b class="goal" style="bottom:calc('+(NK_GOAL/mx*100)+'% * .72 + 22px)"><span>Mål '+NK_GOAL+'</span></b>'+
+    keys.map(function(k,i){return '<div><em>'+vals[i]+'</em><i style="height:'+(vals[i]/mx*100*.72)+'%"></i><span>'+k.slice(8)+'.'+k.slice(5,7)+'</span></div>';}).join('')+'</div>';
+  h+='<p class="note" style="margin-top:8px">Teller qi gong-økter, Skulder og nakke, og oppvarmingen og skulderblad-delen i Styrke A og B. Målet på rundt 2 timer i uka bygger på Xie mfl. 2025.</p></div>';
+  return h;
+}
+var DAILY=[['P','Bekkenbunn'],['W','Skulder og nakke'],['V','Vagus-pust'],['QH','Qi gong']];
+var DEFMIN={A:45,B:45,K:30,Q:14,H:11,V:4,W:5,P:7};
+var DAYN=['Man','Tir','Ons','Tor','Fre','Lør','Søn'];
+function didOn(t,d){return S.log.sessions.some(function(s){return s.d===d&&(t==='QH'?(s.s==='Q'||s.s==='H'):s.s===t);});}
+function dailyCard(ms){
+  var td=today(),days=DAYN.map(function(n,i){return addDays(ms,i);});
+  var h='<div class="card sec"><h3>Daglige rutiner denne uka</h3><div class="scroll" style="margin-top:8px"><table class="daily"><caption class="sr">Gjennomførte rutiner per dag</caption><thead><tr><th scope="col">Rutine</th>'+
+    days.map(function(d,i){return '<th scope="col"'+(d===td?' aria-current="date"':'')+'>'+DAYN[i]+'</th>';}).join('')+'</tr></thead><tbody>';
+  DAILY.forEach(function(r){h+='<tr><th scope="row">'+r[1]+'</th>'+days.map(function(d,i){var on=didOn(r[0],d);
+    return '<td'+(d===td?' class="tdy"':'')+'><span class="dot'+(on?' on':'')+'" aria-label="'+DAYN[i]+': '+(on?'gjort':'ikke gjort')+'" role="img">'+(on?'✓':'')+'</span></td>';}).join('')+'</tr>';});
+  return h+'</tbody></table></div></div>';
+}
+function manualCard(){
+  var keys=Object.keys(SESS),sel=S.manType||'P';
+  return '<div class="card sec"><h3>Registrer en økt du har gjort</h3><p class="note" style="margin-top:4px">Fullfører du en økt i appen, logges den av seg selv. Her legger du inn økter du gjorde uten appen, for eksempel fra YouTube.</p>'+
+   '<div class="mform"><div class="field"><label for="man-type">Økt</label><select id="man-type">'+keys.map(function(k){return '<option value="'+k+'"'+(k===sel?' selected':'')+'>'+esc(SESS[k].n)+'</option>';}).join('')+'</select></div>'+
+   '<div class="field"><label for="man-min">Minutter</label><input id="man-min" type="number" inputmode="numeric" min="1" max="300" value="'+(S.manMin||DEFMIN[sel])+'"></div>'+
+   '<div class="field"><label for="man-date">Dato</label><input id="man-date" type="date" value="'+(S.manDate||today())+'"></div>'+
+   '<button type="button" class="btn pri" data-act="manual">Lagre økt</button></div></div>';
+}
+function recentCard(){
+  var list=S.log.sessions.map(function(s,i){return {s:s,i:i};}).sort(function(a,b){return a.s.d<b.s.d?1:(a.s.d>b.s.d?-1:b.i-a.i);}).slice(0,8);
+  if(!list.length)return '<div class="card sec"><h3>Siste økter</h3><p class="note" style="margin-top:6px">Ingen økter ennå. Fullfør en økt i appen, eller registrer en over.</p></div>';
+  return '<div class="card sec"><h3>Siste økter</h3><ul class="recent">'+list.map(function(o){var s=o.s,m=Math.max(1,Math.round((s.secs||0)/60)),d=s.d.slice(8)+'.'+s.d.slice(5,7);
+    var conf=S.confirmDel===o.i;
+    return '<li><span class="rd">'+d+'</span><div><b>'+esc(SESS[s.s]?SESS[s.s].n:s.s)+'</b><div class="note">'+m+' min'+(s.manual?' · registrert':'')+(s.partial?' · avbrutt':'')+'</div></div>'+
+      '<button type="button" class="btn ghost del" data-act="del" data-i="'+o.i+'" aria-label="'+(conf?'Bekreft sletting av ':'Slett ')+esc(SESS[s.s]?SESS[s.s].n:s.s)+' '+d+'">'+(conf?'Trykk igjen':'Slett')+'</button></li>';}).join('')+'</ul></div>';
+}
+/* Loggen ligger bare i nettleseren. Eksport gir en fil som kan tas vare på eller flyttes til en annen enhet; import slår sammen, overskriver ikke. */
+function backupCard(){
+  return '<div class="card sec"><h3>Sikkerhetskopi</h3><p class="note" style="margin-top:4px">Lagre loggen som en fil, eller hent inn en fil fra en annen enhet. Import slår sammen med det du har, ingenting blir overskrevet.</p>'+
+   '<div class="row" style="margin-top:12px"><button type="button" class="btn" data-act="export">Last ned logg</button>'+
+   '<input id="imp" class="sr" type="file" accept="application/json,.json"><label class="btn" for="imp" style="display:inline-flex;align-items:center">Hent inn logg</label></div></div>';
+}
+function exportLog(){
+  try{var b=new Blob([JSON.stringify(snapshot(),null,1)],{type:'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');
+    a.href=u;a.download='loft-og-lop-'+today()+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u);},1000);live('Loggen er lastet ned');}
+  catch(e){live('Kunne ikke laste ned loggen');}
+}
+function importLog(file){
+  var fr=new FileReader();
+  fr.onload=function(){try{var d=JSON.parse(fr.result);if(!d||!Array.isArray(d.sessions)||!Array.isArray(d.entries))throw 0;
+    var n=S.log.sessions.length;adopt(d);scheduleSave();render();var k=S.log.sessions.length-n;live(k?'Hentet inn '+k+(k===1?' ny økt':' nye økter'):'Ingen nye økter, alt i filen fantes fra før');}
+    catch(e){live('Filen er ikke en logg fra Løft og løp');}};
+  fr.readAsText(file);
+}
+function viewLogg(){
+  var ids=['hipthrust','rdl','chairsquat','bss','stepup','slthrust'];
+  var full=S.log.sessions.filter(function(s){return !s.partial;}),total=full.length,wk=0,ms=monday(today());
+  full.forEach(function(s){if(s.d>=ms)wk++;});
+  var h='<section aria-labelledby="h-l"><div class="sec" style="margin-top:6px"><h2 id="h-l" style="font-size:1.6rem">Logg og progresjon</h2><p class="note" style="margin-top:6px">'+total+' økter logget · '+wk+' denne uka · '+(S.store==='db'?'Lagres i kontoen din':'Lagres bare på denne enheten')+'</p><p class="note" id="savestat" role="status" aria-live="polite">'+esc(S.saved||'')+'</p></div>';
+  h+=neckCard(ms)+dailyCard(ms)+manualCard()+recentCard()+backupCard();
+  var any=S.log.entries.some(function(e){return !EX[e.ex].nokg;});
+  if(!any){
+    h+='<div class="card ex sec" style="--m:var(--c-glute)"><div class="kick">Eksempel, ikke dine tall</div><div class="lift"><div class="top"><h3>Hip thrust</h3><span class="big-n">17,5 kg</span></div>'+spark([10,12.5,12.5,15,15,17.5],'Eksempel: hip thrust fra 10 til 17,5 kilo')+
+     '<p class="note">Slik ser en lift ut etter noen uker: toppsett per økt, og neste vekt foreslås når alle sett treffer øvre reps. Dine egne tall dukker opp her etter første økt.</p></div></div>';
+  }
+  h+='<div class="grid3 sec">';
+  ids.forEach(function(id){
+    var ex=EX[id],hs=hist(id),vals=hs.map(function(x){return Math.max.apply(null,x.es.map(function(e){return e.kg;}));}),sg=suggest(id),r=rxFor(id);
+    h+='<div class="card lift" '+mcol(ex.g)+'><div class="top"><h3>'+esc(ex.n)+'</h3><span class="big-n">'+(vals.length?vals[vals.length-1]+' kg':'—')+'</span></div>'+
+      spark(vals,ex.n+', toppvekt per økt')+'<p class="note">'+(sg?('Sist: '+sg.last.map(function(e){return e.r;}).join(', ')+' reps. '+(sg.up?'Neste gang: '+sg.kg+' kg.':'Mål: '+r.sets+' × '+r.hi+' på samme vekt, så +2,5 kg.')):'Ingen sett logget ennå. Mål: '+r.sets+' × '+r.lo+'–'+r.hi+'.')+'</p></div>';
+  });
+  h+='</div></section>';
+  return h;
+}
+function viewUke(){
+  var w=curWeek(),pi=phaseIdx(w);
+  var days=[
+   ['Man','Styrke A','Pulsoppvarming og Baduanjin, bekkenbunn, hip thrust, markløft, knebøy, sidesteg, roing og utadrotasjon med strikk','glute'],
+   ['Tir','Rolig kondisjon','30–40 min under 140 bpm, eller bare sykkelpendling','run'],
+   ['Ons','Terskel eller rolig','Terskel 4 × 4 min (148–154 bpm) når beina er friske. Minst 48 t etter Styrke A','run'],
+   ['Tor','Qi gong eller hvile','Baduanjin (12 min) eller Høst-qi gong (11 min)','core'],
+   ['Fre','Styrke B','Pulsoppvarming og Baduanjin, bekkenbunn, hoppstige, bulgarsk splittknebøy, step-ups, ett-bens hip thrust, strikk fra hverandre og serratus-skyv','quad'],
+   ['Lør','Lang og rolig','Tur eller rolig løping i sone 1–2','run'],
+   ['Søn','Hvile og logg','Se over ukas tall i Logg','core']];
+  var td=(new Date().getDay()+6)%7,DL=['Mandag','Tirsdag','Onsdag','Torsdag','Fredag','Lørdag','Søndag'];
+  var h='<section aria-labelledby="h-u"><div class="sec" style="margin-top:6px"><h2 id="h-u" style="font-size:1.6rem">12-ukers plan</h2></div>';
+  h+='<div class="row sec" role="group" aria-label="Velg uke" style="align-items:center"><button type="button" class="btn" data-act="wk" data-d="-1" aria-label="Forrige uke">−</button><span class="big-n" style="min-width:5.5em;text-align:center">Uke '+w+'</span><button type="button" class="btn" data-act="wk" data-d="1" aria-label="Neste uke">+</button><span class="note">Uke 1 startet mandag 19. oktober 2026</span></div>';
+  h+='<div class="grid3 sec">'+PH.map(function(p,i){return '<div class="card ph'+(i===pi?' on':'')+'" '+(i===pi?'aria-current="true"':'')+'><div class="kick">'+p.w+'</div><h3>'+p.n+'</h3><p class="note" style="margin-top:6px">'+['3 × 8–10 på hovedløft, '+p.rir+'. Lær bevegelsene og finn vekter som er tunge nok.','4 × 5–6 tungt på hip thrust, markløft og bulgarsk splittknebøy, rundt 80 % av maks. Hopp kommer inn i Styrke B.','4 × 8–12 på hovedløft, siste sett nær utmattelse. Mer volum for muskelvekst.'][i]+'</p></div>';}).join('')+'</div>';
+  h+='<div class="sec"><h2>En vanlig uke</h2><ol class="days" style="margin-top:10px">'+
+   days.map(function(d,i){return '<li'+(i===td?' aria-current="date"':'')+'><span class="dn"><abbr title="'+DL[i]+'" style="text-decoration:none">'+d[0]+'</abbr></span><div><span class="tag" '+mcol(d[3])+'>'+d[1]+'</span>'+(i===td?'<span class="sr"> (i dag)</span>':'')+'<p class="note">'+d[2]+'</p></div></li>';}).join('')+'</ol></div>';
+  h+='<div class="card sec"><h3>Daglige rutiner</h3><ul class="clean" style="margin-top:10px"><li><b>Bekkenbunn, 7 min:</b> hver dag i minst tre måneder, deretter 4–5 dager i uka. Knip før hoste, nys og løft gjør du hele tiden.</li><li><b>Skulder og nakke, 5 min:</b> hver dag, rolig, helst på samme tid som qi gong.</li><li><b>Nakke og skulder totalt:</b> sikt mot rundt 2 timer i uka med qi gong, Skulder og nakke og skulderblad-delen i styrkeøktene. Logg viser hvor du ligger.</li><li>Rutinene teller ikke som trening. De kan gjøres samme dag som alle øktene, også på hviledager.</li></ul></div>';
+  h+='<div class="card sec"><h3>Vinter og glatt føre</h3><ul class="clean" style="margin-top:10px"><li>Rolig kondisjon kan være tredemølle, innendørs sykkel, rask gange eller løping med brodder.</li><li>Terskel gjøres helst innendørs når det er glatt, så pulsen kan holdes jevn.</li><li>Sykkelpendlingen teller som ekstra beinvolum. Merker du tunge bein på Styrke-dager, kutt en rolig kondisjonsøkt først.</li></ul></div></section>';
+  return h;
+}
+function viewGrunn(){
+  var h='<section aria-labelledby="h-g"><div class="sec" style="margin-top:6px"><h2 id="h-g" style="font-size:1.8rem">Dette bygger programmet på</h2><p class="cue" style="margin-top:6px">Sterkere bein og større rumpe, uten å ødelegge restitusjonen til løpeøktene.</p></div>';
+  h+='<div class="split sec"><div class="two">';
+  var P=[
+   ['Hip thrust og knebøy','Hip thrust og knebøy gir like mye vekst i setemusklene, og knebøy bygger i tillegg forside lår (Plotkin mfl. 2023). Derfor har programmet begge, pluss rumensk markløft for baksiden.'],
+   ['Tungt i fase 2','Tung styrketrening, rundt 80 % av maks eller mer, bedrer løpsøkonomi og løpsprestasjon. Moderate vekter gjør det i liten grad (Llanos-Lagos mfl. 2024). Fase 2 er derfor 4 × 5–6. Er manualene for lette, bruk ett-bens varianter eller tyngre sekk.'],
+   ['Nær utmattelse for muskelvekst','Muskelvekst øker jo nærmere utmattelse settene stopper, mens styrke øker omtrent likt (Robinson mfl. 2024). Siste fase går derfor til RIR 0–1.'],
+   ['Hopp fra uke 5','Plyometri bedrer løpsøkonomien, særlig i rolig tempo under 12 km/t (Llanos-Lagos mfl. 2024). Hoppstigen starter med hostetest for bekkenbunnen.'],
+   ['Ett-bens-øvelser','Løping skjer på ett ben om gangen. Bulgarsk splittknebøy, step-ups og ett-bens hip thrust trener stabilitet og kraft på hvert ben.'],
+   ['Skulderblad-styrke','Styrketrening for skulderblad og skulder reduserer nakke- og skuldersmerter (Gross mfl. 2015, Andersen mfl. 2014). Strikkøvelsene ligger i begge styrkeøktene, uten løft over hodet.'],
+   ['Qi gong teller','Qi gong virker omtrent like godt som styrketrening mot langvarige nakkesmerter (de Zoete mfl. 2020). Samlet mål er rundt 2 timer i uka (Xie mfl. 2025).'],
+   ['Bekkenbunn','Godt dokumentert mot lekkasje, også hos kvinner som trener og hopper (Dumoulin mfl. 2018, Rodríguez-Longobardo mfl. 2023). Knip før hoste er testet i egen studie (Miller mfl. 1998).'],
+   ['Plassert rundt løpingen','Minst 48 timer mellom Styrke A og terskel. Hopp legges ikke tett før terskel eller intervaller.'],
+   ['Skånsomt for skuldre og håndledd','Ingen stang på ryggen og ingen løft over hodet. Strikken ligger rundt hånden i stedet for et hardt grep, av hensyn til carpal tunnel.']];
+  h+=P.map(function(p){return '<div class="card"><h3 style="font-size:1.1rem">'+p[0]+'</h3><p class="note" style="margin-top:6px;font-size:.95rem">'+p[1]+'</p></div>';}).join('');
+  h+='</div><div><div class="card"><h3>Hva en trener gjør bedre</h3><ul class="clean" style="margin-top:10px"><li>Vurderer teknikk på video, særlig hip thrust, markløft og bulgarsk splittknebøy.</li><li>Justerer når noe gjør vondt eller er stivt.</li><li>Gir ansvarlighet og et menneske å rapportere til.</li><li>Ser helheten med søvn, kosthold og belastning.</li></ul></div>'+
+   '<div class="card sec"><h3>Kilder</h3><ol class="refs" style="margin-top:10px">'+
+   [['Plotkin mfl. 2023, Front Physiol','10.3389/fphys.2023.1279170'],['Llanos-Lagos mfl. 2024, Sports Med (løpsøkonomi)','10.1007/s40279-023-01978-y'],['Llanos-Lagos mfl. 2024, Sports Med (prestasjon)','10.1007/s40279-024-02018-z'],['Robinson mfl. 2024, Sports Med','10.1007/s40279-024-02069-2'],['Gross mfl. 2015, Cochrane','10.1002/14651858.CD004250.pub5'],['Andersen mfl. 2014, J Occup Rehabil','10.1007/s10926-013-9441-1'],['de Zoete mfl. 2020, Br J Sports Med','10.1136/bjsports-2020-102664'],['Xie mfl. 2025, Spine J','10.1016/j.spinee.2025.07.006'],['Dumoulin mfl. 2018, Cochrane','10.1002/14651858.CD005654.pub4'],['Rodríguez-Longobardo mfl. 2023, Sports Health','10.1177/19417381231195305'],['Miller mfl. 1998, J Am Geriatr Soc','10.1111/j.1532-5415.1998.tb02721.x']].map(function(r){return '<li><a href="https://doi.org/'+r[1]+'" target="_blank" rel="noopener">'+r[0]+'<span class="sr"> (åpnes i ny fane)</span></a></li>';}).join('')+'</ol></div>'+
+   '<div class="card sec"><h3>Spørsmål til Abel</h3><div style="margin-top:6px">'+
+   ['Eksakt pris per måned, bindingstid og oppsigelse','Hva betyr personlig oppfølging: svartid, videofeedback, ukentlig justering?','Hvem bygger programmet, og hvilken erfaring har Siri med løpere og hypertrofi?','Kan programmet ta hensyn til intervall- og terskeløkter og Samsung Health-data?','Kan jeg prøve én måned før jeg binder meg?','Hva ville du endret i dette programmet?'].map(function(q,i){return '<label class="chk" for="q'+i+'"><input id="q'+i+'" type="checkbox"><span>'+q+'</span></label>';}).join('')+'</div></div></div></div></section>';
+  return h;
+}
+/* Hold fokus på samme kontroll etter at visningen tegnes på nytt (WCAG 2.4.3) */
+function focusKey(el){
+  if(!el||el===document.body||!el.getAttribute)return null;
+  if(el.id)return '#'+el.id;
+  var a=el.getAttribute('data-act');if(!a)return null;
+  var sel='[data-act="'+a+'"]';['data-v','data-s','data-d','data-i','data-k'].forEach(function(k){var v=el.getAttribute(k);if(v!==null)sel+='['+k+'="'+v+'"]';});
+  return sel;
+}
+function render(){
+  var m=$('#main'),v=S.view,h='',fk=m.contains(document.activeElement)?focusKey(document.activeElement):null;
+  document.body.classList.toggle('running',!!(S.run&&!S.run.done)&&v==='okt');
+  $('#meta').textContent=metaLine();
+  var buttons=document.querySelectorAll('nav.bar button');
+  for(var i=0;i<buttons.length;i++){var b=buttons[i];if(b.getAttribute('data-v')===v)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');}
+  if(v==='okt')h=viewOkt();else if(v==='uke')h=viewUke();else if(v==='logg')h=viewLogg();else h=viewGrunn();
+  m.innerHTML=h;
+  if(fk){try{var t=m.querySelector(fk);if(t)t.focus({preventScroll:true});}catch(e){}}
+  animTempo();
+}
+function planToday(){return ['A','K','K','Q','B','K','P'][(new Date().getDay()+6)%7];}
 
-  // Init
-  updateStreak(JSON.parse(localStorage.getItem('treningslogg') || '[]'));
+/* ---------- Hendelser ---------- */
+document.addEventListener('click',function(ev){
+  var el=ev.target.closest('[data-act]');if(!el)return;
+  var a=el.getAttribute('data-act'),r=S.run;
+  if(a==='view'){S.view=el.getAttribute('data-v');S.confirmEnd=false;render();window.scrollTo(0,0);}
+  else if(a==='sess'){S.sess=el.getAttribute('data-s');render();var hh=$('#h-okt');if(hh){hh.focus({preventScroll:true});}
+    try{window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});}catch(e){window.scrollTo(0,0);}
+    live('Valgt: '+SESS[S.sess].n);}
+  else if(a==='sound'){S.log.settings.sound=!S.log.settings.sound;scheduleSave();render();live(S.log.settings.sound?'Lyd og vibrasjon på':'Lyd og vibrasjon av');}
+  else if(a==='kv'){S.kv=el.getAttribute('data-v');render();}
+  else if(a==='min'){S.mins=+el.getAttribute('data-v');render();}
+  else if(a==='jump'){S.log.settings.jump=+el.getAttribute('data-v');scheduleSave();render();}
+  else if(a==='wk'){S.wkOv=Math.max(1,Math.min(12,curWeek()+(+el.getAttribute('data-d'))));render();}
+  else if(a==='start'){startSession();}
+  else if(a==='done'){doneSet();}
+  else if(a==='skip'){skip();}
+  else if(a==='plus'){addTime();}
+  else if(a==='pause'){togglePause();}
+  else if(a==='undo'){undo();}
+  else if(a==='abort'){abort();}
+  else if(a==='closeDone'){S.run=null;render();}
+  else if(a==='export'){exportLog();}
+  else if(a==='manual'){
+    var ty=$('#man-type').value,mn=parseFloat(String($('#man-min').value).replace(',','.')),dt=$('#man-date').value||today();
+    if(!(mn>0)){live('Skriv inn antall minutter');$('#man-min').focus();return;}
+    var nk=(ty==='Q'||ty==='H'||ty==='W')?mn*60:((ty==='A'||ty==='B')?Math.min(mn,14)*60:0);
+    S.log.sessions.push({id:newId(),d:dt,s:ty,secs:Math.round(mn*60),sets:0,nk:Math.round(nk),manual:true});
+    S.manMin=null;S.manDate=null;scheduleSave();render();live('Lagret: '+SESS[ty].n+', '+mn+' min');
+  }
+  else if(a==='del'){
+    var di=+el.getAttribute('data-i');
+    if(S.confirmDel===di){(S.log.del=S.log.del||[]).push(sKey(S.log.sessions[di]));S.log.sessions.splice(di,1);S.confirmDel=null;scheduleSave();render();live('Økten er slettet');}
+    else{S.confirmDel=di;render();live('Trykk igjen for å slette');}
+  }
+  else if(a==='adj'&&r){
+    var k=el.getAttribute('data-k'),d=parseFloat(el.getAttribute('data-d'));
+    r.cur[k]=Math.max(0,Math.round(((r.cur[k]||0)+d)*10)/10);
+    var inp=$('#in-'+k);if(inp)inp.value=r.cur[k];
+  }
+});
+document.addEventListener('change',function(ev){
+  var el=ev.target;
+  if(el.id==='man-type'){S.manType=el.value;S.manMin=null;var m=$('#man-min');if(m)m.value=DEFMIN[el.value];}
+  else if(el.id==='man-min'){S.manMin=el.value;}
+  else if(el.id==='man-date'){S.manDate=el.value;}
+  else if(el.id==='imp'&&el.files&&el.files[0]){importLog(el.files[0]);el.value='';}
+});
+document.addEventListener('input',function(ev){
+  var el=ev.target;if(!el.getAttribute||!el.getAttribute('data-k')||!S.run||!S.run.cur)return;
+  var v=parseFloat(String(el.value).replace(',','.'));if(!isNaN(v))S.run.cur[el.getAttribute('data-k')]=v;
+});
+
+render();
+initStore();
+
+/* Installerbar app: service workeren gjør at appen åpner uten nett. Be også om at nettleseren ikke rydder bort loggen. */
+if('serviceWorker' in navigator&&location.protocol!=='file:'){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(function(){});}catch(e){}
+})();
 </script>
+
 </body>
 </html>

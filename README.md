@@ -1,123 +1,102 @@
-# Min trening 💙 — README
+# Løft og løp
 
-En enkel, tilgjengelig treningsapp for daglig bevegelse og styrketrening.
-Laget som én HTML-fil som fungerer direkte i nettleseren — ingen installasjon nødvendig.
+Et 12-ukers program for sterkere bein og setemuskler som tar hensyn til løpingen, med qi gong, pust og daglige rutiner for bekkenbunn, skulder og nakke. Appen har tidtaker, figurer som viser bevegelsene, forslag til vekt og en logg over det du har gjort.
 
----
-
-## Kom i gang
-
-1. Last ned filen `index.html`
-2. Åpne den i en nettleser (Chrome, Safari, Firefox)
-3. For mobil: send filen til telefonen og åpne i nettleser, eller legg til som snarvei på hjemskjermen
-
-> **Ingen internettforbindelse nødvendig** etter første åpning (fonter lastes fra Google Fonts ved oppstart).
+Hele appen er én HTML-fil. Den kan installeres på telefonen og virker uten nett.
 
 ---
 
-## Funksjoner
+## Installer på telefonen
+
+Appen må ligge på en nettadresse med https, for eksempel GitHub Pages. Se [Publisering](#publisering).
+
+**iPhone (Safari):** åpne adressen, trykk Del-knappen og velg **Legg til på Hjem-skjerm**.
+
+**Android (Chrome):** åpne adressen, trykk menyen ⋮ og velg **Installer app** eller **Legg til på startskjermen**.
+
+Etter første åpning starter appen også uten nett. Fontene lagres første gang de lastes.
+
+---
+
+## Innhold
 
 | Fane | Innhold |
 |------|---------|
-| 🏠 Hjem | Oversikt og snarveger |
-| 🧘 Daglig økt | 10–15 min med avkrysningsliste |
-| 💪 Styrke | Styrkeprogram med sett og reps |
-| 📋 Logg | Daglig sjekkliste + treningshistorikk |
+| **Økt** | Dagens økt etter ukeplanen, eller en annen du velger. Tidtaker, hvile, sett og reps, vekt med forslag, lyd og vibrasjon. Skjermen holdes våken under økta. |
+| **Uke** | 12-ukers plan i tre faser (Grunnlag, Tung, Hypertrofi) og en vanlig uke. |
+| **Logg** | Nakke- og skulderminutter mot ukemålet, daglige rutiner, manuell registrering, siste økter, progresjon på hovedløftene og sikkerhetskopi. |
+| **Grunnlag** | Hva programmet bygger på, med kilder. |
 
-- **Streak-teller** — viser antall sammenhengende treningsdager
-- **Historikk** — lagrer de 20 siste øktene
-- **Lokal lagring** — data lagres i nettleseren (ingen konto nødvendig)
+Øktene er Styrke A, Styrke B, Kondisjon (rolig eller terskel), Qi gong (Baduanjin), Høst-qi gong, Vagus-pust, Skulder og nakke, og Bekkenbunn.
 
----
-
-## Tilgjengelighet — WCAG 2.2
-
-Appen er bygget etter WCAG 2.2 på nivå AA. Her er en oversikt over hva som er ivaretatt:
-
-### Perseptuelt (Principle 1)
-
-| Krav | Tiltak |
-|------|--------|
-| **1.1.1** Tekstalternativ | `aria-hidden` på dekorative ikoner; meningsbærende tekst alltid tilgjengelig |
-| **1.3.1** Informasjon og relasjoner | Ekte `<label>`, `<fieldset>`, `<legend>` for skjemaelement |
-| **1.3.2** Meningsfull rekkefølge | Logisk DOM-rekkefølge, visuell og semantisk struktur er lik |
-| **1.4.1** Bruk av farge | Aktiv fane markert med **linje** i tillegg til farge |
-| **1.4.3** Kontrastforhold tekst | Alle tekstfarger ≥ 4.5:1 mot bakgrunn |
-| **1.4.11** Kontrast for ikke-tekst | Knappar og avkryssingsboksar ≥ 3:1 mot bakgrunn |
-| **1.4.12** Tekstforstand | Ingen hardkoda `line-height`, `letter-spacing` eller `word-spacing` som blokkerer overskriving |
-| **1.4.10** Reflow | Layout fungerer ned til 320px bredde uten horisontal scrolling |
-
-### Opererbar (Principle 2)
-
-| Krav | Tiltak |
-|------|--------|
-| **2.1.1** Tastatur | Alle funksjoner nåes med Tab, Enter og Space |
-| **2.4.1** Hopp over blokker | «Hopp til innhald»-lenke øverst på siden |
-| **2.4.3** Fokusrekkefølge | Fokus flyttes til `<h1>` ved sideskifte |
-| **2.4.11** Fokus ikke skjult | Fokusert element er alltid synlig |
-| **2.4.12** Fokus utseende | Tydeleg fokusring: 3px hvit + 3px blå (dobbel) |
-| **2.5.3** Label i navn | Knappetekst matcher visuell tekst |
-| **2.5.5** Målstørrelse | Alle knappar og treffflater ≥ 44×44px |
-| **2.5.8** Målstørrelse (forbedret) | Avkrysningselement ≥ 52px høyde |
-| **2.3.3** Animasjon fra interaksjoner | Respekterer `prefers-reduced-motion` |
-
-### Forståelig (Principle 3)
-
-| Krav | Tiltak |
-|------|--------|
-| **3.1.1** Sidespråk | `<html lang="no">` |
-| **3.3.2** Etiketter eller instruksjoner | Alle skjemafelt har synlig etikett |
-
-### Robust (Principle 4)
-
-| Krav | Tiltak |
-|------|--------|
-| **4.1.2** Navn, rolle, verdi | Native HTML-element (`<button>`, `<input>`, `<nav>`, `<main>`, `<section>`) gir korrekt rolle automatisk |
-| **4.1.3** Statusmeldinger | `aria-live="polite"` varsler skjermlesere ved lagring og streak-oppdatering |
+Uke 1 startet mandag 19. oktober 2026. Startdatoen står i funksjonen `curWeek()` i `index.html`.
 
 ---
 
-## Mobilvennlighet
+## Data og sikkerhetskopi
 
-- **`max-width: 500px`** — sentrert og lesbar på alle skjermstørrelser
-- **`env(safe-area-inset-bottom)`** — tab-bar rykker ned på iPhone med hjemknapp-bar
-- **`font-size: 18px`** som basis — lettere å lese, spesielt på mindre skjermar
-- Ingen `maximum-scale` — brukere kan zoome fritt
-- Touch-treffflater ≥ 44px på alle interaktive element
+Loggen lagres i nettleseren på enheten (`localStorage`, nøkkel `loft-og-lop`). Den trenger ingen konto, men følger ikke med til andre enheter.
+
+- **Last ned logg** under Logg → Sikkerhetskopi lagrer alt som en JSON-fil.
+- **Hent inn logg** slår en fil sammen med det som allerede ligger der. Ingenting blir overskrevet, og samme fil kan hentes inn flere ganger uten at økter dobles.
+- Appen ber nettleseren om varig lagring, så loggen ikke ryddes bort når det blir lite plass.
+- Sletter du nettstedsdata for adressen, forsvinner loggen. Ta en sikkerhetskopi først.
+
+Åpnes appen som artifact på claude.ai, lagres loggen også i kontoen der. Den loggen flyttes ikke automatisk til en installert versjon.
 
 ---
 
-## Datalagring
+## Tilgjengelighet (WCAG 2.2 AA)
 
-Data lagres lokalt i nettleseren via `localStorage` under nøkkelen `treningslogg`.
+Appen er testet med axe-core (regler for WCAG 2.0, 2.1 og 2.2, nivå A og AA) i alle fire faner og under en pågående økt, i lyst og mørkt tema. Resultatet var ingen brudd. Verktøy finner ikke alt, så det viktigste er også sjekket for hånd:
 
-```json
-[
-  { "dato": "20.5.2026", "type": "Daglig økt" },
-  { "dato": "21.5.2026", "type": "Styrke" }
-]
-```
+| Krav | Slik er det løst |
+|------|------------------|
+| **1.1.1** Ikke-tekstlig innhold | Hver figur har en tekstbeskrivelse av bevegelsen. Ukegrafen og dagsprikkene har tekst for skjermleser. |
+| **1.3.1** Informasjon og relasjoner | Overskrifter, lister, tabeller med `scope` og `caption`, og ekte `<label>` på alle felt. |
+| **1.4.3** Kontrast for tekst | All tekst har minst 4.5:1 i begge tema, også tempo-teksten i figurene. |
+| **1.4.10** Reflow | Ingen sidelengs scrolling ned til 320 px bredde. |
+| **1.4.11** Kontrast for ikke-tekst | Kanten rundt skjemafelt og tomme dagsprikker har minst 3:1. |
+| **2.1.1** Tastatur | Alt kan brukes med Tab, Enter og mellomrom. |
+| **2.3.3** Animasjon | `prefers-reduced-motion` stopper figuranimasjonene og viser en stillestående versjon. |
+| **2.4.1** Hopp over blokker | Lenken «Hopp til innhold» kommer først. |
+| **2.4.3** Fokusrekkefølge | Fokus blir på samme knapp når visningen tegnes på nytt, og flyttes til hovedknappen ved nytt steg i økta. |
+| **2.4.7 / 2.4.11** Synlig fokus | Tydelig fokusring på alt som kan fokuseres, også den skjulte filvelgeren. Fokus skjules ikke bak den faste knapperaden. |
+| **2.5.8** Målstørrelse | Knapper og felt er minst 44–48 px høye. |
+| **3.1.1** Språk | `<html lang="nb">`. |
+| **3.2.5** Endring på forespørsel | Lenker som åpner ny fane sier fra om det til skjermleser. |
+| **4.1.2** Navn, rolle, verdi | Valgknapper bruker `aria-pressed`, aktiv fane bruker `aria-current`, og pluss/minus sier hvilket felt de endrer («Vekt (kg) pluss 2,5»). |
+| **4.1.3** Statusmeldinger | Nytt steg, pause, lagring og import leses opp via `aria-live`. |
 
-> Sletter du nettleserdata, slettes også treningsloggen.
+Brukeren kan zoome fritt, fordi `maximum-scale` ikke er satt.
+
+---
+
+## Publisering
+
+Appen trenger ikke noe byggesteg. Med **GitHub Pages**:
+
+1. Gå til repoets **Settings → Pages**.
+2. Velg **Deploy from a branch**, grenen `main` og mappen `/ (root)`.
+3. Etter et par minutter ligger appen på `https://kjerstiaga.github.io/kari-trening/`.
+
+Åpnes `index.html` rett fra disken (`file://`), virker appen, men den kan ikke installeres eller brukes uten nett.
+
+**Ny versjon:** når `index.html` eller ikonene endres, øk `VERSION` i `sw.js`. Appen henter alltid nyeste versjon når den er på nett, og versjonsnummeret rydder bort gammelt lager.
 
 ---
 
 ## Filer
 
-| Fil | Beskrivelse |
-|-----|-------------|
-| `min-trening-v3.html` | Selve appen (én fil, ingen avhengigheter) |
-| `README-min-trening.md` | Denne filen |
+| Fil | Hva den er |
+|-----|------------|
+| `index.html` | Hele appen: HTML, CSS og JavaScript. |
+| `manifest.webmanifest` | Navn, farger og ikoner for installasjon. |
+| `sw.js` | Service worker som gjør at appen virker uten nett. |
+| `icons/` | App-ikon som SVG og PNG (192, 512, maskerbar 512 og 180 for iPhone). |
 
----
+## Teknisk
 
-## Teknisk stack
-
-- **Ren HTML/CSS/JavaScript** — ingen rammeverk eller byggsteg
-- **Google Fonts** — Nunito (lastes ved oppstart)
-- **localStorage** — lokal datalagring
-- Testet i Chrome, Safari og Firefox
-
----
-
-*Laget med ❤️ for daglig bevegelse*
+- Ren HTML, CSS og JavaScript, uten rammeverk eller byggesteg.
+- Fonter: Playfair Display, DM Sans og DM Mono fra Google Fonts.
+- Lyst og mørkt tema følger innstillingen på enheten.
