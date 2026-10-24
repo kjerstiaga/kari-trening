@@ -26,8 +26,11 @@ Etter første åpning starter appen også uten nett. Fontene lagres første gang
 | **Uke** | 12-ukers plan i tre faser (Grunnlag, Tung, Hypertrofi) og en vanlig uke. |
 | **Logg** | Nakke- og skulderminutter mot ukemålet, daglige rutiner, manuell registrering, siste økter, progresjon på hovedløftene og sikkerhetskopi. |
 | **Grunnlag** | Hva programmet bygger på, med kilder. |
+| **Innstillinger** (tannhjulet øverst) | Designsystem, lys eller mørk, alder og makspuls med pulssoner, lyd og vibrasjon. Innstillingene lagres sammen med loggen og blir med i sikkerhetskopien. |
 
 Øktene er Styrke A, Styrke B, Kondisjon (rolig eller terskel), Qi gong (Baduanjin), Høst-qi gong, Vagus-pust, Skulder og nakke, og Bekkenbunn.
+
+Appen har to designsystemer. **Kraft** er standard: varm og lys palett, Atkinson Hyperlegible og større tekst. **Løft og løp** er mørk editorial med farge etter muskelgruppe. Begge finnes i lys og mørk variant.
 
 Uke 1 startet mandag 19. oktober 2026. Startdatoen står i funksjonen `curWeek()` i `index.html`.
 
@@ -48,7 +51,7 @@ Loggen lagres i nettleseren på enheten (`localStorage`, nøkkel `loft-og-lop`).
 
 ## Tilgjengelighet (WCAG 2.2 AA)
 
-Appen er testet med axe-core (regler for WCAG 2.0, 2.1 og 2.2, nivå A og AA) i alle fire faner og under en pågående økt, i lyst og mørkt tema. Resultatet var ingen brudd. Verktøy finner ikke alt, så det viktigste er også sjekket for hånd:
+Appen er testet med axe-core (regler for WCAG 2.0, 2.1 og 2.2, nivå A og AA) i alle faner, i Innstillinger og under en pågående økt, i begge designsystemer og i lys og mørk variant. Resultatet var ingen brudd. Verktøy finner ikke alt, så det viktigste er også sjekket for hånd:
 
 | Krav | Slik er det løst |
 |------|------------------|
@@ -56,7 +59,7 @@ Appen er testet med axe-core (regler for WCAG 2.0, 2.1 og 2.2, nivå A og AA) i 
 | **1.3.1** Informasjon og relasjoner | Overskrifter, lister, tabeller med `scope` og `caption`, og ekte `<label>` på alle felt. |
 | **1.4.3** Kontrast for tekst | All tekst har minst 4.5:1 i begge tema, også tempo-teksten i figurene. |
 | **1.4.10** Reflow | Ingen sidelengs scrolling ned til 320 px bredde. |
-| **1.4.11** Kontrast for ikke-tekst | Kanten rundt skjemafelt og tomme dagsprikker har minst 3:1. |
+| **1.4.11** Kontrast for ikke-tekst | Kanten rundt skjemafelt, valgene i Innstillinger og tomme dagsprikker har minst 3:1 i begge designsystemer. |
 | **2.1.1** Tastatur | Alt kan brukes med Tab, Enter og mellomrom. |
 | **2.3.3** Animasjon | `prefers-reduced-motion` stopper figuranimasjonene og viser en stillestående versjon. |
 | **2.4.1** Hopp over blokker | Lenken «Hopp til innhold» kommer først. |
@@ -98,5 +101,5 @@ Appen trenger ikke noe byggesteg. Med **GitHub Pages**:
 ## Teknisk
 
 - Ren HTML, CSS og JavaScript, uten rammeverk eller byggesteg.
-- Fonter: Playfair Display, DM Sans og DM Mono fra Google Fonts.
-- Lyst og mørkt tema følger innstillingen på enheten.
+- Fonter fra Google Fonts: Bricolage Grotesque og Atkinson Hyperlegible (Kraft), Playfair Display, DM Sans og DM Mono (Løft og løp).
+- Lys eller mørk velges i Innstillinger, eller følger telefonen.

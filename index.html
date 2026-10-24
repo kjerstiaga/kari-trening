@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-title" content="Løft og løp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@600;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@600;800&family=Atkinson+Hyperlegible+Mono:wght@500;700&family=Atkinson+Hyperlegible+Next:wght@400;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
 <style>
 /* Layout: smal kolonne på mobil, scene + detaljer side om side fra 900px. Mørk editorial, farge etter muskelgruppe. */
 :root{
@@ -40,6 +40,29 @@
   --fg:#131923;--mut:#4B586A;--acc:#9C5500;--on-acc:#FFFFFF;--focus:#0B5CC4;
   --c-glute:#975B00;--c-quad:#1B6CAE;--c-ham:#BC3D29;--c-core:#0B765A;--c-plyo:#7150D5;
   --fig:#3A4658;--obj:#D3DAE5;--wt:#5E6B7E;--good:#0E7A5C;--ctl:#6E819F;color-scheme:light}
+
+/* ---- Kraft-designsystemet (velges i Innstillinger). Varm, lys palett, Atkinson Hyperlegible, større tekst. ---- */
+:root[data-ds="kraft"]{
+  --f-disp:'Bricolage Grotesque',system-ui,sans-serif;
+  --f-body:'Atkinson Hyperlegible Next',system-ui,sans-serif;
+  --f-mono:'Atkinson Hyperlegible Mono',ui-monospace,monospace}
+:root[data-ds="kraft"][data-theme="light"]{
+  --bg:#FAF6F1;--surf:#FFFFFF;--surf2:#F1EBE3;--line:#D6CABC;
+  --fg:#231C17;--mut:#5E534A;--acc:#A8432A;--on-acc:#FFFFFF;--focus:#1A56C4;
+  --c-glute:#A8432A;--c-quad:#1F5C55;--c-ham:#7A4F00;--c-core:#245A8F;--c-plyo:#6B4A8F;
+  --fig:#3A3029;--obj:#E4DBD0;--wt:#857868;--good:#2D6A3A;--ctl:#857868;color-scheme:light}
+:root[data-ds="kraft"][data-theme="dark"]{
+  --bg:#1A1613;--surf:#252019;--surf2:#302922;--line:#4A3F36;
+  --fg:#F4EDE5;--mut:#C2B5A8;--acc:#F08A6C;--on-acc:#1A1613;--focus:#8FB6FF;
+  --c-glute:#F08A6C;--c-quad:#6CC2B5;--c-ham:#F2BF5E;--c-core:#8FBDF0;--c-plyo:#C3A6E8;
+  --fig:#D9CDBF;--obj:#3E352D;--wt:#8E8073;--good:#7FCF8E;--ctl:#8E7F70;color-scheme:dark}
+[data-ds="kraft"] body{font-size:clamp(17px,.3vw + 16px,18px);line-height:1.55}
+[data-ds="kraft"] .card{border-radius:20px;border-color:transparent;box-shadow:0 1px 2px rgba(35,28,23,.06),0 4px 16px rgba(35,28,23,.08)}
+[data-ds="kraft"][data-theme="dark"] .card{border-color:var(--line);box-shadow:none}
+[data-ds="kraft"] .btn{border-radius:14px}
+[data-ds="kraft"] .btn.pri{border-radius:999px}
+[data-ds="kraft"] .kick,[data-ds="kraft"] .pickgrp h3{letter-spacing:.04em}
+[data-ds="kraft"] .note{font-size:.95rem}
 
 *{box-sizing:border-box}
 html,body{min-height:100%}
@@ -158,6 +181,46 @@ table.daily td.tdy,table.daily th[aria-current]{background:var(--surf2)}
 input.sr:focus-visible+label{outline:3px solid var(--focus);outline-offset:3px}
 .chk input{width:24px;height:24px;margin-top:2px;accent-color:var(--acc)}
 .two{display:grid;gap:14px}
+/* ---- Innstillinger ---- */
+header.top{align-items:center}
+.hd{display:flex;align-items:center;gap:10px;flex:1 1 100%;min-width:0;justify-content:space-between}
+.gear{min-height:48px;min-width:48px;padding:0;display:inline-grid;place-items:center;background:var(--surf);border-color:var(--line)}
+.gear svg{width:24px;height:24px}
+.gear[aria-current="page"]{background:var(--fg);color:var(--bg)}
+.set h3{font-size:1.2rem}
+.set fieldset{border:0;margin:14px 0 0;padding:0;min-width:0}
+.set legend{font-weight:700;padding:0;margin-bottom:8px}
+.opts{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.opts.seg{grid-template-columns:repeat(3,1fr)}
+.opt{position:relative}
+.opt input{position:absolute;opacity:0;width:1px;height:1px}
+.opt label{display:grid;gap:2px;min-height:64px;align-content:center;padding:10px 14px;border:2px solid var(--ctl);border-radius:14px;background:var(--surf2);cursor:pointer}
+.opts.seg .opt label{min-height:48px;text-align:center;font-weight:600}
+.opt label b{font-weight:700}
+.opt label small{font-size:.85rem;color:var(--mut)}
+.opt input:checked+label{background:var(--acc);border-color:var(--acc);color:var(--on-acc)}
+.opt input:checked+label small{color:var(--on-acc)}
+.opt input:focus-visible+label{outline:3px solid var(--focus);outline-offset:3px}
+.sw{display:flex;align-items:flex-start;gap:12px;min-height:48px;padding:10px 0;border-top:1px solid var(--line)}
+.sw:first-of-type{border-top:0}
+.sw input{width:24px;height:24px;margin-top:2px;flex:none;accent-color:var(--acc)}
+.sw span b{display:block;font-weight:700}
+.sw span small{display:block;font-size:.9rem;color:var(--mut)}
+.hrbox{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:12px;padding:14px;border-radius:14px;background:var(--surf2)}
+.hrbox .bpm{font-family:var(--f-mono);font-size:2rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+.hrbox .st{flex:1 1 180px}
+.zones{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}
+.zones li{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:8px 12px;border-radius:10px;background:var(--surf2);font-size:.95rem}
+.zones li i{width:10px;height:24px;border-radius:5px;background:var(--z)}
+.zones li span{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.zones li.cur{outline:2px solid var(--fg)}
+.nums{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
+.nums .field{flex:1 1 120px}
+.hrlive{display:flex;align-items:center;gap:10px;margin:6px 0 4px;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.hrlive .v{font-size:1.6rem;font-weight:700}
+.hrlive .z{padding:2px 10px;border-radius:99px;border:2px solid var(--z,var(--line));font-size:.85rem}
+.hrlive.over .v{color:var(--c-ham)}
+.hrlive svg{width:22px;height:22px;color:var(--c-ham)}
 /* ---- Mobil: fast handlingslinje i økt, fokus aldri skjult (WCAG 2.4.11) ---- */
 html{scroll-padding-bottom:calc(120px + env(safe-area-inset-bottom,0px));scroll-padding-top:12px}
 button,a,summary,input,select,label{touch-action:manipulation}
@@ -259,7 +322,8 @@ img{max-width:100%}
 <div id="live" class="sr" aria-live="polite" role="status"></div>
 
 <header class="top wrap" role="banner">
-  <h1>Løft og løp</h1>
+  <div class="hd"><h1>Løft og løp</h1>
+  <button type="button" class="btn gear" data-act="view" data-v="inn" aria-label="Innstillinger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div>
   <div class="meta" id="meta"></div>
 </header>
 
@@ -781,6 +845,8 @@ var SESS={A:{n:'Styrke A',sub:'Mandag · glute',g:'glute'},B:{n:'Styrke B',sub:'
 /* ---------- Tilstand ---------- */
 var S={view:'okt',sess:['A','K','K','Q','B','K','P'][(new Date().getDay()+6)%7],wkOv:0,kv:'easy',mins:30,run:null,
   log:{entries:[],sessions:[],settings:{jump:1,sound:true}},store:'',saved:'',confirmEnd:false};
+var DEF={vib:true,ds:'kraft',mode:'auto',hrAlarm:true,hrEasy:140,hrThrHi:154,age:null,hrMax:null};
+function cfg(k){var v=S.log.settings[k];return (v===undefined||v===null||v==='')?DEF[k]:v;}
 function today(){try{return new Date().toLocaleDateString('sv-SE');}catch(e){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);}}
 function curWeek(){if(S.wkOv)return S.wkOv;var st=new Date(2026,9,19),n=new Date(),t=new Date(n.getFullYear(),n.getMonth(),n.getDate());var d=Math.floor((t-st)/864e5);return Math.max(1,Math.min(12,Math.floor(d/7)+1));}
 function phaseIdx(w){return w<=4?0:(w<=8?1:2);}
@@ -865,7 +931,7 @@ function estMin(steps){var t=0;steps.forEach(function(s){t+=(s.k==='reps')?45:s.
 
 /* ---------- Motor ---------- */
 var tick=null,ac=null,wl=null,saveT=null,saving=false,pending=false,ref=null;
-function beep(f,d){if(!S.log.settings.sound)return;try{if(navigator.vibrate)navigator.vibrate(Math.round((d||.12)*1000));}catch(e){}try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.value=.08;o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+(d||.12));}catch(e){}}
+function beep(f,d){var st=S.log.settings;if(cfg('vib')){try{if(navigator.vibrate)navigator.vibrate(Math.round((d||.12)*1000));}catch(e){}}if(!st.sound)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.value=.08;o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+(d||.12));}catch(e){}}
 function startSession(){
   var steps=buildSteps(S.sess);
   S.run={steps:steps,i:0,t0:performance.now(),paused:false,pausedAt:0,begun:Date.now(),logged:[],cur:null,last:99,done:false,sess:S.sess,nk:0};
@@ -921,13 +987,13 @@ function addTime(){var r=S.run;r.steps[r.i].dur+=15;render();}
 function finish(accrued){
   var r=S.run;if(!accrued)accrue();r.done=true;clearInterval(tick);try{if(wl)wl.release();}catch(e){}
   r.secs=Math.round((Date.now()-r.begun)/1000);
-  S.log.sessions.push({id:newId(),d:today(),s:r.sess,secs:r.secs,sets:r.logged.length,nk:Math.round(r.nk)});
+  S.log.sessions.push(hrFields({id:newId(),d:today(),s:r.sess,secs:r.secs,sets:r.logged.length,nk:Math.round(r.nk)}));
   scheduleSave();beep(988,.25);live('Økten er ferdig');render();
 }
 function abort(){
   if(!S.confirmEnd){S.confirmEnd=true;render();live('Trykk Avslutt en gang til for å avslutte');return;}
   accrue();var r=S.run;
-  if(r&&r.nk>=60){S.log.sessions.push({id:newId(),d:today(),s:r.sess,secs:Math.round((Date.now()-r.begun)/1000),sets:r.logged.length,nk:Math.round(r.nk),partial:true});scheduleSave();}
+  if(r&&r.nk>=60){S.log.sessions.push(hrFields({id:newId(),d:today(),s:r.sess,secs:Math.round((Date.now()-r.begun)/1000),sets:r.logged.length,nk:Math.round(r.nk),partial:true}));scheduleSave();}
   clearInterval(tick);try{if(wl)wl.release();}catch(e){}
   S.run=null;S.confirmEnd=false;render();
 }
@@ -981,6 +1047,130 @@ function initStore(){
   }).catch(function(){ref=null;local();});
 }
 
+/* ---------- Tema og designsystem ---------- */
+var mq=null;try{mq=matchMedia('(prefers-color-scheme: dark)');}catch(e){}
+function applyTheme(){
+  var d=document.documentElement,m=cfg('mode'),ds=cfg('ds')==='kraft'?'kraft':'lol';
+  var dark=m==='dark'||(m==='auto'&&(mq?mq.matches:ds!=='kraft'));
+  d.setAttribute('data-ds',ds);d.setAttribute('data-theme',dark?'dark':'light');
+  try{var bg=getComputedStyle(d).getPropertyValue('--bg').trim(),ms=document.querySelectorAll('meta[name="theme-color"]');for(var i=0;i<ms.length;i++){ms[i].setAttribute('content',bg);ms[i].removeAttribute('media');}}catch(e){}
+}
+try{if(mq){var onMq=function(){if(cfg('mode')==='auto')applyTheme();};if(mq.addEventListener)mq.addEventListener('change',onMq);else if(mq.addListener)mq.addListener(onMq);}}catch(e){}
+
+/* ---------- Puls fra pulsbelte (Web Bluetooth, standard Heart Rate-tjeneste) ---------- */
+var HEART='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2 0 3.5 1.1 4.3 2.6.8-1.5 2.3-2.6 4.3-2.6 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z"/></svg>';
+var HR_LIVE=false; /* Live puls fra pulsbelte/klokke. Slått av inntil videre; sett til true for å vise den igjen. */
+var HR={dev:null,bpm:null,state:'off',msg:'',over:false,manual:false,tries:0};
+var ZN=[[.5,'Sone 1','Svært lett','--c-core'],[.6,'Sone 2','Lett','--c-quad'],[.7,'Sone 3','Moderat','--c-glute'],[.8,'Sone 4','Hard','--c-ham'],[.9,'Sone 5','Maks','--c-plyo']];
+function hrSupported(){try{return !!(navigator.bluetooth&&navigator.bluetooth.requestDevice);}catch(e){return false;}}
+function hrMaxV(){var m=+cfg('hrMax');if(m>0)return m;var a=+cfg('age');return a>0?Math.round(211-0.64*a):null;}
+function zoneOf(b){var m=hrMaxV();if(!m||!b)return -1;var r=b/m;for(var i=ZN.length-1;i>=0;i--){if(r>=ZN[i][0])return i;}return -1;}
+function hrLimit(){var r=S.run;if(r&&!r.done){var s=r.steps[r.i];if(s&&s.ex==='runt')return +cfg('hrThrHi');}return +cfg('hrEasy');}
+function hrConnect(){
+  if(!hrSupported()){render();return;}
+  HR.manual=false;HR.state='connecting';HR.msg='';render();
+  navigator.bluetooth.requestDevice({filters:[{services:['heart_rate']}]})
+   .then(function(dev){HR.dev=dev;dev.addEventListener('gattserverdisconnected',hrLost);return hrAttach();})
+   .catch(function(e){
+     var n=e&&e.name;
+     if(n==='NotFoundError'&&!HR.dev){HR.state='off';HR.msg='';}
+     else{HR.state='err';HR.msg=n==='SecurityError'?'Nettleseren tillater ikke Bluetooth i denne visningen. Åpne appen i en egen fane i Chrome og prøv igjen.':'Fikk ikke kontakt med pulsbeltet. Sjekk at det sitter på, er fuktet og ikke er koblet til en annen app.';live(HR.msg);}
+     render();});
+}
+function hrAttach(){
+  return HR.dev.gatt.connect().then(function(sv){return sv.getPrimaryService('heart_rate');})
+   .then(function(sv){return sv.getCharacteristic('heart_rate_measurement');})
+   .then(function(c){c.addEventListener('characteristicvaluechanged',onHr);return c.startNotifications();})
+   .then(function(){HR.state='on';HR.tries=0;HR.msg='';S.log.settings.hrName=HR.dev.name||'Pulsbelte';scheduleSave();live('Pulsbelte tilkoblet');render();});
+}
+function hrLost(){
+  if(HR.manual||!HR.dev)return;
+  HR.bpm=null;HR.over=false;
+  if(HR.tries>=3){HR.state='err';HR.msg='Mistet kontakten med pulsbeltet.';live(HR.msg);render();return;}
+  if(HR.state!=='lost'){live('Mistet kontakten med pulsbeltet. Prøver igjen.');}
+  HR.state='lost';HR.tries++;render();
+  setTimeout(function(){if(HR.manual||!HR.dev)return;hrAttach().catch(hrLost);},2000);
+}
+function hrDisconnect(){
+  HR.manual=true;try{if(HR.dev&&HR.dev.gatt.connected)HR.dev.gatt.disconnect();}catch(e){}
+  HR.dev=null;HR.bpm=null;HR.state='off';HR.over=false;HR.msg='';render();live('Pulsbelte koblet fra');
+}
+function onHr(ev){
+  var v=ev.target.value;if(!v||v.byteLength<2)return;
+  var f=v.getUint8(0),b=(f&1)?v.getUint16(1,true):v.getUint8(1);if(!b)return;
+  HR.bpm=b;
+  var r=S.run;if(r&&!r.done&&!r.paused){r.hrN=(r.hrN||0)+1;r.hrSum=(r.hrSum||0)+b;r.hrMax=Math.max(r.hrMax||0,b);}
+  hrAlarm(b);hrPaint();
+}
+function hrAlarm(b){
+  var r=S.run;if(!cfg('hrAlarm')||!r||r.done){HR.over=false;return;}
+  var lim=hrLimit();if(!(lim>0))return;
+  if(!HR.over&&b>lim){HR.over=true;beep(990,.15);setTimeout(function(){beep(990,.15);},260);live('Pulsen er '+b+', over grensen på '+lim+'. Ro ned.');}
+  else if(HR.over&&b<=lim-3){HR.over=false;beep(520,.25);live('Pulsen er tilbake under '+lim+'.');}
+}
+function hrLiveHtml(){
+  if(HR.state==='lost')return '<div class="hrlive"><span class="note">Pulsbelte: prøver å koble til igjen …</span></div>';
+  if(HR.state!=='on'||!HR.bpm)return '';
+  var z=zoneOf(HR.bpm),zz=z>=0?ZN[z]:null;
+  return '<div class="hrlive'+(HR.over?' over':'')+'" id="hrlive">'+HEART+'<span class="v" id="hrv">'+HR.bpm+'</span><span>bpm</span>'+
+   '<span class="z" id="hrz"'+(zz?' style="--z:var('+zz[3]+')">'+zz[1]:' hidden>')+'</span>'+(HR.over?'<span class="note">over '+hrLimit()+'</span>':'')+'</div>';
+}
+function hrPaint(){
+  var needs=(S.view==='okt'&&S.run&&!S.run.done)||S.view==='inn';
+  var v=$('#hrv');
+  if(!v){if(needs)render();return;}
+  v.textContent=HR.bpm;
+  var box=$('#hrlive');if(box&&box.classList.contains('over')!==HR.over){render();return;}
+  var z=zoneOf(HR.bpm),zz=$('#hrz');
+  if(zz){if(z>=0){zz.hidden=false;zz.textContent=ZN[z][1];zz.style.setProperty('--z','var('+ZN[z][3]+')');}else zz.hidden=true;}
+  var lis=document.querySelectorAll('.zones li');for(var i=0;i<lis.length;i++)lis[i].classList.toggle('cur',i===z);
+}
+function hrFields(o){var r=S.run;if(r&&r.hrN){o.hrAvg=Math.round(r.hrSum/r.hrN);o.hrMax=r.hrMax;}return o;}
+
+/* ---------- Innstillinger ---------- */
+function opt(name,val,title,sub){var id='o-'+name+'-'+val;
+  return '<div class="opt"><input type="radio" name="'+name+'" id="'+id+'" value="'+val+'"'+(cfg(name)===val?' checked':'')+'><label for="'+id+'"><b>'+title+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</label></div>';}
+function swi(key,title,sub){var id='sw-'+key;
+  return '<label class="sw" for="'+id+'"><input type="checkbox" id="'+id+'" data-set="'+key+'"'+(cfg(key)?' checked':'')+'><span><b>'+title+'</b><small>'+sub+'</small></span></label>';}
+function numF(key,label,ph,min,max){var v=S.log.settings[key];
+  return '<div class="field"><label for="n-'+key+'">'+label+'</label><input id="n-'+key+'" data-num="'+key+'" type="number" inputmode="numeric" min="'+min+'" max="'+max+'" value="'+(v==null?'':esc(v))+'" placeholder="'+esc(ph)+'"></div>';}
+function hrStatusHtml(){
+  var name=S.log.settings.hrName;
+  if(!hrSupported())return '<div class="st"><b>Bluetooth virker ikke her</b><p class="note">Åpne appen i Chrome på Android eller på datamaskin. På iPhone kan nettsider ikke bruke Bluetooth.</p></div>';
+  if(HR.state==='on')return '<span class="bpm" aria-hidden="true">'+(HR.bpm?'<span id="hrv">'+HR.bpm+'</span>':'–')+'</span><div class="st"><b>Tilkoblet: '+esc(name||'Pulsbelte')+'</b><p class="note">'+(HR.bpm?'Pulsen vises i økta.':'Venter på første måling …')+'</p></div><button type="button" class="btn" data-act="hroff">Koble fra</button>';
+  if(HR.state==='connecting')return '<div class="st"><b>Kobler til …</b><p class="note">Velg pulsbeltet i listen fra nettleseren.</p></div>';
+  if(HR.state==='lost')return '<div class="st"><b>Mistet kontakten</b><p class="note">Prøver å koble til igjen …</p></div><button type="button" class="btn" data-act="hroff">Avbryt</button>';
+  return '<div class="st"><b>'+(HR.state==='err'?'Ikke tilkoblet':'Ikke tilkoblet')+'</b><p class="note">'+(HR.msg?esc(HR.msg):(name?'Sist brukt: '+esc(name)+'.':'Fukt beltet og ta det på før du kobler til.'))+'</p></div><button type="button" class="btn pri" data-act="hrcon">'+(HR.state==='err'?'Prøv igjen':'Koble til pulsbelte')+'</button>';
+}
+function zonesHtml(){
+  var m=hrMaxV();
+  if(!m)return '<p class="note" style="margin-top:12px">Skriv inn alderen din under for å se pulssonene dine.</p>';
+  var z=zoneOf(HR.bpm);
+  return '<h4 class="kick" style="margin-top:16px">Dine pulssoner · makspuls '+m+'</h4><ul class="zones">'+ZN.map(function(q,i){
+    var lo=Math.round(m*q[0]),hi=i<ZN.length-1?Math.round(m*ZN[i+1][0])-1:m;
+    return '<li style="--z:var('+q[3]+')"'+(i===z?' class="cur"':'')+'><i></i><b>'+q[1]+' · '+q[2]+'</b><span>'+lo+'–'+hi+'</span></li>';}).join('')+'</ul>';
+}
+function viewInn(){
+  var a=+cfg('age'),guess=a>0?String(Math.round(211-0.64*a)):'f.eks. 180';
+  var h='<section aria-labelledby="h-inn" class="set"><div class="sec" style="margin-top:6px"><h2 id="h-inn" tabindex="-1" style="font-size:1.6rem">Innstillinger</h2><p class="note" style="margin-top:6px">Lagres sammen med loggen din.</p></div>';
+  h+='<div class="card sec"><h3>Utseende</h3>'+
+    '<fieldset><legend>Designsystem</legend><div class="opts">'+opt('ds','kraft','Kraft','Varm og lys, større tekst og høy kontrast')+opt('ds','lol','Løft og løp','Mørk editorial, farge etter muskelgruppe')+'</div></fieldset>'+
+    '<fieldset><legend>Lys eller mørk</legend><div class="opts seg">'+opt('mode','light','Lys')+opt('mode','dark','Mørk')+opt('mode','auto','Følg telefonen')+'</div></fieldset></div>';
+  h+='<div class="card sec"><h3>Puls</h3>'+
+    (HR_LIVE?'<p class="note" style="margin-top:6px">Koble til et pulsbelte med Bluetooth, for eksempel Polar H10 eller Garmin HRM. Pulsen vises i økta og lagres som snitt og maks i loggen.</p><div class="hrbox" id="hrbox">'+hrStatusHtml()+'</div>':'')+
+    '<div class="hrbox"><div class="st"><b>Importer fra Samsung Health</b><p class="note">Kommer senere. Da kan du hente puls fra klokka etter økta og se snitt og maks i loggen.</p></div><button type="button" class="btn" aria-disabled="true" data-act="soon">Kommer</button></div>'+
+    zonesHtml()+
+    '<div class="nums">'+numF('age','Alder','f.eks. 45',16,99)+numF('hrMax','Egen makspuls (valgfritt)',guess,100,230)+'</div>'+
+    '<p class="note" style="margin-top:8px">Makspuls beregnes som 211 − 0,64 × alder, fra den norske HUNT-studien. Kjenner du din egen makspuls fra en test, skriv den inn.</p></div>';
+  h+='<div class="card sec"><h3>Lyd og vibrasjon</h3><div style="margin-top:8px">'+
+    swi('sound','Lyd','Pip ved bytte av øvelse og nedtelling')+
+    swi('vib','Vibrasjon','Kort vibrasjon samtidig med lydene, der telefonen støtter det')+
+    (HR_LIVE?swi('hrAlarm','Pulsvarsel','To pip når pulsen går over grensen under en økt, ett rolig pip når den er tilbake'):'')+'</div>'+
+    (HR_LIVE?'<div class="nums">'+numF('hrEasy','Grense i rolige økter (bpm)','140',90,210)+numF('hrThrHi','Øvre grense i terskel (bpm)','154',90,220)+'</div>'+
+    '<p class="note" style="margin-top:8px">Grensen for rolige økter er din aerobe terskel, 140 bpm. I terskeldragene varsler appen over øvre grense.</p>':'')+'</div></section>';
+  return h;
+}
+
 /* ---------- Visning ---------- */
 function mcol(g){return 'style="--m:var('+GV[g]+')"';}
 function metaLine(){var w=curWeek(),p=PH[phaseIdx(w)];return 'Uke '+w+' av 12 · '+p.n+' · '+p.rir;}
@@ -1032,7 +1222,7 @@ function viewRun(){
   var h='<section aria-label="Pågående økt">';
   h+='<div class="runtop"><button type="button" class="btn ghost" data-act="abort">'+(S.confirmEnd?'Trykk igjen':'Avslutt')+'</button>'+
    '<div class="overall"><span>'+(r.i+1)+'/'+ptot+'</span><div class="prog" role="progressbar" aria-label="Fremdrift i økten, steg '+(r.i+1)+' av '+ptot+'" aria-valuemin="0" aria-valuemax="'+ptot+'" aria-valuenow="'+(r.i+1)+'" '+mcol(g)+'><i style="width:'+((r.i+1)/ptot*100)+'%"></i></div></div>'+
-   '<button type="button" class="btn snd" data-act="sound" aria-pressed="'+(!!S.log.settings.sound)+'" aria-label="Lyd og vibrasjon">'+(S.log.settings.sound?'Lyd på':'Lyd av')+'</button></div>';
+   '<button type="button" class="btn snd" data-act="sound" aria-pressed="'+(!!(S.log.settings.sound||cfg('vib')))+'" aria-label="Lyd og vibrasjon">'+((S.log.settings.sound||cfg('vib'))?'Lyd på':'Lyd av')+'</button></div>';
   h+='<div class="stage sec" '+mcol(g)+'><div class="fig'+(r.paused?' paused':'')+'" style="--bd:-'+(elapsed()%10).toFixed(2)+'s">'+(TEMPO[s.ex]?tempoSvg(s.ex):nextEx.fig)+'</div><div class="read">';
   var kick=isRest?('Hvile · '+s.label):(s.k==='time'?(SESS[r.sess].n+(s.set?' · sett '+s.set+' av '+s.of:'')):('Sett '+s.set+' av '+s.of+' · mål '+s.lo+(s.hi!==s.lo?'–'+s.hi:'')+(ex.unit==='steg'?' steg':' reps')+' · '+PH[phaseIdx(curWeek())].rir));
   h+='<div class="kick">'+esc(kick)+'</div>';
@@ -1041,6 +1231,7 @@ function viewRun(){
   var e=elapsed();
   var show=(s.k==='reps')?fmt(Math.floor(e)):fmt(s.dur-e);
   h+='<div class="timer'+(s.k==='reps'?' up':'')+'" id="tm" role="timer" aria-label="'+(s.k==='reps'?'Tid i settet':'Tid igjen')+'">'+show+'</div>';
+  h+=hrLiveHtml();
   if(s.k!=='reps')h+='<div class="prog" aria-hidden="true"><i id="bar" style="width:'+Math.min(100,e/s.dur*100)+'%"></i></div>';
   if(s.k==='reps'){
     h+='<div class="dots" aria-hidden="true">';for(var i=1;i<=s.of;i++){h+='<span class="'+(i<s.set?'on':'')+(i===s.set?' cur':'')+'"></span>';}h+='</div>';
@@ -1077,7 +1268,7 @@ function stepper(key,label,val,step){
 function viewDone(){
   var r=S.run,mins=Math.max(1,Math.round(r.secs/60));
   var by={};r.logged.forEach(function(l){(by[l.e.ex]=by[l.e.ex]||[]).push(l.e);});
-  var h='<section class="card sec" aria-labelledby="h-d"><div class="kick">Økt ferdig</div><h2 id="h-d">'+SESS[r.sess].n+' · '+mins+' min</h2><p class="note" id="saved">'+esc(S.saved||'')+'</p>';
+  var h='<section class="card sec" aria-labelledby="h-d"><div class="kick">Økt ferdig</div><h2 id="h-d">'+SESS[r.sess].n+' · '+mins+' min</h2>'+(r.hrN?'<p class="note">Puls: snitt '+Math.round(r.hrSum/r.hrN)+' bpm, maks '+r.hrMax+' bpm</p>':'')+'<p class="note" id="saved">'+esc(S.saved||'')+'</p>';
   var keys=Object.keys(by);
   if(keys.length)h+='<ul class="plan sec">'+keys.map(function(k){var es=by[k];return '<li '+mcol(EX[k].g)+'><i></i><b>'+esc(EX[k].n)+'</b><span>'+es.map(function(e){return (EX[k].nokg?'':e.kg+'×')+e.r;}).join(' · ')+'</span></li>';}).join('')+'</ul>';
   h+='<div class="row sec"><button type="button" class="btn pri" id="primary" data-act="closeDone">Til oversikten</button></div></section>';
@@ -1137,7 +1328,7 @@ function recentCard(){
   if(!list.length)return '<div class="card sec"><h3>Siste økter</h3><p class="note" style="margin-top:6px">Ingen økter ennå. Fullfør en økt i appen, eller registrer en over.</p></div>';
   return '<div class="card sec"><h3>Siste økter</h3><ul class="recent">'+list.map(function(o){var s=o.s,m=Math.max(1,Math.round((s.secs||0)/60)),d=s.d.slice(8)+'.'+s.d.slice(5,7);
     var conf=S.confirmDel===o.i;
-    return '<li><span class="rd">'+d+'</span><div><b>'+esc(SESS[s.s]?SESS[s.s].n:s.s)+'</b><div class="note">'+m+' min'+(s.manual?' · registrert':'')+(s.partial?' · avbrutt':'')+'</div></div>'+
+    return '<li><span class="rd">'+d+'</span><div><b>'+esc(SESS[s.s]?SESS[s.s].n:s.s)+'</b><div class="note">'+m+' min'+(s.hrAvg?' · snitt '+s.hrAvg+' bpm':'')+(s.manual?' · registrert':'')+(s.partial?' · avbrutt':'')+'</div></div>'+
       '<button type="button" class="btn ghost del" data-act="del" data-i="'+o.i+'" aria-label="'+(conf?'Bekreft sletting av ':'Slett ')+esc(SESS[s.s]?SESS[s.s].n:s.s)+' '+d+'">'+(conf?'Trykk igjen':'Slett')+'</button></li>';}).join('')+'</ul></div>';
 }
 /* Loggen ligger bare i nettleseren. Eksport gir en fil som kan tas vare på eller flyttes til en annen enhet; import slår sammen, overskriver ikke. */
@@ -1229,12 +1420,14 @@ function focusKey(el){
   return sel;
 }
 function render(){
+  applyTheme();
   var m=$('#main'),v=S.view,h='',fk=m.contains(document.activeElement)?focusKey(document.activeElement):null;
   document.body.classList.toggle('running',!!(S.run&&!S.run.done)&&v==='okt');
   $('#meta').textContent=metaLine();
   var buttons=document.querySelectorAll('nav.bar button');
   for(var i=0;i<buttons.length;i++){var b=buttons[i];if(b.getAttribute('data-v')===v)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');}
-  if(v==='okt')h=viewOkt();else if(v==='uke')h=viewUke();else if(v==='logg')h=viewLogg();else h=viewGrunn();
+  var gb=$('.gear');if(gb){if(v==='inn')gb.setAttribute('aria-current','page');else gb.removeAttribute('aria-current');}
+  if(v==='okt')h=viewOkt();else if(v==='uke')h=viewUke();else if(v==='logg')h=viewLogg();else if(v==='inn')h=viewInn();else h=viewGrunn();
   m.innerHTML=h;
   if(fk){try{var t=m.querySelector(fk);if(t)t.focus({preventScroll:true});}catch(e){}}
   animTempo();
@@ -1245,11 +1438,17 @@ function planToday(){return ['A','K','K','Q','B','K','P'][(new Date().getDay()+6
 document.addEventListener('click',function(ev){
   var el=ev.target.closest('[data-act]');if(!el)return;
   var a=el.getAttribute('data-act'),r=S.run;
-  if(a==='view'){S.view=el.getAttribute('data-v');S.confirmEnd=false;render();window.scrollTo(0,0);}
+  if(a==='view'){var nv=el.getAttribute('data-v');
+    if(nv==='inn'&&S.view==='inn')nv=S.prevView||'okt';else if(nv==='inn')S.prevView=S.view;
+    S.view=nv;S.confirmEnd=false;render();window.scrollTo(0,0);
+    if(nv==='inn'){var hi=$('#h-inn');if(hi)hi.focus({preventScroll:true});}}
   else if(a==='sess'){S.sess=el.getAttribute('data-s');render();var hh=$('#h-okt');if(hh){hh.focus({preventScroll:true});}
     try{window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});}catch(e){window.scrollTo(0,0);}
     live('Valgt: '+SESS[S.sess].n);}
-  else if(a==='sound'){S.log.settings.sound=!S.log.settings.sound;scheduleSave();render();live(S.log.settings.sound?'Lyd og vibrasjon på':'Lyd og vibrasjon av');}
+  else if(a==='sound'){var on=!(S.log.settings.sound||cfg('vib'));S.log.settings.sound=on;S.log.settings.vib=on;scheduleSave();render();live(on?'Lyd og vibrasjon på':'Lyd og vibrasjon av');}
+  else if(a==='soon'){live('Import fra Samsung Health kommer i en senere versjon');}
+  else if(a==='hrcon'&&HR_LIVE){hrConnect();}
+  else if(a==='hroff'){hrDisconnect();}
   else if(a==='kv'){S.kv=el.getAttribute('data-v');render();}
   else if(a==='min'){S.mins=+el.getAttribute('data-v');render();}
   else if(a==='jump'){S.log.settings.jump=+el.getAttribute('data-v');scheduleSave();render();}
@@ -1283,6 +1482,13 @@ document.addEventListener('click',function(ev){
 });
 document.addEventListener('change',function(ev){
   var el=ev.target;
+  if(el.name==='ds'||el.name==='mode'){S.log.settings[el.name]=el.value;scheduleSave();applyTheme();
+    live(el.name==='ds'?('Designsystem: '+(el.value==='kraft'?'Kraft':'Løft og løp')):('Fargemodus: '+({light:'lys',dark:'mørk',auto:'følger telefonen'})[el.value]));return;}
+  if(el.getAttribute&&el.getAttribute('data-set')){S.log.settings[el.getAttribute('data-set')]=!!el.checked;scheduleSave();return;}
+  if(el.getAttribute&&el.getAttribute('data-num')){var nk2=el.getAttribute('data-num'),nv2=parseInt(el.value,10);
+    var mn2=+el.min,mx2=+el.max;S.log.settings[nk2]=(nv2>=mn2&&nv2<=mx2)?nv2:null;
+    if(!isNaN(nv2)&&!(nv2>=mn2&&nv2<=mx2))live('Skriv et tall mellom '+mn2+' og '+mx2);
+    scheduleSave();render();return;}
   if(el.id==='man-type'){S.manType=el.value;S.manMin=null;var m=$('#man-min');if(m)m.value=DEFMIN[el.value];}
   else if(el.id==='man-min'){S.manMin=el.value;}
   else if(el.id==='man-date'){S.manDate=el.value;}
