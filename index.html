@@ -845,7 +845,7 @@ var SESS={A:{n:'Styrke A',sub:'Mandag · glute',g:'glute'},B:{n:'Styrke B',sub:'
 /* ---------- Tilstand ---------- */
 var S={view:'okt',sess:['A','K','K','Q','B','K','P'][(new Date().getDay()+6)%7],wkOv:0,kv:'easy',mins:30,run:null,
   log:{entries:[],sessions:[],settings:{jump:1,sound:true}},store:'',saved:'',confirmEnd:false};
-var DEF={vib:true,ds:'kraft',mode:'auto',hrAlarm:true,hrEasy:140,hrThrHi:154,age:null,hrMax:null};
+var DEF={vib:true,voice:true,ds:'kraft',mode:'auto',hrAlarm:true,hrEasy:140,hrThrHi:154,age:null,hrMax:null};
 function cfg(k){var v=S.log.settings[k];return (v===undefined||v===null||v==='')?DEF[k]:v;}
 function today(){try{return new Date().toLocaleDateString('sv-SE');}catch(e){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);}}
 function curWeek(){if(S.wkOv)return S.wkOv;var st=new Date(2026,9,19),n=new Date(),t=new Date(n.getFullYear(),n.getMonth(),n.getDate());var d=Math.floor((t-st)/864e5);return Math.max(1,Math.min(12,Math.floor(d/7)+1));}
@@ -939,7 +939,30 @@ function startSession(){
   enter(0,true);
   keepAwake();
   clearInterval(tick);tick=setInterval(onTick,200);
-  beep(880);
+  beep(880);hush();vgVoice();
+}
+/* ---------- Tale i Vagus-pust ----------
+   Følger samme klokke som figuren: hver syklus er tøm 2 s, inn 4 s, hold 7 s, ut med summing 8 s.
+   Bruker nettleserens innebygde norske stemme (Web Speech API); «Lyd av» i økta skrur også av talen. */
+var VTXT={
+ v1:['Tøm lungene.','Pust inn i magen.','Hold. Svelg én gang.','Pust ut og summ.'],
+ v2:['Tøm lungene.','Pust inn. Tungen mot ganen.','Hold. Stram bekkenbunnen.','Pust ut og summ. Slipp alt.'],
+ v3:['Tøm lungene.','Pust inn. Se målet.','Hold. Kjenn det.','Pust ut og summ. La det stråle.'],
+ v4:['Tøm lungene.','Pust inn i magen.','Hold. Tunge, bekkenbunn og svelg.','Pust ut og summ. Slipp alt.']};
+var vKey='';
+function voiceOk(){try{return !!(window.speechSynthesis&&window.SpeechSynthesisUtterance);}catch(e){return false;}}
+function voiceOn(){return voiceOk()&&!!S.log.settings.sound&&!!cfg('voice');}
+function nbVoice(){try{var vs=speechSynthesis.getVoices()||[];for(var i=0;i<vs.length;i++){if(/^(nb|no|nn)\b/i.test(vs[i].lang))return vs[i];}}catch(e){}return null;}
+function say(t){try{var u=new SpeechSynthesisUtterance(t);u.lang='nb-NO';var v=nbVoice();if(v)u.voice=v;u.rate=.9;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}}
+function hush(){vKey='';try{if(voiceOk())speechSynthesis.cancel();}catch(e){}}
+function vgVoice(){
+  var r=S.run;if(!r||r.done||r.paused||!voiceOn())return;
+  var s=r.steps[r.i],T=TEMPO[s.ex],tx=VTXT[s.ex];if(!T||!tx)return;
+  var tot=0;T.seq.forEach(function(q){tot+=q[2];});
+  var e=elapsed(),c=Math.floor(e/tot),tt=e-c*tot,i=0;
+  while(i<T.seq.length-1&&tt>=T.seq[i][2]){tt-=T.seq[i][2];i++;}
+  var k=r.i+':'+c+':'+i;if(k===vKey)return;vKey=k;
+  say((c===0&&i===0?'Syklus '+s.ex.slice(1)+'. ':'')+tx[i]);
 }
 function keepAwake(){try{if(navigator.wakeLock)navigator.wakeLock.request('screen').then(function(l){wl=l;}).catch(function(){});}catch(e){}}
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&S.run&&!S.run.done)keepAwake();});
@@ -966,11 +989,12 @@ function onTick(){
   if(s.k==='reps'){if(tmEl)tmEl.textContent=fmt(Math.floor(e));return;}
   var rem=s.dur-e;
   if(rem<=0){advance();return;}
+  vgVoice();
   if(tmEl)tmEl.textContent=fmt(rem);
   if(bar)bar.style.width=Math.min(100,e/s.dur*100)+'%';
   var w=Math.ceil(rem);if(w<=3&&w!==r.last){beep(660,.08);}r.last=w;
 }
-function togglePause(){var r=S.run;if(r.paused){r.t0+=performance.now()-r.pausedAt;r.paused=false;}else{r.paused=true;r.pausedAt=performance.now();}render();live(r.paused?'Pause':'Fortsetter');}
+function togglePause(){var r=S.run;if(r.paused){r.t0+=performance.now()-r.pausedAt;r.paused=false;}else{r.paused=true;r.pausedAt=performance.now();hush();}render();live(r.paused?'Pause':'Fortsetter');}
 function doneSet(){
   var r=S.run,s=r.steps[r.i];
   var e={id:newId(),d:today(),s:r.sess,ex:s.ex,n:s.set,kg:EX[s.ex].nokg?0:(r.cur.kg||0),r:r.cur.r||0};
@@ -985,7 +1009,7 @@ function undo(){
 function skip(){advance();}
 function addTime(){var r=S.run;r.steps[r.i].dur+=15;render();}
 function finish(accrued){
-  var r=S.run;if(!accrued)accrue();r.done=true;clearInterval(tick);try{if(wl)wl.release();}catch(e){}
+  var r=S.run;if(!accrued)accrue();r.done=true;clearInterval(tick);hush();try{if(wl)wl.release();}catch(e){}
   r.secs=Math.round((Date.now()-r.begun)/1000);
   S.log.sessions.push(hrFields({id:newId(),d:today(),s:r.sess,secs:r.secs,sets:r.logged.length,nk:Math.round(r.nk)}));
   scheduleSave();beep(988,.25);live('Økten er ferdig');render();
@@ -994,7 +1018,7 @@ function abort(){
   if(!S.confirmEnd){S.confirmEnd=true;render();live('Trykk Avslutt en gang til for å avslutte');return;}
   accrue();var r=S.run;
   if(r&&r.nk>=60){S.log.sessions.push(hrFields({id:newId(),d:today(),s:r.sess,secs:Math.round((Date.now()-r.begun)/1000),sets:r.logged.length,nk:Math.round(r.nk),partial:true}));scheduleSave();}
-  clearInterval(tick);try{if(wl)wl.release();}catch(e){}
+  clearInterval(tick);hush();try{if(wl)wl.release();}catch(e){}
   S.run=null;S.confirmEnd=false;render();
 }
 
@@ -1165,6 +1189,7 @@ function viewInn(){
   h+='<div class="card sec"><h3>Lyd og vibrasjon</h3><div style="margin-top:8px">'+
     swi('sound','Lyd','Pip ved bytte av øvelse og nedtelling')+
     swi('vib','Vibrasjon','Kort vibrasjon samtidig med lydene, der telefonen støtter det')+
+    (voiceOk()?swi('voice','Tale i Vagus-pust','En rolig stemme sier når du skal puste inn, holde og puste ut. Slås av sammen med lyden i økta.'):'')+
     (HR_LIVE?swi('hrAlarm','Pulsvarsel','To pip når pulsen går over grensen under en økt, ett rolig pip når den er tilbake'):'')+'</div>'+
     (HR_LIVE?'<div class="nums">'+numF('hrEasy','Grense i rolige økter (bpm)','140',90,210)+numF('hrThrHi','Øvre grense i terskel (bpm)','154',90,220)+'</div>'+
     '<p class="note" style="margin-top:8px">Grensen for rolige økter er din aerobe terskel, 140 bpm. I terskeldragene varsler appen over øvre grense.</p>':'')+'</div></section>';
@@ -1445,7 +1470,7 @@ document.addEventListener('click',function(ev){
   else if(a==='sess'){S.sess=el.getAttribute('data-s');render();var hh=$('#h-okt');if(hh){hh.focus({preventScroll:true});}
     try{window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});}catch(e){window.scrollTo(0,0);}
     live('Valgt: '+SESS[S.sess].n);}
-  else if(a==='sound'){var on=!(S.log.settings.sound||cfg('vib'));S.log.settings.sound=on;S.log.settings.vib=on;scheduleSave();render();live(on?'Lyd og vibrasjon på':'Lyd og vibrasjon av');}
+  else if(a==='sound'){var on=!(S.log.settings.sound||cfg('vib'));S.log.settings.sound=on;S.log.settings.vib=on;if(!on)hush();scheduleSave();render();live(on?'Lyd og vibrasjon på':'Lyd og vibrasjon av');}
   else if(a==='soon'){live('Import fra Samsung Health kommer i en senere versjon');}
   else if(a==='hrcon'&&HR_LIVE){hrConnect();}
   else if(a==='hroff'){hrDisconnect();}
