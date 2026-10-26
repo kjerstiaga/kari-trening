@@ -2,7 +2,7 @@
    Appen (HTML, manifest, ikoner) hentes fra nettet først, så du alltid får nyeste versjon, og fra lager når du er uten nett.
    Fonter fra Google lagres første gang de lastes og brukes deretter fra lager.
    Bump VERSION når filene under endres, så gammelt lager ryddes. */
-var VERSION = 'v2';
+var VERSION = 'v3';
 var APP = 'loft-og-lop-app-' + VERSION;
 var FONTS = 'loft-og-lop-fonts';
 var SHELL = [

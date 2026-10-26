@@ -22,7 +22,7 @@ Etter første åpning starter appen også uten nett. Fontene lagres første gang
 
 | Fane | Innhold |
 |------|---------|
-| **Økt** | Dagens økt etter ukeplanen, eller en annen du velger. Tidtaker, hvile, sett og reps, vekt med forslag, lyd og vibrasjon. Skjermen holdes våken under økta. |
+| **Økt** | Dagens økt etter ukeplanen, eller en annen du velger. Tidtaker, hvile, sett og reps, vekt med forslag, lyd og vibrasjon. Skjermen holdes våken under økta. I Vagus-pust leder en norsk stemme deg gjennom inn, hold og ut. |
 | **Uke** | 12-ukers plan i tre faser (Grunnlag, Tung, Hypertrofi) og en vanlig uke. |
 | **Logg** | Nakke- og skulderminutter mot ukemålet, daglige rutiner, manuell registrering, siste økter, progresjon på hovedløftene og sikkerhetskopi. |
 | **Grunnlag** | Hva programmet bygger på, med kilder. |
