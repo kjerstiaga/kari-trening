@@ -22,7 +22,7 @@ Etter første åpning starter appen også uten nett. Fontene lagres første gang
 
 | Fane | Innhold |
 |------|---------|
-| **Økt** | Dagens økt etter ukeplanen, eller en annen du velger. Tidtaker, hvile, sett og reps, vekt med forslag, lyd og vibrasjon. Skjermen holdes våken under økta. I Vagus-pust og Vagus-flyt leder en norsk stemme deg gjennom inn, hold og ut. |
+| **Økt** | Dagens økt etter ukeplanen, eller en annen du velger. Tidtaker, hvile, sett og reps, vekt med forslag, lyd og vibrasjon. Skjermen holdes våken under økta. Tale og toner leder deg, se [Lyd og tale](#lyd-og-tale). |
 | **Uke** | 12-ukers plan i tre faser (Grunnlag, Tung, Hypertrofi) og en vanlig uke. |
 | **Logg** | Nakke- og skulderminutter mot ukemålet, daglige rutiner, manuell registrering, siste økter, progresjon på hovedløftene og sikkerhetskopi. |
 | **Grunnlag** | Hva programmet bygger på, med kilder. |
@@ -37,6 +37,17 @@ Appen har to designsystemer. **Kraft** er standard: varm og lys palett, Atkinson
 Uke 1 startet mandag 19. oktober 2026. Startdatoen står i funksjonen `curWeek()` i `index.html`.
 
 ---
+
+## Lyd og tale
+
+Appen bruker telefonens egen norske stemme og toner laget i nettleseren. Begge virker uten nett.
+
+- **Rolige økter** (qi gong, Høst-qi gong, Skulder og nakke, Bekkenbunn, Vagus-pust og Vagus-flyt): stemmen forklarer øvelsen og leser pusten fra figuren. Ny øvelse markeres med en klangskål i stedet for pip.
+- **Stemmen trapper ned:** første runde full veiledning, andre runde korte ord («Inn», «Hold», «Ut»), deretter bare en tone når pusten skifter. En lys tone betyr inn, en mørk betyr ut. Raske bevegelser får et klikk i takt de to første rundene.
+- **Styrke:** innledning med sett, vekt og reps, så nedtelling 3–2–1. Hver rep har en stigende tone opp, et pip i pausen og en fallende tone ned. Stemmen teller reps, sier «to igjen» og «Bytt ben» på ett-bens øvelser. Knappen «Start tempo på nytt» starter nedtellingen igjen hvis du ikke var klar.
+- **Hvile:** stemmen sier hvor lang hvilen er, og ved 30 sekunder igjen hva som kommer, med sett og vekt.
+
+Alt kan skrus av hver for seg under Innstillinger → Lyd og vibrasjon, og «Lyd av» i økta skrur av alt.
 
 ## Data og sikkerhetskopi
 
