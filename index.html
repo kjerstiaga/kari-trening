@@ -899,7 +899,7 @@ var SESS={A:{n:'Styrke A',sub:'Mandag · glute',g:'glute'},B:{n:'Styrke B',sub:'
 /* ---------- Tilstand ---------- */
 var S={view:'okt',sess:['A','K','K','Q','B','K','P'][(new Date().getDay()+6)%7],wkOv:0,kv:'easy',mins:30,run:null,
   log:{entries:[],sessions:[],settings:{jump:1,sound:true}},store:'',saved:'',confirmEnd:false};
-var DEF={vib:true,voice:true,ds:'kraft',mode:'auto',hrAlarm:true,hrEasy:140,hrThrHi:154,age:null,hrMax:null};
+var DEF={vib:true,voice:true,fade:true,tempo:true,ds:'kraft',mode:'auto',hrAlarm:true,hrEasy:140,hrThrHi:154,age:null,hrMax:null};
 function cfg(k){var v=S.log.settings[k];return (v===undefined||v===null||v==='')?DEF[k]:v;}
 function today(){try{return new Date().toLocaleDateString('sv-SE');}catch(e){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);}}
 function curWeek(){if(S.wkOv)return S.wkOv;var st=new Date(2026,9,19),n=new Date(),t=new Date(n.getFullYear(),n.getMonth(),n.getDate());var d=Math.floor((t-st)/864e5);return Math.max(1,Math.min(12,Math.floor(d/7)+1));}
@@ -994,8 +994,8 @@ function startSession(){
   S.confirmEnd=false;
   enter(0,true);
   keepAwake();
-  clearInterval(tick);tick=setInterval(onTick,200);
-  beep(880);hush();vgVoice();
+  clearInterval(tick);tick=setInterval(onTick,100);
+  signal('step');hush();coach();
 }
 /* ---------- Tale i Vagus-pust ----------
    Følger samme klokke som figuren: hver syklus er tøm 2 s, inn 4 s, hold 7 s, ut med summing 8 s.
@@ -1020,18 +1020,104 @@ var vKey='';
 function voiceOk(){try{return !!(window.speechSynthesis&&window.SpeechSynthesisUtterance);}catch(e){return false;}}
 function voiceOn(){return voiceOk()&&!!S.log.settings.sound&&!!cfg('voice');}
 function nbVoice(){try{var vs=speechSynthesis.getVoices()||[];for(var i=0;i<vs.length;i++){if(/^(nb|no|nn)\b/i.test(vs[i].lang))return vs[i];}}catch(e){}return null;}
-function say(t){try{var u=new SpeechSynthesisUtterance(t);u.lang='nb-NO';var v=nbVoice();if(v)u.voice=v;u.rate=.9;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}}
-function hush(){vKey='';try{if(voiceOk())speechSynthesis.cancel();}catch(e){}}
-function vgVoice(){
-  var r=S.run;if(!r||r.done||r.paused||!voiceOn())return;
-  var s=r.steps[r.i],T=TEMPO[s.ex],isF=r.sess==='F',tx=isF?FTXT[s.ex]:VTXT[s.ex];
-  var intro=isF?(FINTRO[s.ex]||''):(tx?'Syklus '+s.ex.slice(1)+'.':'');
-  if(!T||!tx){if(intro&&vKey!==r.i+':i'){vKey=r.i+':i';say(intro);}return;}
-  var tot=0;T.seq.forEach(function(q){tot+=q[2];});
-  var e=elapsed(),c=Math.floor(e/tot),tt=e-c*tot,i=0;
-  while(i<T.seq.length-1&&tt>=T.seq[i][2]){tt-=T.seq[i][2];i++;}
-  var k=r.i+':'+c+':'+i;if(k===vKey)return;vKey=k;
-  var t=(c===0&&i===0&&intro?intro+' ':'')+tx[i];if(t)say(t);
+/* prio: forklaringen ved ny øvelse leses ferdig før stemmen begynner med pusteordene */
+var prioUntil=0;
+function busy(){return performance.now()<prioUntil;}
+function say(t,prio){try{var u=new SpeechSynthesisUtterance(t);u.lang='nb-NO';var v=nbVoice();if(v)u.voice=v;u.rate=.9;
+  prioUntil=prio?performance.now()+Math.max(2000,t.length*80):0;if(prio)u.onend=u.onerror=function(){prioUntil=0;};
+  speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}}
+function hush(){vKey='';prioUntil=0;try{if(voiceOk())speechSynthesis.cancel();}catch(e){}}
+/* ---------- Lyd: klangskål, toner og klikk ---------- */
+function actx(){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();return ac;}catch(e){return null;}}
+function tone(f1,f2,d,g){if(!S.log.settings.sound)return;var a=actx();if(!a)return;
+  try{var t=a.currentTime,o=a.createOscillator(),v=a.createGain();o.type='sine';o.frequency.setValueAtTime(f1,t);if(f2!==f1)o.frequency.linearRampToValueAtTime(f2,t+d);
+    v.gain.setValueAtTime(.0001,t);v.gain.exponentialRampToValueAtTime(g,t+.02);v.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(v);v.connect(a.destination);o.start(t);o.stop(t+d+.05);}catch(e){}}
+function vib(d){if(cfg('vib')){try{if(navigator.vibrate)navigator.vibrate(Math.round(d*1000));}catch(e){}}}
+/* Klangskål: grunntone som klinger ut, med en svak overtone */
+function chime(f,len,g){tone(f,f,len,g);tone(f*2.76,f*2.76,len*.4,g*.25);}
+function bell(f,len){vib(.08);chime(f,len||2.5,.12);}
+function click(){tone(1400,1400,.03,.035);}
+/* Rolige økter får klangskål ved nytt steg og ingen nedtellingspip; trening og kondisjon beholder pipene */
+function calm(){var r=S.run;return !!r&&/^[VFQHWP]$/.test(r.sess);}
+function signal(k){
+  if(calm()){if(k==='step')bell(528);else if(k==='end'){bell(528);setTimeout(function(){bell(792,3);},450);}return;}
+  if(k==='step')beep(880);else if(k==='count')beep(660,.08);else if(k==='end')beep(988,.25);
+}
+
+/* ---------- Coach: tale og toner under økta ----------
+   Tidsstyrte steg: stemmen leser rytmen fra figuren. Første runde full veiledning, andre runde korte ord,
+   deretter bare en tone per fase (kan skrus av i Innstillinger). Faser under 1,8 s får et klikk i stedet for ord.
+   Styrke: innledning med vekt, nedtelling, en tone per fase i hver rep og telling av reps.
+   Hvile: stemmen sier hva som kommer, med sett og vekt. */
+var BWS={ut:'Pust ut',inn:'Pust inn',hold:'Hold',hum:'Pust ut og summ'};
+var SHW={ut:'Ut',inn:'Inn',hold:'Hold',hum:'Ut og summ'};
+/* Rep-tempo for Styrke B-løftene, som ikke har animert figur */
+var REPT={
+ bss:[[0,1,2.5,'inn','Ned'],[1,1,.3,'inn','Bunn'],[1,0,1,'ut','Opp'],[0,0,.7,'klar','Topp']],
+ stepup:[[0,1,1,'ut','Opp'],[1,1,.5,'klar','Topp'],[1,0,3,'inn','Ned'],[0,0,.5,'klar','Bunn']],
+ slthrust:[[0,1,1,'ut','Opp'],[1,1,1,'hold','Pause'],[1,0,2,'inn','Ned'],[0,0,.5,'klar','Bunn']],
+ sidelying:[[0,1,1,'ut','Opp'],[1,1,.5,'hold','Hold'],[1,0,1.5,'inn','Ned'],[0,0,.3,'klar','Bunn']]};
+function spk(t){return String(t).replace(/^(\d)\.\s*/,'Øvelse $1: ').replace(/\s*\+\s*/g,' og ').replace(/(\d+(?:,\d+)?)\s?s\b/g,'$1 sekunder');}
+function kgTxt(k){return String(k).replace('.',',');}
+function phaseAt(seq,e){var tot=0;seq.forEach(function(q){tot+=q[2];});var c=Math.floor(e/tot),tt=e-c*tot,i=0;
+  while(i<seq.length-1&&tt>=seq[i][2]){tt-=seq[i][2];i++;}return {c:c,i:i,tot:tot};}
+function once(r,k,t,fn){r.said=r.said||{};if(r.said[k])return false;r.said[k]=1;if(t)say(t);if(fn)fn();return true;}
+function nextKg(r,id){var prev=null;r.logged.forEach(function(l){if(l.e.ex===id)prev=l.e;});if(prev)return prev.kg;var sg=suggest(id);return sg?sg.kg:0;}
+function phaseChime(b){if(b==='inn')chime(660,1.4,.06);else if(b==='ut'||b==='hum')chime(440,1.8,.06);else if(b==='hold')chime(550,.6,.035);}
+function coach(){
+  var r=S.run;if(!r||r.done||r.paused)return;
+  var s=r.steps[r.i];
+  if(s.k==='reps')return repCoach(r,s);
+  if(!voiceOn())return;
+  if(s.k==='rest')return restCoach(r,s);
+  if(r.sess!=='K')timeCoach(r,s);
+}
+function timeCoach(r,s){
+  var ex=EX[s.ex],T=TEMPO[s.ex],isF=r.sess==='F',isV=r.sess==='V',tx=isF?FTXT[s.ex]:(isV?VTXT[s.ex]:null);
+  var intro=isF?(FINTRO[s.ex]||''):(isV&&tx?'Syklus '+s.ex.slice(1)+'.':spk(ex.n)+(s.set?', sett '+s.set+' av '+s.of:'')+'.');
+  var cue=(isF&&!tx)?'':spk((s.sub?s.sub+'. ':'')+ex.cue);
+  if(!T){if(once(r,r.i+':i'))say(intro+' '+cue,true);return;}
+  var p=phaseAt(T.seq,elapsed()),k=r.i+':'+p.c+':'+p.i;if(r.said&&r.said[k])return;once(r,k);
+  var q=T.seq[p.i],long=q[2]>=1.8,st=cfg('fade')?Math.min(p.c,2):0,txt=tx?tx[p.i]:null;
+  var full=txt!=null?txt:[BWS[q[3]],spk(q[4])].filter(Boolean).join('. ')+'.';
+  if(p.c===0&&p.i===0){if(tx)say((intro?intro+' ':'')+full);else say((intro+' '+cue).trim(),true);return;}
+  if(txt==='')return;
+  if(!long){if(p.c<2)click();return;}
+  if(st<2&&busy())return;
+  if(st===0)say(full);
+  else if(st===1){var w=SHW[q[3]]||spk(q[4]);if(isF&&q[3]==='hum'&&/knip/i.test(txt||''))w='Ut og knip';say(w);}
+  else phaseChime(q[3]);
+}
+function restCoach(r,s){
+  var ex=EX[s.ex],rem=s.dur-elapsed(),kg=nextKg(r,s.ex);
+  var nx='Neste: '+spk(ex.n)+(s.nextSet&&ex.rx?', sett '+s.nextSet:'')+(kg>0&&!ex.nokg&&ex.rx?', '+kgTxt(kg)+' kilo':'')+'.';
+  if(s.dur>35){if(rem>30)once(r,r.i+':a','Hvile, '+Math.round(s.dur)+' sekunder.');else once(r,r.i+':b','30 sekunder igjen. '+nx);}
+  else once(r,r.i+':a','Hvile. '+nx);
+}
+function repIntro(r,s,ex){
+  var u=ex.unit==='steg'?'steg':'reps',side=s.ex==='sidelying'?'side':'ben';
+  return 'Sett '+s.set+' av '+s.of+'. '+(s.set===1?spk(ex.n)+'. ':'')+(!ex.nokg&&r.cur&&r.cur.kg>0?kgTxt(r.cur.kg)+' kilo. ':'')+
+    s.lo+(s.hi!==s.lo?' til '+s.hi:'')+' '+u+(ex.uni?' per '+side:'')+'.';
+}
+function repTone(q,i){var b=q[3],d=q[2];
+  if(b==='ut')tone(440,660,Math.min(d,.4),.07);
+  else if(b==='inn'&&d>=1)tone(520,330,d,.05);
+  else if(b==='hold')tone(880,880,.08,.06);
+  else if(b==='jevn'&&i===0)click();}
+function repCoach(r,s){
+  var ex=EX[s.ex],seq=(TEMPO[s.ex]&&TEMPO[s.ex].seq)||REPT[s.ex];
+  if(!cfg('tempo')||!S.log.settings.sound||!seq)return;
+  var sp=voiceOn(),e=elapsed()-(r.mt0||0),L=s.set===1?7:5,B=6,n=s.hi,K='r'+r.i+':'+(r.mt0||0)+':',cd;
+  var beepCd=function(left,tag){cd=Math.ceil(left);if(cd>=1&&cd<=3)once(r,K+tag+cd,'',function(){tone(660,660,.12,.08);});};
+  if(e<L){once(r,K+'i',sp?repIntro(r,s,ex):'');beepCd(L-e,'c');return;}
+  var tot=phaseAt(seq,0).tot,te=e-L,len=n*tot,side=1;
+  if(ex.uni&&te>=len){var tb=te-len;
+    if(tb<B){once(r,K+'sw',sp?n+'. Bytt '+(s.ex==='sidelying'?'side':'ben')+'.':'');beepCd(B-tb,'s');return;}
+    te=tb-B;side=2;}
+  if(te>=len){once(r,K+'end',sp?n+'. Ferdig. Trykk Ferdig sett.':'');return;}
+  var p=phaseAt(seq,te),k=K+side+':'+p.c+':'+p.i;if(!once(r,k))return;
+  if(p.i===0&&p.c>0&&sp)say(p.c===n-2?p.c+'. To igjen.':String(p.c));
+  repTone(seq[p.i],p.i);
 }
 function keepAwake(){try{if(navigator.wakeLock)navigator.wakeLock.request('screen').then(function(l){wl=l;}).catch(function(){});}catch(e){}}
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&S.run&&!S.run.done)keepAwake();});
@@ -1040,9 +1126,7 @@ function enter(i,first){
   var r=S.run;r.i=i;r.t0=performance.now();r.paused=false;r.last=99;
   var s=r.steps[i];
   if(s.k==='reps'){
-    var prev=null;r.logged.forEach(function(l){if(l.e.ex===s.ex)prev=l.e;});
-    var sg=suggest(s.ex);
-    r.cur={kg:prev?prev.kg:(sg?sg.kg:0),r:s.hi};
+    r.cur={kg:nextKg(r,s.ex),r:s.hi};r.mt0=0;
   }
   var t=(s.k==='rest')?'Hvile. '+s.label+': '+EX[s.ex].n:EX[s.ex].n+(s.set?', sett '+s.set+' av '+s.of:'');
   live(t);render();
@@ -1050,18 +1134,18 @@ function enter(i,first){
   var p=$('#primary');if(p&&!first)p.focus({preventScroll:true});
 }
 function accrue(){var r=S.run;if(!r||r.done)return;var s=r.steps[r.i];if(s&&s.k!=='rest'&&NK[s.ex])r.nk+=Math.min(elapsed(),s.k==='time'?s.dur:300);}
-function advance(){var r=S.run;accrue();if(r.i+1>=r.steps.length){finish(true);return;}beep(880);enter(r.i+1);}
+function advance(){var r=S.run;accrue();if(r.i+1>=r.steps.length){finish(true);return;}signal('step');enter(r.i+1);}
 function elapsed(){var r=S.run;return ((r.paused?r.pausedAt:performance.now())-r.t0)/1000;}
 function onTick(){
   var r=S.run;if(!r||r.done||r.paused)return;
   var s=r.steps[r.i],e=elapsed(),tmEl=$('#tm'),bar=$('#bar');
-  if(s.k==='reps'){if(tmEl)tmEl.textContent=fmt(Math.floor(e));return;}
+  if(s.k==='reps'){if(tmEl)tmEl.textContent=fmt(Math.floor(e));coach();return;}
   var rem=s.dur-e;
   if(rem<=0){advance();return;}
-  vgVoice();
+  coach();
   if(tmEl)tmEl.textContent=fmt(rem);
   if(bar)bar.style.width=Math.min(100,e/s.dur*100)+'%';
-  var w=Math.ceil(rem);if(w<=3&&w!==r.last){beep(660,.08);}r.last=w;
+  var w=Math.ceil(rem);if(w<=3&&w!==r.last){signal('count');}r.last=w;
 }
 function togglePause(){var r=S.run;if(r.paused){r.t0+=performance.now()-r.pausedAt;r.paused=false;}else{r.paused=true;r.pausedAt=performance.now();hush();}render();live(r.paused?'Pause':'Fortsetter');}
 function doneSet(){
@@ -1081,7 +1165,7 @@ function finish(accrued){
   var r=S.run;if(!accrued)accrue();r.done=true;clearInterval(tick);hush();try{if(wl)wl.release();}catch(e){}
   r.secs=Math.round((Date.now()-r.begun)/1000);
   S.log.sessions.push(hrFields({id:newId(),d:today(),s:r.sess,secs:r.secs,sets:r.logged.length,nk:Math.round(r.nk)}));
-  scheduleSave();beep(988,.25);live('Økten er ferdig');render();
+  scheduleSave();signal('end');live('Økten er ferdig');render();
 }
 function abort(){
   if(!S.confirmEnd){S.confirmEnd=true;render();live('Trykk Avslutt en gang til for å avslutte');return;}
@@ -1258,7 +1342,9 @@ function viewInn(){
   h+='<div class="card sec"><h3>Lyd og vibrasjon</h3><div style="margin-top:8px">'+
     swi('sound','Lyd','Pip ved bytte av øvelse og nedtelling')+
     swi('vib','Vibrasjon','Kort vibrasjon samtidig med lydene, der telefonen støtter det')+
-    (voiceOk()?swi('voice','Tale i Vagus-pust og Vagus-flyt','En rolig stemme sier når du skal puste inn, holde og puste ut. Slås av sammen med lyden i økta.'):'')+
+    (voiceOk()?swi('voice','Tale under øktene','En rolig stemme leder pusten og bevegelsene, teller reps og sier hva som kommer i hvilen. Slås av sammen med lyden i økta.')+
+      swi('fade','Stemmen trapper ned','Full veiledning første runde, korte ord andre runde, deretter bare en tone når pusten skifter.'):'')+
+    swi('tempo','Tempo og telling i styrke','Stigende tone opp, fallende tone ned og et pip i pausen, så du holder tempoet i hver rep.')+
     (HR_LIVE?swi('hrAlarm','Pulsvarsel','To pip når pulsen går over grensen under en økt, ett rolig pip når den er tilbake'):'')+'</div>'+
     (HR_LIVE?'<div class="nums">'+numF('hrEasy','Grense i rolige økter (bpm)','140',90,210)+numF('hrThrHi','Øvre grense i terskel (bpm)','154',90,220)+'</div>'+
     '<p class="note" style="margin-top:8px">Grensen for rolige økter er din aerobe terskel, 140 bpm. I terskeldragene varsler appen over øvre grense.</p>':'')+'</div></section>';
@@ -1344,6 +1430,7 @@ function viewRun(){
     h+='<div class="inputs">';
     if(!ex.nokg)h+=stepper('kg','Vekt (kg)',r.cur.kg,2.5);
     h+=stepper('r',ex.unit==='steg'?'Steg':'Reps',r.cur.r,1)+'</div>';
+    if(cfg('tempo')&&S.log.settings.sound&&((TEMPO[s.ex]&&TEMPO[s.ex].seq)||REPT[s.ex]))h+='<button type="button" class="btn ghost" data-act="retempo">Start tempo på nytt</button>';
   }
   h+='</div></div>';
   h+='<div class="actbar" role="group" aria-label="Styr økta"><div class="in">';
@@ -1561,6 +1648,7 @@ document.addEventListener('click',function(ev){
   else if(a==='abort'){abort();}
   else if(a==='closeDone'){S.run=null;render();}
   else if(a==='export'){exportLog();}
+  else if(a==='retempo'&&r){r.mt0=elapsed();hush();live('Tempo starter på nytt');}
   else if(a==='manual'){
     var ty=$('#man-type').value,mn=parseFloat(String($('#man-min').value).replace(',','.')),dt=$('#man-date').value||today();
     if(!(mn>0)){live('Skriv inn antall minutter');$('#man-min').focus();return;}
