@@ -22,13 +22,15 @@ Etter første åpning starter appen også uten nett. Fontene lagres første gang
 
 | Fane | Innhold |
 |------|---------|
-| **Økt** | Dagens økt etter ukeplanen, eller en annen du velger. Tidtaker, hvile, sett og reps, vekt med forslag, lyd og vibrasjon. Skjermen holdes våken under økta. I Vagus-pust leder en norsk stemme deg gjennom inn, hold og ut. |
+| **Økt** | Dagens økt etter ukeplanen, eller en annen du velger. Tidtaker, hvile, sett og reps, vekt med forslag, lyd og vibrasjon. Skjermen holdes våken under økta. I Vagus-pust og Vagus-flyt leder en norsk stemme deg gjennom inn, hold og ut. |
 | **Uke** | 12-ukers plan i tre faser (Grunnlag, Tung, Hypertrofi) og en vanlig uke. |
 | **Logg** | Nakke- og skulderminutter mot ukemålet, daglige rutiner, manuell registrering, siste økter, progresjon på hovedløftene og sikkerhetskopi. |
 | **Grunnlag** | Hva programmet bygger på, med kilder. |
 | **Innstillinger** (tannhjulet øverst) | Designsystem, lys eller mørk, alder og makspuls med pulssoner, lyd og vibrasjon. Innstillingene lagres sammen med loggen og blir med i sikkerhetskopien. |
 
-Øktene er Styrke A, Styrke B, Kondisjon (rolig eller terskel), Qi gong (Baduanjin), Høst-qi gong, Vagus-pust, Skulder og nakke, og Bekkenbunn.
+Øktene er Styrke A, Styrke B, Kondisjon (rolig eller terskel), Qi gong (Baduanjin), Høst-qi gong, Vagus-pust, Skulder og nakke, Bekkenbunn, og Vagus-flyt.
+
+**Vagus-flyt** (11 min) blander øvelser fra Skulder og nakke, qi gong og bekkenbunn i én pusterytme: inn 4 s, hold 3 s med svelg, ut 8 s med summing og knip. Knipet ligger på utpusten, fordi bekkenbunnen løftes sammen med mellomgulvet når du puster ut. Økta haker av Vagus-pust og Skulder og nakke i loggen og teller mot nakkeminuttene, men erstatter ikke bekkenbunnsrutinen.
 
 Appen har to designsystemer. **Kraft** er standard: varm og lys palett, Atkinson Hyperlegible og større tekst. **Løft og løp** er mørk editorial med farge etter muskelgruppe. Begge finnes i lys og mørk variant.
 
