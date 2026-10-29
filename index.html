@@ -668,6 +668,42 @@ var TEMPO={
  v4:{poses:[VG0,VG1,VG2],back:CHAIR,draw:vgDraw,
   seq:[[0,0,2,'ut','Tøm lungene'],[0,1,4,'inn','Bare magen'],[1,2,7,'hold','Alt + svelg'],[2,0,8,'hum','Slipp alt']],txt:'4 sekunder inn, hold 7 med tunge, bekkenbunn og svelg, 8 ut med summetone'}
 };
+/* Vagus-flyt: øvelser fra Skulder og nakke, qi gong og bekkenbunn i én pusterytme.
+   Inn 4 s, hold 3 s med svelg, ut 8 s med summing. Knipet ligger på utpusten, når bekkenbunnen
+   løftes sammen med mellomgulvet; ringen ved bekkenet viser knipet. */
+function kn(p,r){var o={};for(var k in p)o[k]=p[k];o.Kn=[r,0];return o;}
+function withKnip(draw){return function(p){var g=draw(p);if(p.Kn&&p.Kn[0]>1){var c=p.P?p.P:[(p.P1[0]+p.P2[0])/2,(p.P1[1]+p.P2[1])/2];
+  g='<circle class="ring" cx="'+c[0].toFixed(1)+'" cy="'+(c[1]+4).toFixed(1)+'" r="'+p.Kn[0].toFixed(1)+'"/>'+g;}return g;};}
+(function(T){
+  var K=12,s3=T.sk3.poses,s4=T.sk4.poses,s2=T.sk2.poses,b8=BQ.b8,SITK={};for(var k in SIT)SITK[k]=SIT[k];SITK.R=[15,8];
+  T.fb={poses:[kn(s3[0],K),kn(s3[1],0)],back:CHAIR,draw:withKnip(T.sk3.draw),
+   seq:[[0,1,4,'inn','Len bakover'],[1,1,3,'hold','Svelg'],[1,0,8,'hum','Fram og knip']],
+   txt:'pust inn og len deg bakover over stolryggen, hold og svelg, pust ut med summing, kom fram og knip'};
+  T.fr={poses:[SIT,SITK,STC],back:CHAIR,draw:pfDraw,
+   seq:[[0,1,2,'ut','Knip'],[1,2,3,'ut','Reis deg'],[2,2,3,'hum','Summ'],[2,0,4,'inn','Sett deg']],
+   txt:'pust ut og knip, reis deg mens du holder knipet, summ, pust inn og sett deg rolig ned'};
+  T.fk={poses:[kn(RB0,K),kn(RB1,0)],back:'',draw:withKnip(T.sk1.draw),
+   seq:[[0,1,4,'inn','Utvid'],[1,1,3,'hold','Svelg'],[1,0,8,'hum','Knip']],
+   txt:'pust inn så ribbeina presser ut mot hendene, hold og svelg, pust ut med summing og knip'};
+  T.fs={poses:[kn(s4[0],0),kn(s4[1],K)],back:'',draw:withKnip(T.sk4.draw),
+   seq:[[1,0,4,'inn','Slipp'],[0,0,3,'hold','Svelg'],[0,1,2,'hum','Trekk og knip'],[1,1,6,'hum','Hold']],
+   txt:'pust inn og slipp, hold og svelg, pust ut med summing, trekk albuene bakover og knip, hold ut utpusten'};
+  T.fn={poses:[kn(s2[0],0),kn(s2[1],K)],back:'',draw:withKnip(T.sk2.draw),
+   seq:[[1,0,4,'inn','Slipp'],[0,0,3,'hold','Svelg'],[0,1,2,'hum','Haken inn'],[1,1,6,'hum','Knip']],
+   txt:'pust inn og slipp haken, hold med tungen mot ganen, pust ut med summing, skyv haken bakover og knip'};
+  T.fg={poses:[kn(HQ.h13[0],K),kn(HQ.h13[1],0)],back:'',draw:withKnip(function(p){return front(p,false,{arms:1});}),
+   seq:[[0,1,4,'inn','Armene opp'],[1,1,3,'hold','Svelg'],[1,0,8,'hum','Senk og knip']],
+   txt:'armene stiger på innpust, hold og svelg, armene synker på en summende utpust med knip'};
+  T.ft={poses:[kn(HQ.h8[0],K),kn(HQ.h8[1],0)],back:'',draw:withKnip(T.h8.draw),
+   seq:[[0,1,4,'inn','Favne'],[1,1,3,'hold','Svelg'],[1,0,8,'hum','Knip lett']],
+   txt:'favne en trestamme, hold og svelg, lang summende utpust med lett knip'};
+  T.fh={poses:[kn(b8[0],0),kn(b8[1],0),kn(b8[2],K),kn(b8[0],K)],back:'',draw:withKnip(T.b8.draw),
+   seq:[[0,1,4,'inn','Opp på tærne'],[1,1,3,'hold','Svelg'],[1,2,6,'hum','Knip, senk'],[2,3,.4,'ut','Slipp ned'],[3,0,1.6,'rolig','Stå']],
+   txt:'opp på tærne på innpust, hold og svelg, knip og senk hælene sakte, slipp de siste centimeterne'};
+  T.fz={poses:[VG0,VG1,VG2],back:CHAIR,draw:vgDraw,
+   seq:[[2,0,3,'ut','Tøm lungene'],[0,1,4,'inn','Magen ut'],[1,1,7,'hold','Tunge + svelg'],[1,2,8,'hum','Summ + knip']],
+   txt:'4 sekunder inn, hold 7 med tungen mot ganen og ett svelg, 8 ut med summetone og knip'};
+})(TEMPO);
 var BW={ut:'Pust ut',inn:'Pust inn',hold:'Hold',klar:'Klar',jevn:'Pust jevnt',rolig:'Pust rolig',hum:'Ut og summ'};
 function lerpPose(A,B,t){var o={};for(var k in A){var a=A[k],b=B[k]||a;
   if(Array.isArray(a[0]))o[k]=a.map(function(pt,i){var q=[pt[0]+(b[i][0]-pt[0])*t,pt[1]+(b[i][1]-pt[1])*t];if(pt.length>2)q.push(pt[2]);return q;});
@@ -810,6 +846,24 @@ var EX={
   how:{s:'Samme sittende stilling.',d:'Se for deg øyeblikket der målet er nådd, med detaljer. Kjenn hvordan det føles i brystet og magen mens du holder. La følelsen spre seg på utpusten.',m:'Prøver for hardt. Det holder med et enkelt bilde.'}},
  v4:{n:'Syklus 4: Alt sammen',g:'core',fig:'',time:1,cue:'Pust inn i magen i 4 s. Hold 7 s med tungen mot ganen, bekkenbunnen strammet og ett svelg. Pust ut i 8 s med summetone og slipp alt.',
   how:{s:'Samme sittende stilling. Sett deg rolig opp til slutt og åpne øynene.',d:'Kombiner tunge, bekkenbunn og svelg i holdet. Slipp alt på den summende utpusten.',m:'Reiser deg brått etterpå. Bli sittende noen sekunder.'}},
+ fb:{n:'Brystrygg over stolrygg med knip',g:'plyo',fig:'',time:1,cue:'Pust inn og len deg bakover over stolryggen. Hold og svelg. Pust ut med summing, kom fram og knip.',
+  how:{s:'Sitt fremst på en stol med lav rygg, hendene bak hodet eller i kors over brystet.',d:'Len brystryggen bakover over stolryggen på innpusten, så ribbeina åpner seg og bekkenbunnen slipper. Svelg i holdet. Summ på utpusten mens du kommer fram, og knip og løft bekkenbunnen.',m:'Bøyer i korsryggen i stedet for brystryggen, skyver haken fram.'}},
+ fr:{n:'Knip og reis deg',g:'core',fig:'',time:1,cue:'Pust ut og knip. Reis deg med knipet. Summ. Pust inn og sett deg rolig ned.',
+  how:{s:'Sitt fremst på stolen med føttene i gulvet.',d:'Knip før du reiser deg, og hold knipet mens du kommer opp. Summ en kort stund stående. Slipp knipet og sett deg rolig ned på innpusten.',m:'Reiser deg først og kniper etterpå, holder pusten.'}},
+ fk:{n:'Ribbepust med knip',g:'plyo',fig:'',time:1,cue:'Hendene på ribbeina. Pust inn og kjenn dem presse ut. Hold og svelg. Pust ut med summing og knip.',
+  how:{s:'Stå med hendene på sidene av ribbeina.',d:'Pust inn så ribbeina presser ut mot hendene og bekkenbunnen slipper. Svelg i holdet. Summ på utpusten og knip mens ribbeina synker.',m:'Løfter skuldrene når du puster inn.'}},
+ fs:{n:'Skulderblad bak med knip',g:'plyo',fig:'',time:1,cue:'Pust inn og slipp. Hold og svelg. Pust ut med summing, trekk albuene bakover og knip.',
+  how:{s:'Stå med armene bøyd foran deg.',d:'Pust inn og slipp skuldrene. Svelg i holdet. Summ på utpusten mens du trekker albuene bakover og skulderbladene ned, og knip. Hold begge ut utpusten.',m:'Trekker skuldrene opp mot ørene, svaier i korsryggen.'}},
+ fn:{n:'Nakke-innadtrekk med summing',g:'plyo',fig:'',time:1,cue:'Pust inn og slipp haken. Hold med tungen mot ganen. Pust ut med summing, skyv haken bakover og knip.',
+  how:{s:'Stå høyt med blikket rett fram.',d:'Slipp haken på innpusten. Press tungen mot ganen i holdet. Skyv haken rett bakover på den summende utpusten, så summingen kjennes i halsen, og knip.',m:'Bøyer hodet ned i stedet for å skyve haken bakover.'}},
+ fg:{n:'Grunnpust med armer og knip',g:'core',fig:'',time:1,cue:'Armene stiger på innpust. Hold og svelg. Armene synker på en summende utpust, og du kniper.',
+  how:{s:'Stå hoftebredde, knærne bløte, armene langs siden.',d:'La armene stige ut til siden på innpusten. Svelg i holdet. Senk armene på en lang, summende utpust og knip.',m:'Løfter armene høyere enn skulderen tillater, løfter skuldrene.'}},
+ ft:{n:'Favne treet med summing',g:'core',fig:'',time:1,cue:'Favne en trestamme på innpust. Hold og svelg. Lang summende utpust med lett knip.',
+  how:{s:'Bløte knær, armene krummet foran brystet som rundt en trestamme.',d:'Pust inn i magen. Svelg i holdet. Summ en lang utpust og knip lett mot slutten.',m:'Spenner skuldrene, låser knærne.'}},
+ fh:{n:'Hæler opp, knip før landing',g:'core',fig:'',time:1,cue:'Opp på tærne på innpust. Hold og svelg. Knip og senk hælene sakte, slipp de siste centimeterne.',
+  how:{s:'Stå hoftebredde, gjerne med en hånd mot vegg eller stol.',d:'Gå opp på tærne på innpusten og svelg på toppen. Knip før du senker deg, senk hælene sakte og slipp ned de siste centimeterne for en mild vibrasjon.',m:'Slipper hælene hardt ned uten knip. Kjenner du lekkasje eller tyngde, senk hælene helt rolig.'}},
+ fz:{n:'Vagus-pust, avslutning',g:'core',fig:'',time:1,cue:'Sitt foroverlent. Pust inn i magen i 4 s. Hold 7 s med tungen mot ganen og svelg. Pust ut i 8 s med summetone og knip.',
+  how:{s:'Sitt fremst på stolen, albuene på knærne, hodet tungt.',d:'Full 4-7-8 i ro. Tungen mot ganen og ett svelg i holdet. Knip og løft på den summende utpusten, og slipp helt før neste innpust.',m:'Reiser deg brått etterpå. Bli sittende noen sekunder.'}},
  h1:{n:'Sentrerende pust og hilsen',g:'core',fig:'',time:1,cue:'Føttene samlet, armene langs siden. Pust dypt ned i magen. Avslutt med hilsen: høyre knyttneve mot venstre håndflate og et lett bukk.',
   how:{s:'Stå med føttene samlet og hendene langs siden.',d:'Pust inn gjennom nesen ned i magen i 4 s, pust ut i 6 s. Gjør hilsenen til slutt.',m:'Løfter skuldrene når du puster inn.'}},
  h2:{n:'Skulder- og kroppsrulling',g:'core',fig:'',time:1,cue:'Store, myke sirkler med skuldrene og overkroppen. Snu retning halvveis.',
@@ -838,9 +892,9 @@ var EX={
   how:{s:'Stå med føttene samlet.',d:'Innpust: hendene løftes ut til siden med håndflatene opp. Utpust: de senkes foran kroppen med håndflatene ned. Avslutt med hilsen og et lett bukk.',m:'Løfter skuldrene med armene.'}}
 };
 var QI=[['qi1',75],['qi2',90],['qi3',90],['qi4',90],['qi5',75],['qi6',60]];
-var NK={b0:1,b1:1,b2:1,b3:1,b4:1,b5:1,b6:1,b7:1,b8:1,b9:1,h1:1,h2:1,h3:1,h4:1,h5:1,h6:1,h7:1,h8:1,h9:1,h10:1,h11:1,h12:1,h13:1,qi1:1,qi2:1,qi3:1,qi4:1,qi5:1,qi6:1,sk1:1,sk2:1,sk3:1,sk4:1,sk5:1,row:1,extrot:1,pullapart:1,spunch:1};
+var NK={b0:1,b1:1,b2:1,b3:1,b4:1,b5:1,b6:1,b7:1,b8:1,b9:1,h1:1,h2:1,h3:1,h4:1,h5:1,h6:1,h7:1,h8:1,h9:1,h10:1,h11:1,h12:1,h13:1,qi1:1,qi2:1,qi3:1,qi4:1,qi5:1,qi6:1,sk1:1,sk2:1,sk3:1,sk4:1,sk5:1,fb:1,fk:1,fs:1,fn:1,fg:1,ft:1,fh:1,row:1,extrot:1,pullapart:1,spunch:1};
 var PH=[{n:'Grunnlag',w:'Uke 1–4',rir:'RIR 2–3'},{n:'Tung',w:'Uke 5–8',rir:'RIR 2'},{n:'Hypertrofi',w:'Uke 9–12',rir:'RIR 0–1'}];
-var SESS={A:{n:'Styrke A',sub:'Mandag · glute',g:'glute'},B:{n:'Styrke B',sub:'Fredag · ett-bens',g:'quad'},K:{n:'Kondisjon',sub:'Rolig eller terskel',g:'run'},Q:{n:'Qi gong',sub:'Baduanjin · 12 min',g:'core'},H:{n:'Høst-qi gong',sub:'Rolig flyt · 11 min',g:'core'},V:{n:'Vagus-pust',sub:'Sittende · 4 min',g:'core'},W:{n:'Skulder og nakke',sub:'Daglig · 5 min',g:'plyo'},P:{n:'Bekkenbunn',sub:'Daglig · 7 min',g:'core'}};
+var SESS={A:{n:'Styrke A',sub:'Mandag · glute',g:'glute'},B:{n:'Styrke B',sub:'Fredag · ett-bens',g:'quad'},K:{n:'Kondisjon',sub:'Rolig eller terskel',g:'run'},Q:{n:'Qi gong',sub:'Baduanjin · 12 min',g:'core'},H:{n:'Høst-qi gong',sub:'Rolig flyt · 11 min',g:'core'},V:{n:'Vagus-pust',sub:'Sittende · 4 min',g:'core'},F:{n:'Vagus-flyt',sub:'Pust, nakke og knip · 11 min',g:'core'},W:{n:'Skulder og nakke',sub:'Daglig · 5 min',g:'plyo'},P:{n:'Bekkenbunn',sub:'Daglig · 7 min',g:'core'}};
 
 /* ---------- Tilstand ---------- */
 var S={view:'okt',sess:['A','K','K','Q','B','K','P'][(new Date().getDay()+6)%7],wkOv:0,kv:'easy',mins:30,run:null,
@@ -906,6 +960,8 @@ function buildSteps(sess){
     st=[tm('h1',40),tm('h2',40),tm('h3',40),tm('h4',45),tm('h5',40),tm('h6',90),tm('h7',60),tm('h8',45),tm('h9',60),tm('h10',70),tm('h11',30),tm('h12',60),tm('h13',40)];
   }else if(sess==='P'){
     st=[tm('pb1',130),tm('pb2',130),tm('pb3',45),tm('pb4',90),tm('pb5',45)];
+  }else if(sess==='F'){
+    st=[tm('v1',63),tm('fb',90),tm('fr',56),tm('fk',60),tm('fs',60),tm('fn',60),tm('fg',60),tm('ft',60),tm('fh',45),tm('pb3',30),tm('fz',66)];
   }else if(sess==='W'){
     st=[tm('sk1',60),tm('sk2',60),tm('sk3',60),tm('sk4',60),tm('sk5',70)];
   }else{
@@ -949,6 +1005,17 @@ var VTXT={
  v2:['Tøm lungene.','Pust inn. Tungen mot ganen.','Hold. Stram bekkenbunnen.','Pust ut og summ. Slipp alt.'],
  v3:['Tøm lungene.','Pust inn. Se målet.','Hold. Kjenn det.','Pust ut og summ. La det stråle.'],
  v4:['Tøm lungene.','Pust inn i magen.','Hold. Tunge, bekkenbunn og svelg.','Pust ut og summ. Slipp alt.']};
+var FTXT={v1:VTXT.v1,
+ fb:['Pust inn. Len deg bakover over stolryggen.','Hold. Svelg.','Pust ut og summ. Kom fram og knip.'],
+ fr:['Pust ut og knip.','Reis deg.','Summ.','Pust inn og sett deg rolig ned.'],
+ fk:['Pust inn. Ribbeina ut mot hendene.','Hold. Svelg.','Pust ut og summ. Knip.'],
+ fs:['Pust inn og slipp.','Hold. Svelg.','Pust ut og summ. Albuene bak, og knip.',''],
+ fn:['Pust inn og slipp haken.','Hold. Tungen mot ganen.','Pust ut og summ. Haken rett bakover, og knip.',''],
+ fg:['Pust inn. Armene stiger.','Hold. Svelg.','Pust ut og summ. Armene synker, knip.'],
+ ft:['Pust inn og favne treet.','Hold. Svelg.','Pust ut og summ. Knip lett.'],
+ fh:['Pust inn. Opp på tærne.','Hold. Svelg.','Pust ut og knip. Senk hælene sakte.','Slipp.',''],
+ fz:['Tøm lungene.','Pust inn i magen.','Hold. Tungen mot ganen, og svelg.','Pust ut og summ. Knip og løft.']};
+var FINTRO={v1:'Vagus-flyt.',fb:'Brystrygg over stolryggen.',fk:'Stå. Hendene på ribbeina.',fs:'Skulderblad bak og ned.',fn:'Haken inn.',fg:'Grunnpust med armer.',ft:'Favne treet.',fh:'Hæler opp.',pb3:'Raske knip. Knip og slipp, omtrent ett i sekundet.',fz:'Sett deg og len deg fram.'};
 var vKey='';
 function voiceOk(){try{return !!(window.speechSynthesis&&window.SpeechSynthesisUtterance);}catch(e){return false;}}
 function voiceOn(){return voiceOk()&&!!S.log.settings.sound&&!!cfg('voice');}
@@ -957,12 +1024,14 @@ function say(t){try{var u=new SpeechSynthesisUtterance(t);u.lang='nb-NO';var v=n
 function hush(){vKey='';try{if(voiceOk())speechSynthesis.cancel();}catch(e){}}
 function vgVoice(){
   var r=S.run;if(!r||r.done||r.paused||!voiceOn())return;
-  var s=r.steps[r.i],T=TEMPO[s.ex],tx=VTXT[s.ex];if(!T||!tx)return;
+  var s=r.steps[r.i],T=TEMPO[s.ex],isF=r.sess==='F',tx=isF?FTXT[s.ex]:VTXT[s.ex];
+  var intro=isF?(FINTRO[s.ex]||''):(tx?'Syklus '+s.ex.slice(1)+'.':'');
+  if(!T||!tx){if(intro&&vKey!==r.i+':i'){vKey=r.i+':i';say(intro);}return;}
   var tot=0;T.seq.forEach(function(q){tot+=q[2];});
   var e=elapsed(),c=Math.floor(e/tot),tt=e-c*tot,i=0;
   while(i<T.seq.length-1&&tt>=T.seq[i][2]){tt-=T.seq[i][2];i++;}
   var k=r.i+':'+c+':'+i;if(k===vKey)return;vKey=k;
-  say((c===0&&i===0?'Syklus '+s.ex.slice(1)+'. ':'')+tx[i]);
+  var t=(c===0&&i===0&&intro?intro+' ':'')+tx[i];if(t)say(t);
 }
 function keepAwake(){try{if(navigator.wakeLock)navigator.wakeLock.request('screen').then(function(l){wl=l;}).catch(function(){});}catch(e){}}
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&S.run&&!S.run.done)keepAwake();});
@@ -1189,7 +1258,7 @@ function viewInn(){
   h+='<div class="card sec"><h3>Lyd og vibrasjon</h3><div style="margin-top:8px">'+
     swi('sound','Lyd','Pip ved bytte av øvelse og nedtelling')+
     swi('vib','Vibrasjon','Kort vibrasjon samtidig med lydene, der telefonen støtter det')+
-    (voiceOk()?swi('voice','Tale i Vagus-pust','En rolig stemme sier når du skal puste inn, holde og puste ut. Slås av sammen med lyden i økta.'):'')+
+    (voiceOk()?swi('voice','Tale i Vagus-pust og Vagus-flyt','En rolig stemme sier når du skal puste inn, holde og puste ut. Slås av sammen med lyden i økta.'):'')+
     (HR_LIVE?swi('hrAlarm','Pulsvarsel','To pip når pulsen går over grensen under en økt, ett rolig pip når den er tilbake'):'')+'</div>'+
     (HR_LIVE?'<div class="nums">'+numF('hrEasy','Grense i rolige økter (bpm)','140',90,210)+numF('hrThrHi','Øvre grense i terskel (bpm)','154',90,220)+'</div>'+
     '<p class="note" style="margin-top:8px">Grensen for rolige økter er din aerobe terskel, 140 bpm. I terskeldragene varsler appen over øvre grense.</p>':'')+'</div></section>';
@@ -1222,6 +1291,9 @@ function viewOkt(){
   if(S.sess==='P'){
     h+='<div class="sec"><p class="note">Gjør rutinen hver dag, gjerne på samme tid, for eksempel i sengen eller etter qi gong. Slipp helt mellom hvert knip. Gjør Knip før hoste også i hverdagen ved hoste, nys og løft. Opplever du lekkasje, tyngdefølelse eller smerte, bør du få time hos en fysioterapeut som kan bekkenbunn.</p></div>';
   }
+  if(S.sess==='F'){
+    h+='<div class="sec"><p class="note">Øvelser fra Skulder og nakke, qi gong og bekkenbunn i samme rytme: pust inn 4 s, hold 3 s og svelg, pust ut 8 s med summing og knip. Knipet ligger på utpusten, når bekkenbunnen løftes sammen med mellomgulvet. Start og slutt sittende med full 4-7-8. Du trenger en stol med lav rygg. Teller mot nakkeminuttene og haker av Vagus-pust og Skulder og nakke. Den erstatter ikke bekkenbunnsrutinen, som har tyngre knip.</p></div>';
+  }
   if(S.sess==='W'){
     h+='<div class="sec"><p class="note">Gjør rutinen rolig, gjerne hver dag. Stopp hvis prikking eller nummenhet i armen eller hånden øker under eller etter. Vis gjerne rutinen til fysioterapeuten din.</p></div>';
   }
@@ -1235,7 +1307,7 @@ function viewOkt(){
      '<p class="note" style="margin-top:8px">'+(phaseIdx(curWeek())===0?'Hopp kommer inn som 3 × 30 s fra uke 5. Nå er det en nivåsjekk på 1 minutt.':'Nivå 5–6 gjør du i løpeøkta. I dag bruker appen maks nivå 4.')+'</p></div>';
   }
   h+='<details class="how"><summary>Innhold i økta ('+plan.length+' deler)</summary><ul class="plan" style="margin:4px 0 14px" aria-label="Øktens innhold">'+plan.map(function(p){return '<li '+mcol(EX[p.ex].g)+'><i></i><b>'+esc(EX[p.ex].n)+'</b><span>'+esc(planDetail(p))+'</span></li>';}).join('')+'</ul></details></div>';
-  var GR=[['Trening',['A','B','K']],['Daglig, ro og pust',['Q','H','W','P','V']]];
+  var GR=[['Trening',['A','B','K']],['Daglig, ro og pust',['Q','H','W','P','V','F']]];
   h+='<div class="sec"><h2 style="font-size:1.2rem">Velg en annen økt</h2>'+GR.map(function(g){return '<div class="pickgrp"><h3>'+g[0]+'</h3><div class="pick" role="group" aria-label="'+g[0]+'">'+g[1].map(function(k){var x=SESS[k];
     return '<button type="button" class="btn" '+mcol(x.g)+' data-act="sess" data-s="'+k+'" aria-pressed="'+(S.sess===k)+'"><span>'+x.n+'</span><small>'+x.sub+'</small></button>';}).join('')+'</div></div>';}).join('')+'</div></section>';
   return h;
@@ -1313,7 +1385,7 @@ var NK_GOAL=120;
 function neckCard(ms){
   var weeks={};
   S.log.sessions.forEach(function(s){if(!s.nk)return;var k=monday(s.d),w=weeks[k]=weeks[k]||{Q:0,W:0,AB:0};
-    var c=(s.s==='Q'||s.s==='H')?'Q':(s.s==='W'?'W':((s.s==='A'||s.s==='B')?'AB':null));if(c)w[c]+=s.nk;});
+    var c=(s.s==='Q'||s.s==='H')?'Q':((s.s==='W'||s.s==='F')?'W':((s.s==='A'||s.s==='B')?'AB':null));if(c)w[c]+=s.nk;});
   var cur=weeks[ms]||{Q:0,W:0,AB:0},min=function(x){return Math.round(x/60);};
   var tot=min(cur.Q+cur.W+cur.AB),pct=Math.min(100,tot/NK_GOAL*100);
   var h='<div class="card sec" style="--m:var(--c-plyo)"><div class="kick">Nakke og skulder denne uka</div>'+
@@ -1325,13 +1397,15 @@ function neckCard(ms){
   h+='<div class="wk" role="img" aria-label="Minutter per uke de siste seks ukene: '+keys.map(function(k,i){return 'uke fra '+k.slice(8)+'.'+k.slice(5,7)+' '+vals[i]+' min';}).join(', ')+'">'+
     '<b class="goal" style="bottom:calc('+(NK_GOAL/mx*100)+'% * .72 + 22px)"><span>Mål '+NK_GOAL+'</span></b>'+
     keys.map(function(k,i){return '<div><em>'+vals[i]+'</em><i style="height:'+(vals[i]/mx*100*.72)+'%"></i><span>'+k.slice(8)+'.'+k.slice(5,7)+'</span></div>';}).join('')+'</div>';
-  h+='<p class="note" style="margin-top:8px">Teller qi gong-økter, Skulder og nakke, og oppvarmingen og skulderblad-delen i Styrke A og B. Målet på rundt 2 timer i uka bygger på Xie mfl. 2025.</p></div>';
+  h+='<p class="note" style="margin-top:8px">Teller qi gong-økter, Skulder og nakke, Vagus-flyt, og oppvarmingen og skulderblad-delen i Styrke A og B. Målet på rundt 2 timer i uka bygger på Xie mfl. 2025.</p></div>';
   return h;
 }
 var DAILY=[['P','Bekkenbunn'],['W','Skulder og nakke'],['V','Vagus-pust'],['QH','Qi gong']];
-var DEFMIN={A:45,B:45,K:30,Q:14,H:11,V:4,W:5,P:7};
+function nkShare(sess){var t=0,n=0;buildSteps(sess).forEach(function(s){if(s.k!=='time')return;t+=s.dur;if(NK[s.ex])n+=s.dur;});return t?n/t:0;}
+var DEFMIN={A:45,B:45,K:30,Q:14,H:11,V:4,W:5,P:7,F:11};
 var DAYN=['Man','Tir','Ons','Tor','Fre','Lør','Søn'];
-function didOn(t,d){return S.log.sessions.some(function(s){return s.d===d&&(t==='QH'?(s.s==='Q'||s.s==='H'):s.s===t);});}
+/* Vagus-flyt haker av Vagus-pust og Skulder og nakke, men ikke Bekkenbunn: knipene er rolige, ikke maksknip som bygger styrke. */
+function didOn(t,d){return S.log.sessions.some(function(s){return s.d===d&&(t==='QH'?(s.s==='Q'||s.s==='H'):(s.s===t||(s.s==='F'&&(t==='W'||t==='V'))));});}
 function dailyCard(ms){
   var td=today(),days=DAYN.map(function(n,i){return addDays(ms,i);});
   var h='<div class="card sec"><h3>Daglige rutiner denne uka</h3><div class="scroll" style="margin-top:8px"><table class="daily"><caption class="sr">Gjennomførte rutiner per dag</caption><thead><tr><th scope="col">Rutine</th>'+
@@ -1410,7 +1484,7 @@ function viewUke(){
   h+='<div class="grid3 sec">'+PH.map(function(p,i){return '<div class="card ph'+(i===pi?' on':'')+'" '+(i===pi?'aria-current="true"':'')+'><div class="kick">'+p.w+'</div><h3>'+p.n+'</h3><p class="note" style="margin-top:6px">'+['3 × 8–10 på hovedløft, '+p.rir+'. Lær bevegelsene og finn vekter som er tunge nok.','4 × 5–6 tungt på hip thrust, markløft og bulgarsk splittknebøy, rundt 80 % av maks. Hopp kommer inn i Styrke B.','4 × 8–12 på hovedløft, siste sett nær utmattelse. Mer volum for muskelvekst.'][i]+'</p></div>';}).join('')+'</div>';
   h+='<div class="sec"><h2>En vanlig uke</h2><ol class="days" style="margin-top:10px">'+
    days.map(function(d,i){return '<li'+(i===td?' aria-current="date"':'')+'><span class="dn"><abbr title="'+DL[i]+'" style="text-decoration:none">'+d[0]+'</abbr></span><div><span class="tag" '+mcol(d[3])+'>'+d[1]+'</span>'+(i===td?'<span class="sr"> (i dag)</span>':'')+'<p class="note">'+d[2]+'</p></div></li>';}).join('')+'</ol></div>';
-  h+='<div class="card sec"><h3>Daglige rutiner</h3><ul class="clean" style="margin-top:10px"><li><b>Bekkenbunn, 7 min:</b> hver dag i minst tre måneder, deretter 4–5 dager i uka. Knip før hoste, nys og løft gjør du hele tiden.</li><li><b>Skulder og nakke, 5 min:</b> hver dag, rolig, helst på samme tid som qi gong.</li><li><b>Nakke og skulder totalt:</b> sikt mot rundt 2 timer i uka med qi gong, Skulder og nakke og skulderblad-delen i styrkeøktene. Logg viser hvor du ligger.</li><li>Rutinene teller ikke som trening. De kan gjøres samme dag som alle øktene, også på hviledager.</li></ul></div>';
+  h+='<div class="card sec"><h3>Daglige rutiner</h3><ul class="clean" style="margin-top:10px"><li><b>Bekkenbunn, 7 min:</b> hver dag i minst tre måneder, deretter 4–5 dager i uka. Knip før hoste, nys og løft gjør du hele tiden.</li><li><b>Vagus-flyt, 11 min:</b> pust, skulder og nakke og rolige knip i én økt. Kan erstatte Vagus-pust og Skulder og nakke på travle dager, men ikke Bekkenbunn.</li><li><b>Skulder og nakke, 5 min:</b> hver dag, rolig, helst på samme tid som qi gong.</li><li><b>Nakke og skulder totalt:</b> sikt mot rundt 2 timer i uka med qi gong, Skulder og nakke og skulderblad-delen i styrkeøktene. Logg viser hvor du ligger.</li><li>Rutinene teller ikke som trening. De kan gjøres samme dag som alle øktene, også på hviledager.</li></ul></div>';
   h+='<div class="card sec"><h3>Vinter og glatt føre</h3><ul class="clean" style="margin-top:10px"><li>Rolig kondisjon kan være tredemølle, innendørs sykkel, rask gange eller løping med brodder.</li><li>Terskel gjøres helst innendørs når det er glatt, så pulsen kan holdes jevn.</li><li>Sykkelpendlingen teller som ekstra beinvolum. Merker du tunge bein på Styrke-dager, kutt en rolig kondisjonsøkt først.</li></ul></div></section>';
   return h;
 }
@@ -1490,7 +1564,7 @@ document.addEventListener('click',function(ev){
   else if(a==='manual'){
     var ty=$('#man-type').value,mn=parseFloat(String($('#man-min').value).replace(',','.')),dt=$('#man-date').value||today();
     if(!(mn>0)){live('Skriv inn antall minutter');$('#man-min').focus();return;}
-    var nk=(ty==='Q'||ty==='H'||ty==='W')?mn*60:((ty==='A'||ty==='B')?Math.min(mn,14)*60:0);
+    var nk=(ty==='Q'||ty==='H'||ty==='W')?mn*60:((ty==='A'||ty==='B')?Math.min(mn,14)*60:(ty==='F'?mn*60*nkShare('F'):0));
     S.log.sessions.push({id:newId(),d:dt,s:ty,secs:Math.round(mn*60),sets:0,nk:Math.round(nk),manual:true});
     S.manMin=null;S.manDate=null;scheduleSave();render();live('Lagret: '+SESS[ty].n+', '+mn+' min');
   }
