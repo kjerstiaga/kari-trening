@@ -38,6 +38,16 @@ Uke 1 startet mandag 19. oktober 2026. Startdatoen står i funksjonen `curWeek()
 
 ---
 
+## Egen økt
+
+Under Økt → **Mine økter → Lag egen økt** setter du sammen din egen økt.
+
+- **Velg øvelser** fra alle øktene, gruppert etter tema. De tas i den rekkefølgen du huker dem av. Hurtigvalg legger til hele grupper, for eksempel «Strikk rygg og nakke».
+- **Sett og reps:** 1–5 sett per øvelse, alle sett av én øvelse før neste, med tempo, telling og hvile. Øvelser uten reps, som pust og qi gong, kjøres på tid.
+- **Runder på tid:** 30, 45 eller 60 s per øvelse, med 15 s pause (20 s ved 60 s) og 1–4 runder.
+- **Favoritter** lagres med eget navn under Mine økter og startes med ett trykk. Endrer du en favoritt, vises den som «(endret)» til du lagrer. Favorittene blir med i sikkerhetskopien.
+- **I loggen** lagres økta med navn og øvelser og teller mot nakkeminuttene. En daglig rutine hakes av bare når hele rutinen er med, for eksempel alle fem øvelsene i Skulder og nakke.
+
 ## Lyd og tale
 
 Appen bruker telefonens egen norske stemme og toner laget i nettleseren. Begge virker uten nett.
